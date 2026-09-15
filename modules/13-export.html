@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Модуль 13. Импорт и экспорт: автоматизация обмена данными — Учебник Microsoft Access</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../css/responsive.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+</head>
+<body data-module="m13">
+<a class="skip-link" href="#content">Перейти к содержимому</a>
+<main id="content" class="page__content">
+<!--CACHE-START-->
+<article class="module">
+
+<header class="module-header">
+  <h1 class="module-title"><span class="module-title__kicker">Модуль 13</span>Импорт и экспорт: автоматизация обмена данными</h1>
+  <div class="module-header__meta">
+    <span class="chip chip--accent">Блок C. Интерфейс и автоматизация</span>
+    <span class="chip">⏱ 3 ч (2 Т + 1 П)</span>
+    <span class="chip chip--level2">Средний уровень</span>
+  </div>
+</header>
+
+<section class="sec" id="s-goals" data-sec="goals">
+<h2>Цели обучения</h2>
+<p>Аналитик почти никогда не держит результаты только внутри Access: выгрузки уходят в Excel руководству, CSV — смежным системам, PDF — на согласование. Этот модуль закрывает последний контур сквозного маршрута ShopData. По итогам модуля студент сможет:</p>
+<ul>
+<li>выгружать таблицы, запросы и отчёты в XLSX, CSV и PDF через мастер экспорта и понимать, чем отличаются форматы вывода;</li>
+<li>настраивать сохранённые импорты и экспорты («Сохранить шаги импорта/экспорта») и запускать их кнопкой, макросом RunSavedImportExport или из командной строки;</li>
+<li>сознательно выбирать между DoCmd.OutputTo, DoCmd.TransferSpreadsheet и DoCmd.TransferText, опираясь на таблицу сравнения из теории;</li>
+<li>создавать и переносить спецификации импорта/экспорта (кодировка, разделитель, квалификатор) и объяснять, где они физически хранятся;</li>
+<li>решать, когда входящий CSV лучше импортировать снимком, а когда подключить связанной таблицей.</li>
+</ul>
+</section>
+
+<section class="sec" id="s-prereq" data-sec="prereq">
+<h2>Необходимые предварительные знания</h2>
+<p>Модуль опирается на весь пройденный конвейер: вы будете выгружать готовые объекты, а не «сырые» данные. Необходимая база: запросы и соединения (модули 06–08), формы и кнопки (модуль 09), отчёты (модуль 10), макросы (модуль 11) и чтение VBA-процедур с DoCmd (модуль 12). Отдельно пригодится импорт CSV из модуля 04 — здесь мы вывернём его «наизнанку» и займёмся экспортом.</p>
+<ul>
+<li>Если вы не уверены, чем INNER JOIN отличается от LEFT JOIN, — вернитесь к модулю 07: источник экспорта в этом модуле четырёхтабличный.</li>
+<li>Если запись макроса или чтение процедуры с On Error вызывает затруднения, — освежите модули 11 и 12.</li>
+<li>Понадобится учебная база ShopData с запросом qry_ВыручкаПоКатегориям (задание I01 из модуля 08); если его нет, соберите по эталонному SQL из раздела «SQL-код и разбор по строкам» ниже.</li>
+</ul>
+</section>
+
+<section class="sec" id="s-theory" data-sec="theory">
+<h2>Теория</h2>
+<p>Access — не «остров»: анализ живёт в экосистеме, где входящие файлы приходят от маркетплейса и 1С, а результаты уходят в Excel директору, CSV — в систему лояльности, PDF — на согласование договора. В терминологии Access таких канала три. Первый — разовый экспорт объекта через ленту (Внешние данные → Экспорт). Второй — сохранённые операции импорта и экспорта, когда мастер запоминает весь маршрут: объект-источник, путь, формат и параметры, а вы потом нажимаете одну кнопку. Третий — программный экспорт через VBA (DoCmd.*) и макросы, который нужен там, где имя файла или условия меняются динамически.</p>
+<p>Главный источник ошибок — неверный выбор инструмента. DoCmd.OutputTo рендерит объект «как на печать»: умеет PDF, RTF, HTML и Excel, но не даёт контроля над листами и ячейками. DoCmd.TransferSpreadsheet пишет таблицу или запрос в книгу Excel «голыми данными», зато позволяет дописывать листы в существующий файл. DoCmd.TransferText работает с текстовыми форматами (CSV с разделителями, фиксированная ширина) и единственный поддерживает спецификацию — сохранённый набор правил о кодировке, разделителе и квалификаторе. Сводная таблица ниже — шпаргалка, к которой вы будете возвращаться в реальной работе.</p>
+
+<figure class="figure">
+<svg viewBox="0 0 760 250" role="img" aria-label="Схема обмена данными между Access и внешними файлами" style="width:100%;height:auto">
+  <defs>
+    <marker id="arrM13" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L9,4 L0,8 z" fill="#5b7aa8"/>
+    </marker>
+  </defs>
+  <rect x="15" y="35" width="185" height="52" rx="8" fill="#f0f4fa" stroke="#5b7aa8"/>
+  <text x="107" y="57" text-anchor="middle" font-size="13" fill="#1c2b3a">CSV: new_customers.csv</text>
+  <text x="107" y="75" text-anchor="middle" font-size="11" fill="#5a6b80">входящий файл недели</text>
+  <rect x="15" y="150" width="185" height="52" rx="8" fill="#f0f4fa" stroke="#5b7aa8"/>
+  <text x="107" y="172" text-anchor="middle" font-size="13" fill="#1c2b3a">XLSX: orders.xlsx</text>
+  <text x="107" y="190" text-anchor="middle" font-size="11" fill="#5a6b80">входящий файл месяца</text>
+  <rect x="285" y="60" width="190" height="120" rx="10" fill="#e6eefb" stroke="#3d5a80"/>
+  <text x="380" y="88" text-anchor="middle" font-size="14" fill="#1c2b3a">Access: ShopData.accdb</text>
+  <text x="380" y="110" text-anchor="middle" font-size="12" fill="#41546b">staging → таблицы</text>
+  <text x="380" y="130" text-anchor="middle" font-size="12" fill="#41546b">запросы qry_…</text>
+  <text x="380" y="150" text-anchor="middle" font-size="12" fill="#41546b">формы, отчёты rpt_…</text>
+  <text x="380" y="170" text-anchor="middle" font-size="11" fill="#7a8aa0">движок ACE</text>
+  <rect x="560" y="25" width="185" height="48" rx="8" fill="#f0f4fa" stroke="#5b7aa8"/>
+  <text x="652" y="45" text-anchor="middle" font-size="13" fill="#1c2b3a">XLSX: revenue_by_…xlsx</text>
+  <text x="652" y="63" text-anchor="middle" font-size="11" fill="#5a6b80">отчёт директору</text>
+  <rect x="560" y="100" width="185" height="48" rx="8" fill="#f0f4fa" stroke="#5b7aa8"/>
+  <text x="652" y="120" text-anchor="middle" font-size="13" fill="#1c2b3a">CSV: orders_status.csv</text>
+  <text x="652" y="138" text-anchor="middle" font-size="11" fill="#5a6b80">смежная система</text>
+  <rect x="560" y="175" width="185" height="48" rx="8" fill="#f0f4fa" stroke="#5b7aa8"/>
+  <text x="652" y="195" text-anchor="middle" font-size="13" fill="#1c2b3a">PDF: top10_products.pdf</text>
+  <text x="652" y="213" text-anchor="middle" font-size="11" fill="#5a6b80">на согласование</text>
+  <line x1="200" y1="61" x2="280" y2="100" stroke="#5b7aa8" stroke-width="1.5" marker-end="url(#arrM13)"/>
+  <line x1="200" y1="176" x2="280" y2="140" stroke="#5b7aa8" stroke-width="1.5" marker-end="url(#arrM13)"/>
+  <text x="238" y="72" font-size="10" fill="#5a6b80">импорт/связь</text>
+  <text x="238" y="182" font-size="10" fill="#5a6b80">импорт/связь</text>
+  <line x1="475" y1="90" x2="555" y2="55" stroke="#5b7aa8" stroke-width="1.5" marker-end="url(#arrM13)"/>
+  <line x1="475" y1="120" x2="555" y2="122" stroke="#5b7aa8" stroke-width="1.5" marker-end="url(#arrM13)"/>
+  <line x1="475" y1="150" x2="555" y2="192" stroke="#5b7aa8" stroke-width="1.5" marker-end="url(#arrM13)"/>
+  <text x="502" y="40" font-size="10" fill="#5a6b80">TransferSpreadsheet</text>
+  <text x="502" y="94" font-size="10" fill="#5a6b80">TransferText</text>
+  <text x="492" y="230" font-size="10" fill="#5a6b80">OutputTo acFormatPDF</text>
+</svg>
+<figcaption>Рис. 1. Каналы обмена: входящие файлы проходят через staging, исходящие формируются тремя методами DoCmd</figcaption>
+</figure>
+
+<p>Сохранённые операции — «мост» между ручным мастером и автоматизацией. Когда в мастере экспорта вы ставите флажок «Сохранить шаги экспорта», Access записывает не данные, а рецепт: источник, путь, формат, параметры. Операция появляется в панели «Сохранённые операции экспорта» (Внешние данные → Экспорт) и запускается кнопкой «Выполнить», макросом RunSavedImportExport или косвенно — из командной строки через ключ /x, который вызывает макрос, а макрос уже запускает операцию. На этих трёх уровнях и строится автоматизация еженедельных выгрузок.</p>
+
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Критерий</th><th>DoCmd.OutputTo</th><th>DoCmd.TransferSpreadsheet</th><th>DoCmd.TransferText</th></tr></thead>
+<tbody>
+<tr><td>Что экспортирует</td><td>Таблицу, запрос, форму, отчёт</td><td>Таблицу или запрос</td><td>Таблицу или запрос (и импортирует текстовые файлы)</td></tr>
+<tr><td>Форматы</td><td>PDF, XLSX (старый XLS), RTF, TXT, HTML</td><td>XLSX, XLS</td><td>CSV с разделителями, с фиксированной шириной полей; полная настройка через спецификацию</td></tr>
+<tr><td>Форматирование</td><td>Да: отчёт выглядит как на печати</td><td>Нет: «голые» данные</td><td>Нет: только значения</td></tr>
+<tr><td>Спецификация обмена</td><td>Нет</td><td>Нет</td><td>Да: аргумент SpecificationName</td></tr>
+<tr><td>Контроль листов/диапазона</td><td>Нет</td><td>Да: аргумент Range, дописывание листов</td><td>Нет</td></tr>
+<tr><td>Типовое применение</td><td>PDF-версия отчёта руководству</td><td>Еженедельный XLSX с данными</td><td>CSV для смежных систем, загрузка входящих файлов</td></tr>
+<tr><td>Знаменитая ловушка</td><td>Файл занят Excel — ошибка 3051</td><td>Дописывает новый лист вместо перезаписи</td><td>Без спецификации — «плавающие» кодировка и разделитель</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Импорт и связывание — две разные стратегии работы с входящим файлом. Импорт копирует данные внутрь базы: файл больше не нужен, данные можно чистить и преобразовывать (staging-подход из модуля 04). Связанная таблица — «окно» в файл на диске: данные всегда актуальны, запросы читают их на лету, но файл должен существовать по постоянному пути, а структура его не должна меняться. Для еженедельных входящих файлов обычно комбинируют: связанную таблицу используют для быстрой проверки содержимого, импорт через staging — для заливки в рабочие таблицы.</p>
+<p>Наконец, важно понимать, где живут настройки. Спецификации и сохранённые операции Access хранит в скрытых системных таблицах той базы, в которой вы их создали. В разделённой базе (модуль 14) операции экспорта создаются в FE — и у каждого пользователя они свои, поэтому эталонную спецификацию передают коллегам через кнопку «Спецификации» в диспетчере сохранённых операций. Об этом новички забывают, а на разборе проекта это первый вопрос.</p>
+</section>
+
+<section class="sec" id="s-demo" data-sec="demo">
+<h2>Пошаговая демонстрация</h2>
+<p>Настроим выгрузку, которую потом легко автоматизировать: экспорт запроса qry_ВыручкаПоКатегориям в XLSX и в CSV с сохранением шагов обеих операций. Все команды ленты приведены для Access 2016; в 2007–2013 пути совпадают за исключением отдельных надписей.</p>
+<ol class="steps">
+<li>В области навигации выберите запрос <strong>qry_ВыручкаПоКатегориям</strong> — это источник выгрузки. Если его нет, соберите запрос по SQL из следующего раздела.</li>
+<li>Откройте вкладку <strong>Внешние данные</strong> и в группе <strong>Экспорт</strong> нажмите кнопку <strong>Excel</strong>.</li>
+<li>В диалоге «Экспорт — файл Excel» укажите путь <strong>C:\ShopData\export\revenue_by_category.xlsx</strong>, формат файла «Книга Excel (*.xlsx)», флажок «Открыть целевой файл после завершения операции копирования» — по желанию. Нажмите <strong>ОК</strong>.</li>
+<li>Проверьте книгу в Excel (должно быть 5 строк данных с заголовком), закройте её и вернитесь в Access — откроется окно <strong>«Сохранение шагов экспорта»</strong>.</li>
+<li>Установите флажок <strong>«Сохранить шаги экспорта»</strong>, задайте имя операции <strong>«Выручка_категории_XLSX»</strong> и описание «Еженедельная выгрузка выручки по категориям». Нажмите <strong>Сохранить экспорт</strong>. Флажок «Создать задачу Outlook» оставьте выключенным.</li>
+<li>Повторите экспорт в текстовый файл: выделите qry_ВыручкаПоКатегориям, затем <strong>Внешние данные → Экспорт → Текстовый файл</strong>, путь <strong>C:\ShopData\export\revenue_by_category.csv</strong>. Флажок «Экспортировать данные с форматированием и разметкой» <strong>снимите</strong> — иначе Access запишет файл в стиле RTF, непригодный для смежных систем. Нажмите <strong>ОК</strong>.</li>
+<li>В мастере выберите <strong>«С разделителями — поля разделены запятой…»</strong> и нажмите <strong>Дополнительно</strong>: задайте разделитель полей «;», квалификатор текста «"», кодировку <strong>Windows (ANSI)</strong>, первую строку — имена полей. Нажмите <strong>Сохранить как…</strong> и сохраните спецификацию под именем <strong>ExpCSV_Revenue</strong>. Завершите мастер и в окне «Сохранение шагов экспорта» сохраните операцию как <strong>«Выручка_категории_CSV»</strong>.</li>
+<li>Откройте CSV в Блокноте: первая строка — заголовки Category;Revenue, дальше 5 строк данных, десятичный разделитель — точка. Если видите рамки или HTML-разметку, значит, на шаге 6 остался флажок форматирования.</li>
+<li>Запуск без мастера: <strong>Внешние данные → Экспорт → Сохранённые операции экспорта</strong>, выберите «Выручка_категории_XLSX» → <strong>Выполнить</strong> → подтвердите перезапись файла. Здесь же находится кнопка <strong>«Спецификации…»</strong> для передачи спецификаций между базами.</li>
+<li>Автоматизируйте запуск: <strong>Создание → Макрос</strong>, действие <strong>RunSavedImportExport</strong>, аргумент «Имя сохраненной операции импорта и экспорта» = Выручка_категории_XLSX. Сохраните макрос как <strong>mcr_ЭкспортВыручки</strong>.</li>
+<li>Повесьте макрос на кнопку: откройте <strong>frm_Панель</strong> в режиме конструктора, добавьте кнопку и в мастере выберите категорию <strong>«Разное» → «Выполнить макрос»</strong> → mcr_ЭкспортВыручки. Подпишите кнопку «Выгрузка выручки (XLSX)».</li>
+<li>Для PDF-выгрузки отчёта создайте в модуле формы процедуру <strong>btnExportTop10Pdf_Click</strong> с DoCmd.OutputTo — полный код приведён в разделе «Эталонное решение» этого модуля.</li>
+</ol>
+</section>
+
+<section class="sec" id="s-case" data-sec="case">
+<h2>Пример из работы аналитика</h2>
+<p>В понедельник директор магазина ТехноДом собирает планёрку, и аналитику Марии нужно к пятнице закрыть три регулярных ручных работы: отправить коммерческому директору Excel с выручкой по категориям, выгрузить CSV со статусами заказов для подрядчика, который ведёт учёт доставки, и принять входящий файл новых покупателей new_customers.csv от маркетплейса. Раньше это занимало около 40 минут в неделю и регулярно возвращалось с исправлениями: CSV, выгруженный «с форматированием», подрядчик не мог прочитать, а колонка ZipCodePrefix во входящем файле теряла ведущие нули.</p>
+<p>Мария переводит конвейер на сохранённые операции. Создаются две операции экспорта — «Выручка_категории_XLSX» и «Статусы_заказов_CSV» (источник — запрос qry_СтатусыЗаказов, где дата сразу форматируется как FORMAT(OrderDate,"yyyy-mm-dd")), а также спецификация импорта ImpCSV_Customers для еженедельного файла. Обе кнопки выгрузки и кнопка импорта выносятся на frm_Панель. PDF-версия отчёта rpt_Топ10Товаров для руководства формируется одной VBA-кнопкой с датой в имени файла. Итоговая последовательность операций выглядит так:</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Шаг</th><th>Операция</th><th>Объект → файл</th><th>Формат</th><th>Когда и чем запускается</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Импорт «Импорт_покупатели_неделя»</td><td>new_customers.csv → Customers_Staging</td><td>CSV, спецификация ImpCSV_Customers</td><td>Понедельник, кнопка на frm_Панель (RunSavedImportExport)</td></tr>
+<tr><td>2</td><td>Экспорт «Выручка_категории_XLSX»</td><td>qry_ВыручкаПоКатегориям → revenue_by_category.xlsx</td><td>Excel (мастер экспорта)</td><td>Пятница, кнопка на frm_Панель</td></tr>
+<tr><td>3</td><td>Экспорт «Статусы_заказов_CSV»</td><td>qry_СтатусыЗаказов → orders_status.csv</td><td>CSV, спецификация ExpCSV_Orders</td><td>Пятница, макрос RunSavedImportExport</td></tr>
+<tr><td>4</td><td>Отчёт в PDF (код, не операция)</td><td>rpt_Топ10Товаров → top10_products_2018-06-29.pdf</td><td>PDF через DoCmd.OutputTo acFormatPDF</td><td>Пятница, VBA-кнопка на frm_Панель</td></tr>
+</tbody>
+</table>
+</div>
+<p>Обратите внимание на шаг 4: OutputTo вызывается из кода, потому что имя PDF-файла должно меняться каждую неделю. Статичные операции (шаги 1–3) дешевле держать как сохранённые операции — их видно в диспетчере, их легко передать коллеге. После внедрения еженедельная рутина Марии — три нажатия кнопок и одна проверка сумм: выручка по категориям обязана сойтись с эталоном 3 025,50 (по мини-датасету; на полном наборе из раздела «Датасеты» контрольная сумма пересчитывается, но привычка сверять остаётся).</p>
+</section>
+
+<section class="sec" id="s-data" data-sec="data">
+<h2>Исходные таблицы и поля</h2>
+<p>Для экспорта выручки задействованы четыре объекта данных: справочник категорий, товары, строки заказов и шапки заказов (ради статуса). Ниже — фрагменты мини-датасета ShopData, на которых проверяются все примеры модуля.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>CategoryID</th><th>CategoryName</th><th>CategoryNameEn</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>cama_mesa_banho</td><td>bed_bath_table</td></tr>
+<tr><td>2</td><td>beleza_saude</td><td>health_beauty</td></tr>
+<tr><td>3</td><td>informatica_acessorios</td><td>computers_accessories</td></tr>
+<tr><td>4</td><td>moveis_decoracao</td><td>furniture_decor</td></tr>
+<tr><td>5</td><td>automotivo</td><td>auto</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>OrderID</th><th>OrderStatus</th><th>OrderDate</th><th>DeliveredDate</th></tr></thead>
+<tbody>
+<tr><td>O-10001</td><td>delivered</td><td>2017-03-15</td><td>2017-03-24</td></tr>
+<tr><td>O-10002</td><td>delivered</td><td>2017-04-02</td><td>2017-04-15</td></tr>
+<tr><td>O-10003</td><td>delivered</td><td>2017-06-21</td><td>2017-07-01</td></tr>
+<tr><td>O-10005</td><td>shipped</td><td>2017-10-30</td><td>(пусто)</td></tr>
+<tr><td>O-10006</td><td>canceled</td><td>2017-11-05</td><td>(пусто)</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>OrderDetailID</th><th>OrderID</th><th>ProductID</th><th>Quantity</th><th>UnitPrice</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>O-10001</td><td>P-1001</td><td>1</td><td>189.90</td></tr>
+<tr><td>2</td><td>O-10001</td><td>P-2001</td><td>2</td><td>89.90</td></tr>
+<tr><td>5</td><td>O-10003</td><td>P-2002</td><td>3</td><td>45.50</td></tr>
+<tr><td>8</td><td>O-10006</td><td>P-2001</td><td>1</td><td>89.90</td></tr>
+<tr><td>15</td><td>O-10012</td><td>P-1002</td><td>1</td><td>129.90</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ключевые поля модуля: CategoryNameEn — подпись категории в выгрузке (англоязычная, как принято для смежных систем); UnitPrice и Quantity — сомножители выручки; OrderStatus — источник фильтра отмен. Полная схема связей — на рисунке «Схема данных ShopData» из модуля 03.</p>
+</section>
+
+<section class="sec" id="s-sql" data-sec="sql">
+<h2>SQL-код и разбор по строкам</h2>
+<p>Экспорт хорош ровно настолько, насколько корректен его источник. Ниже — SQL запроса qry_ВыручкаПоКатегориям, который мы выгружаем в XLSX и CSV: четырёхтабличное соединение, фильтр отмен, агрегация по категориям и детерминированная сортировка.</p>
+<pre class="code"><code class="lang-sql">SELECT c.CategoryNameEn AS Category,
+       ROUND(SUM(od.UnitPrice * od.Quantity), 2) AS Revenue
+FROM ((Categories AS c
+       INNER JOIN Products AS p ON c.CategoryID = p.CategoryID)
+      INNER JOIN OrderDetails AS od ON p.ProductID = od.ProductID)
+     INNER JOIN Orders AS o ON od.OrderID = o.OrderID
+WHERE o.OrderStatus &lt;&gt; "canceled"
+GROUP BY c.CategoryNameEn
+ORDER BY SUM(od.UnitPrice * od.Quantity) DESC, c.CategoryNameEn;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT c.CategoryNameEn AS Category</code> — наружу отдаём англоязычную подпись: перевод уже хранится в CategoryNameEn с этапа нормализации, а смежные системы не любят кириллицу в ключах.</li>
+<li><code>ROUND(SUM(od.UnitPrice * od.Quantity), 2) AS Revenue</code> — выручка категории как сумма произведений по строкам заказов; ROUND(..., 2) отсекает хвосты вроде 769.4999, чтобы в Excel не появлялась «копеечная» ошибка.</li>
+<li><code>FROM ((Categories AS c INNER JOIN Products AS p ON c.CategoryID = p.CategoryID)</code> — цепочка начинается со справочника; в Access при трёх и более соединениях скобки обязательны, без них движок вернёт «Ошибка синтаксиса в предложении FROM».</li>
+<li><code>INNER JOIN OrderDetails AS od ON p.ProductID = od.ProductID)</code> — раскрываем товары до строк заказов; именно здесь в расчёт входят множители Quantity.</li>
+<li><code>INNER JOIN Orders AS o ON od.OrderID = o.OrderID</code> — подтягиваем шапки заказов ради статуса; связь Orders — OrderDetails в схеме данных настроена с каскадным удалением, поэтому соединение здесь «родное».</li>
+<li><code>WHERE o.OrderStatus &lt;&gt; "canceled"</code> — отменённые заказы не должны попадать в выручку: без фильтра сумма была бы 3 115,40 вместо 3 025,50 — разница ровно 89,90, единственная строка отменённого заказа O-10006.</li>
+<li><code>GROUP BY c.CategoryNameEn</code> — сворачиваем до одной строки на категорию; получится ровно 5 строк по числу категорий мини-датасета.</li>
+<li><code>ORDER BY SUM(od.UnitPrice * od.Quantity) DESC, c.CategoryNameEn;</code> — топ-категория сверху; второе поле делает сортировку детерминированной, поэтому CSV от недели к неделе сравним построчно.</li>
+</ol>
+<p>Для выгрузки статусов заказов используется парный запрос qry_СтатусыЗаказов — он намеренно возвращает дату текстом в ISO-формате: <code>SELECT OrderID, OrderStatus, FORMAT(OrderDate, "yyyy-mm-dd") AS OrderDateISO FROM Orders ORDER BY OrderDate;</code> — без FORMAT Access выгрузил бы даты в региональном формате получателя.</p>
+</section>
+
+<section class="sec" id="s-designer" data-sec="designer">
+<h2>Вариант через конструктор запросов</h2>
+<p>Тот же источник экспорта собирается мышью за пару минут — полезно уметь, когда запрос достался вам «по наследству» и его нужно поправить перед выгрузкой.</p>
+<ol class="steps">
+<li><strong>Создание → Конструктор запросов</strong>; в окне «Добавление таблицы» добавьте Categories, Products, OrderDetails, Orders и закройте окно.</li>
+<li>Проверьте линии соединений: они подтянулись из схемы данных автоматически. Если где-то линия отсутствует, перетащите ключ мышью (ProductID на ProductID, OrderID на OrderID) — Access создаст INNER JOIN.</li>
+<li>Перетащите в сетку поля CategoryNameEn, UnitPrice, Quantity и OrderStatus.</li>
+<li>На ленте <strong>Конструктор</strong> нажмите <strong>Итоги (Σ)</strong> — появится строка «Групповая операция». Для CategoryNameEn оставьте «Группировка», для OrderStatus выберите «Условие отбора».</li>
+<li>Замените поле UnitPrice на вычисляемое: в пустой столбец впишите <strong>Доход: [UnitPrice]*[Quantity]</strong>, а в строке «Групповая операция» для него выберите <strong>Sum</strong>.</li>
+<li>В строке «Условие отбора» под OrderStatus введите <strong>&lt;&gt;"canceled"</strong> — отменённые заказы уйдут из выгрузки.</li>
+<li>В строке «Сортировка» для столбца Доход выберите <strong>по убыванию</strong>. Свойства поля (правая кнопка → «Свойства») — «Формат: Основной» и «Число десятичных знаков: 2», чтобы не зависеть от ROUND в выражении.</li>
+<li>Переключитесь в SQL-режим (правая кнопка по вкладке запроса → <strong>Режим SQL</strong>) и сверьте текст с эталоном из предыдущего раздела: Access сам расставит скобки соединений — они должны совпасть.</li>
+<li>Сохраните запрос как <strong>qry_ВыручкаПоКатегориям</strong> и запустите экспорт по шагам демонстрации.</li>
+</ol>
+<p>Замечание про Σ-режим: Access пишет агрегат в SQL как SUM(...), но в сетке QBE имя столбца по умолчанию станет «SumOfДоход» — переименуйте его в Revenue, чтобы заголовок в XLSX не приходилось править вручную.</p>
+</section>
+
+<section class="sec" id="s-result" data-sec="result">
+<h2>Ожидаемый результат</h2>
+<div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>Книга revenue_by_category.xlsx содержит один лист с заголовком и 5 строками данных; CSV revenue_by_category.csv — те же 5 строк с разделителем «;» и квалификатором «"». Обе операции сохранены под именами «Выручка_категории_XLSX» и «Выручка_категории_CSV», спецификация ExpCSV_Revenue доступна в диспетчере сохранённых операций. Итог столбца Revenue — 3 025,50.</p></div>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Category</th><th>Revenue</th></tr></thead>
+<tbody>
+<tr><td>bed_bath_table</td><td>769.50</td></tr>
+<tr><td>informatica_acessorios</td><td>746.50</td></tr>
+<tr><td>moveis_decoracao</td><td>640.00</td></tr>
+<tr><td>health_beauty</td><td>631.50</td></tr>
+<tr><td>automotivo</td><td>238.00</td></tr>
+<tr><td><strong>Итого</strong></td><td><strong>3 025.50</strong></td></tr>
+</tbody>
+</table>
+</div>
+<p>Сверьте с расчётом вручную: bed_bath_table — это 189,90 (O-10001) + 189,90 (O-10008) + 2 × 129,90 (O-10004) + 129,90 (O-10012) = 769,50. health_beauty меньше, чем было бы без фильтра статусов, именно на 89,90 отменённого O-10006. Если ваши цифры отличаются — вернитесь к разбору WHERE в разделе SQL.</p>
+</section>
+
+<section class="sec" id="s-mistakes" data-sec="mistakes">
+<h2>Типичные ошибки</h2>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> подрядчик возвращает CSV: «файл не читается, видны рамки и теги». <strong>Причина:</strong> при экспорте в текстовый файл остался флажок «Экспортировать данные с форматированием и разметкой» — Access записал таблицу в стиле RTF/HTML. <strong>Лечение:</strong> повторить экспорт с выключенным флажком, выбрать «С разделителями», настроить кодировку и разделитель в окне «Дополнительно» и сразу сохранить спецификацию.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> в выгрузке выручка 3 115,40 вместо 3 025,50. <strong>Причина:</strong> источник экспорта без фильтра статуса — в сумму попала строка отменённого заказа O-10006 (89,90). <strong>Лечение:</strong> добавить в источник условия WHERE o.OrderStatus &lt;&gt; "canceled" и пересохранить операцию экспорта; проверять итог перед отправкой.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> у коллеги макрос падает с сообщением «Не удаётся найти спецификацию импорта». <strong>Причина:</strong> спецификация хранится в системных таблицах той базы, где её создали, — в вашей копии FE, а не у коллеги. <strong>Лечение:</strong> в диспетчере сохранённых операций нажать «Спецификации…», выгрузить её в XML и передать коллегам для импорта; эталонную FE держать у того, кто настраивает обмен.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> VBA-кнопка падает с ошибкой 3051 «Файл занят» или 70 «Отказано в доступе». <strong>Причина:</strong> целевой файл открыт в Excel на момент экспорта. <strong>Лечение:</strong> закрывать книгу перед запуском; в коде — обработчик On Error с понятным сообщением, в котором указано имя занятого файла (см. эталонное решение).</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> в книге Excel появились два листа: qry_ВыручкаПоКатегориям и qry_ВыручкаПоКатегориям1. <strong>Причина:</strong> TransferSpreadsheet не перезаписывает существующий лист, а дописывает копию с новым именем. <strong>Лечение:</strong> перед экспортом удалять старый файл (Kill после проверки Dir) либо использовать фиксированное имя листа и очищать его перед записью.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> в CSV даты выглядят как 3/15/2017, и смежная система не принимает файл. <strong>Причина:</strong> Access выгрузил даты в региональном формате. <strong>Лечение:</strong> в запросе-источнике обернуть дату в FORMAT(OrderDate, "yyyy-mm-dd") AS OrderDateISO — формат перестаёт зависеть от настроек Windows.</p></div>
+</section>
+
+<section class="sec" id="s-tips" data-sec="tips">
+<h2>Практические советы</h2>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Кладите выгрузки в отдельный каталог (C:\ShopData\export\) и добавляйте дату в имя файла из кода: <code>strFile = "C:\ShopData\export\revenue_" &amp; Format(Date, "yyyy-mm-dd") &amp; ".xlsx"</code>. Через месяц вы сможете найти любую выгрузку, а старые файлы не будут перезаписываться.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Заведите привычку контрольной суммы: перед отправкой сверяйте итог выгрузки с эталоном (по мини-датасету — 3 025,50). Разница, кратная цене одной строки, почти всегда означает пропавший фильтр статуса или дубль соединения.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Спецификации и сохранённые операции создаются в той базе, где вы нажали «Сохранить». В разделённой базе настраивайте обмен в эталонной FE и раздавайте спецификации кнопкой «Спецификации…» — иначе каждый пользователь соберёт свой набор настроек, и однажды они разойдутся.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Если входящий файл нужен «как есть» и обновляется на месте (например, лог выгрузок подрядчика), связывайте его как таблицу, а не импортируйте: данные всегда актуальны, а место в базе не тратится. Для заливки в рабочие таблицы всё равно нужен импорт через staging.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Ночные выгрузки без участия человека — это цепочка «Планировщик Windows → Access → макрос»: <code>MSACCESS.EXE C:\ShopData\shopdata_fe.accdb /x mcr_УтреннийИмпорт</code>. Ключ /x выполняет макрос сразу после открытия; база на момент запуска не должна быть открыта другими пользователями.</p></div>
+</section>
+
+<section class="sec" id="s-homework" data-sec="homework">
+<h2>Самостоятельная работа</h2>
+<p>Соберите на своей учебной базе тот же конвейер, что в примере Марии: один сохранённый экспорт в XLSX, один экспорт CSV со спецификацией, одна спецификация импорта входящего файла и две кнопки на frm_Панель (макрос и VBA). Отметьте шаги по мере выполнения — прогресс сохраняется автоматически.</p>
+<ul class="checklist" data-checklist="m13-self">
+<li><label><input type="checkbox" data-ck="m13:1"><span>Настроить сохранённый экспорт «Выручка_категории_XLSX» для qry_ВыручкаПоКатегориям в C:\ShopData\export\revenue_by_category.xlsx</span></label></li>
+<li><label><input type="checkbox" data-ck="m13:2"><span>Экспортировать qry_ВыручкаПоКатегориям в CSV (разделитель «;», Windows ANSI) и сохранить спецификацию ExpCSV_Revenue</span></label></li>
+<li><label><input type="checkbox" data-ck="m13:3"><span>Создать спецификацию импорта ImpCSV_Customers для еженедельного файла new_customers.csv: ZipCodePrefix — Короткий текст 5</span></label></li>
+<li><label><input type="checkbox" data-ck="m13:4"><span>Связать new_customers.csv как связанную таблицу и убедиться, что запрос читает актуальный файл</span></label></li>
+<li><label><input type="checkbox" data-ck="m13:5"><span>Создать макрос mcr_ЭкспортВыручки (RunSavedImportExport) и повесить его на кнопку frm_Панель</span></label></li>
+<li><label><input type="checkbox" data-ck="m13:6"><span>Добавить VBA-кнопку btnExportTop10Pdf_Click (DoCmd.OutputTo в PDF) с обработчиком ошибок</span></label></li>
+<li><label><input type="checkbox" data-ck="m13:7"><span>Сверить итог выгрузки с эталоном 3 025,50 и записать контрольные суммы в README</span></label></li>
+</ul>
+
+<article class="task-card" id="task-i05" data-task="I05">
+  <div class="task-card__head">
+    <span class="chip chip--level2">Средний уровень</span>
+    <span class="chip">⏱ 30 мин</span>
+    <span class="chip chip--accent">Задание I05</span>
+  </div>
+  <h3>I05. Экспорт по кнопке</h3>
+  <p><strong>Цель:</strong> превратить ручную выгрузку в повторяемую операцию: сохранённый экспорт qry_ВыручкаПоКатегориям в XLSX, ручной экспорт в CSV со спецификацией и спецификация импорта для еженедельного входящего файла.</p>
+  <p><strong>Исходные таблицы:</strong> Categories, Products, OrderDetails, Orders; запрос qry_ВыручкаПоКатегориям (из задания I01); форма frm_Панель.</p>
+  <p><strong>Используемые поля:</strong> CategoryNameEn, UnitPrice, Quantity, OrderStatus.</p>
+  <p><strong>Пошаговый план:</strong></p>
+  <ol>
+    <li>Откройте qry_ВыручкаПоКатегориям и выгрузите в XLSX (Внешние данные → Экспорт → Excel), сохранив шаги как «Выручка_категории_XLSX».</li>
+    <li>Выгрузите тот же запрос в CSV без форматирования; в окне «Дополнительно» задайте разделитель «;», квалификатор «"», кодировку Windows (ANSI); сохраните спецификацию ExpCSV_Revenue и операцию «Выручка_категории_CSV».</li>
+    <li>Сымитируйте входящий файл: экспортируйте 3–5 строк Customers в файл new_customers.csv, затем удалите у одной записи ведущий ноль в ZipCodePrefix (01310 → 1310), чтобы проверить спецификацию.</li>
+    <li>Настройте импорт new_customers.csv в Customers_Staging (Внешние данные → Новый источник данных → Из файла → Текстовый файл): ZipCodePrefix — Короткий текст 5. Сохраните спецификацию ImpCSV_Customers и операцию «Импорт_покупатели_неделя».</li>
+    <li>Создайте макрос mcr_ЭкспортВыручки с действием RunSavedImportExport и повесьте его на кнопку frm_Панель.</li>
+    <li>Запустите сохранённую операцию импорта заново на испорченном файле и убедитесь, что ZipCodePrefix сохранил вид «1310» как текст, не «1310,00» как число.</li>
+  </ol>
+  <div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>В диспетчере сохранённых операций три записи: «Выручка_категории_XLSX», «Выручка_категории_CSV», «Импорт_покупатели_неделя»; спецификации ExpCSV_Revenue и ImpCSV_Customers сохранены. Кнопка на frm_Панель одной командой создаёт XLSX с 5 строками (итог 3 025,50). Повторный импорт испорченного файла не превращает 1310 в число.</p></div>
+  <p><strong>Критерии оценки:</strong></p>
+  <ul>
+    <li>Сохранённая операция XLSX воспроизводится кнопкой без диалогов мастера (кроме подтверждения перезаписи).</li>
+    <li>CSV открывается Блокнотом: разделитель «;», заголовок в первой строке, нет HTML-разметки.</li>
+    <li>Спецификация импорта сохранена, тип ZipCodePrefix — текст; повторный импорт не теряет ведущие нули.</li>
+    <li>Кнопка frm_Панель запускает RunSavedImportExport; имя макроса соответствует соглашению mcr_.</li>
+  </ul>
+  <div class="callout callout--tip"><div class="callout__title">Подсказка</div><p>Если мастер импорта «угадал» ZipCodePrefix числом, не исправляйте тип руками в staging после факта — откройте окно «Дополнительно», поправьте тип поля и сохраните спецификацию: тогда правило зафиксируется для всех будущих файлов.</p></div>
+  <details class="solution">
+    <summary>Показать эталонное решение</summary>
+    <div>
+      <p>Шаги 1–2 выполняются мастерами экспорта точно по разделу «Пошаговая демонстрация»: XLSX — с флажком «Сохранить шаги экспорта», CSV — без «форматирования и разметки», через «Дополнительно» с сохранением спецификации ExpCSV_Revenue.</p>
+      <p>Шаг 3 (подготовка тестового входящего файла): создайте запрос qry_ЭкспортПокупателей и выгрузите его текстовым файлом, либо воспользуйтесь готовым CSV от «маркетплейса». Файл new_customers.csv выглядит так:</p>
+      <pre class="code"><code class="lang-sql">CustomerID;CustomerName;ZipCodePrefix;City;State;Segment
+C-0009;Igor Martins;04567;sao paulo;SP;Retail
+C-0010;Julia Ramos;1310;recife;PE;Wholesale</code></pre>
+      <p>Шаг 4 (импорт): Внешние данные → Новый источник данных → Из файла → Текстовый файл → выбрать new_customers.csv → «Импорт в новую таблицу» → флажок «Первый столбец содержит заголовки» → разделитель «;» → на шаге полей выделите ZipCodePrefix и задайте тип «Короткий текст», размер 5 → Готово → флажок «Сохранить шаги импорта», имя операции «Импорт_покупатели_неделя».</p>
+      <p>Шаг 6 (проверка): запустите сохранённый импорт заново и выполните проверочный запрос:</p>
+      <pre class="code"><code class="lang-sql">SELECT CustomerID, CustomerName, ZipCodePrefix
+FROM Customers_Staging
+ORDER BY CustomerID;</code></pre>
+      <p>Ожидается: значения 04567 и 1310 выровнены как текст по левому краю, ни одно не превратилось в число. Если увидели 1310 с правого края — спецификация не применилась: запустите операцию именно из диспетчера сохранённых операций, а не ручным мастером.</p>
+      <p>Шаг 5 (кнопка): Создание → Макрос → действие RunSavedImportExport → аргумент «Выручка_категории_XLSX» → сохранить как mcr_ЭкспортВыручки. На frm_Панель в режиме конструктора добавить кнопку, в мастере выбрать «Разное → Выполнить макрос» → mcr_ЭкспортВыручки, подпись «Выгрузка выручки (XLSX)».</p>
+    </div>
+  </details>
+  <p><strong>Дополнительное усложнение:</strong> замените фиксированное имя XLSX на вариант с датой: напишите VBA-кнопку с DoCmd.TransferSpreadsheet, добавляющую Format(Date, "yyyy-mm-dd") к имени файла, и сравните поведение с сохранённой операцией — какая из них удобнее для недельного архива и почему.</p>
+</article>
+</section>
+
+<section class="sec" id="s-quiz" data-sec="quiz">
+<h2>Тест по модулю</h2>
+<section class="quiz" data-quiz="m13">
+<script type="application/json">
+{
+  "title": "Тест: Импорт и экспорт в Access",
+  "passScore": 80,
+  "questions": [
+    {
+      "q": "Какой вызов выгрузит отчёт rpt_Топ10Товаров в PDF?",
+      "options": [
+        "DoCmd.OutputTo acOutputReport, rpt_Топ10Товаров, acFormatPDF, strFile",
+        "DoCmd.TransferText acExportDelim, strSpec, rpt_Топ10Товаров, strFile",
+        "DoCmd.TransferSpreadsheet acExport, acSpreadsheetTypeExcel12Xml, rpt_Топ10Товаров, strFile",
+        "DoCmd.RunSavedImportExport rpt_Топ10Товаров"
+      ],
+      "correct": [0],
+      "explain": "OutputTo — единственный из перечисленных, кто умеет отрендерить отчёт в PDF. TransferText и TransferSpreadsheet работают с таблицами и запросами, а RunSavedImportExport запускает сохранённую операцию по её имени, а не объект по имени отчёта."
+    },
+    {
+      "q": "Что хранит сохранённый экспорт и что происходит при повторном запуске?",
+      "options": [
+        "Путь к файлу и формат вывода",
+        "Имя объекта-источника в базе",
+        "Снимок данных на момент сохранения операции",
+        "Имя операции, по которому её можно запустить позже"
+      ],
+      "correct": [0, 1, 3],
+      "multi": true,
+      "explain": "Данные не копируются: при запуске экспорт выполняется заново по текущим данным, поэтому выгрузка всегда свежая. Хранится только рецепт: источник, путь, формат, параметры."
+    },
+    {
+      "q": "Почему для выгрузки CSV в смежную систему выбрали TransferText, а не TransferSpreadsheet?",
+      "options": [
+        "TransferText поддерживает спецификацию: кодировка, разделитель, квалификатор текста",
+        "TransferSpreadsheet не умеет экспортировать запросы",
+        "TransferText создаёт файлы меньшего размера за счёт сжатия",
+        "TransferSpreadsheet работает только с отчётами"
+      ],
+      "correct": [0],
+      "explain": "Оба метода экспортируют запросы, но параметры CSV настраиваются только в TransferText через сохранённую спецификацию. TransferSpreadsheet пишет в Excel-форматы, где разделители не нужны."
+    },
+    {
+      "q": "Что нужно согласовать с получателем перед настройкой экспорта CSV?",
+      "options": [
+        "Кодировку файла (ANSI или Unicode)",
+        "Символ-разделитель полей",
+        "Квалификатор текста и наличие строки заголовков",
+        "Количество листов в книге Excel"
+      ],
+      "correct": [0, 1, 2],
+      "multi": true,
+      "explain": "CSV — одностраничный текстовый формат: кодировка, разделитель и квалификатор определяют, сможет ли смежная система разобрать файл. Листы — атрибут книги Excel, к CSV отношения не имеет."
+    },
+    {
+      "q": "Где Access хранит сохранённые спецификации импорта и экспорта?",
+      "options": [
+        "В скрытых системных таблицах той базы, в которой их создали",
+        "В реестре Windows рядом с параметрами Office",
+        "В отдельном файле спецификаций рядом с базой",
+        "В свойствах конкретного запроса"
+      ],
+      "correct": [0],
+      "explain": "Спецификации живут в системных таблицах базы (MSysIMEXSpecs). Поэтому спецификация из вашей копии FE невидима коллеге, пока вы не передадите её кнопкой «Спецификации» в диспетчере сохранённых операций."
+    },
+    {
+      "q": "Чем связанная таблица отличается от импортированной копии CSV-файла?",
+      "options": [
+        "Связанная всегда читает файл на диске, импорт фиксирует снимок данных на момент выполнения",
+        "Связанная не требует указания пути к файлу",
+        "Импортированная копия обновляется автоматически при изменении CSV",
+        "Связанная таблица не поддерживается в запросах"
+      ],
+      "correct": [0],
+      "explain": "Импорт копирует данные внутрь базы, связанная таблица — лишь окно в файл: данные всегда актуальны, но файл должен существовать по постоянному пути."
+    },
+    {
+      "q": "Какими способами можно запустить сохранённый экспорт без повторного прохождения мастера?",
+      "options": [
+        "Из панели «Сохранённые операции экспорта» кнопкой «Выполнить»",
+        "Макросом RunSavedImportExport, привязанным к кнопке формы",
+        "Из командной строки: msaccess.exe база.accdb /x ИмяМакроса, где макрос запускает сохранённую операцию",
+        "Автоматически при каждом открытии базы без дополнительной настройки"
+      ],
+      "correct": [0, 1, 2],
+      "multi": true,
+      "explain": "Третий путь — цепочка «Планировщик Windows — Access — макрос — RunSavedImportExport», так настраивают ночные выгрузки. Само по себе открытие базы сохранённые операции не выполняет."
+    }
+  ]
+}
+</script>
+</section>
+</section>
+
+<section class="sec" id="s-control" data-sec="control">
+<h2>Контрольные вопросы</h2>
+<ol>
+<li>Что именно сохраняет «Сохранённый экспорт» и что произойдёт при его запуске через месяц, если данные и запросы изменились?</li>
+<li>Чем OutputTo и TransferSpreadsheet различаются при выгрузке одного и того же запроса? Почему отчёт вообще нельзя выгрузить TransferSpreadsheet?</li>
+<li>Зачем нужна спецификация импорта и почему она «не переезжает» сама на другой компьютер? Как передать её коллеге?</li>
+<li>Когда входящий CSV лучше связать таблицей, а не импортировать? Приведите критерий из вашей практики.</li>
+<li>Опишите цепочку автоматизации «Планировщик Windows → Access → выгрузка»: какие объекты Access в ней участвуют и что должно быть закрыто на момент запуска?</li>
+</ol>
+</section>
+
+<section class="sec" id="s-criteria" data-sec="criteria">
+<h2>Критерии проверки</h2>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Критерий</th><th>Отлично</th><th>Допустимо</th><th>Брак</th></tr></thead>
+<tbody>
+<tr><td>Сохранённый экспорт XLSX</td><td>Настроен, запускается кнопкой frm_Панель, файл открывается без ошибок</td><td>Настроен, но запускается только из панели сохранённых операций</td><td>Экспорт не воспроизводится или файл повреждён</td></tr>
+<tr><td>CSV и спецификация экспорта</td><td>Разделитель и кодировка согласованы с получателем, спецификация ExpCSV_Revenue сохранена</td><td>Экспорт работает, но настройки не сохранены как спецификация</td><td>Файл выгружен «с форматированием» и непригоден для смежной системы</td></tr>
+<tr><td>Спецификация импорта</td><td>Сохранена, повторно выполняется без ошибок, ZipCodePrefix остаётся текстом</td><td>Сохранена, но типы полей не проверены на испорченном файле</td><td>ZipCodePrefix импортируется числом, ведущие нули теряются</td></tr>
+<tr><td>Автоматизация</td><td>Макрос mcr_ЭкспортВыручки на кнопке frm_Панель запускает сохранённую операцию</td><td>Запуск сохранённой операции возможен, но только вручную из панели</td><td>Автоматизации нет, каждый экспорт — заново через мастер</td></tr>
+<tr><td>VBA-кнопка PDF</td><td>DoCmd.OutputTo с датой в имени файла и обработчиком On Error</td><td>Код работает, но ошибок не обрабатывает</td><td>Код не запускается или имя отчёта указано неверно</td></tr>
+<tr><td>Контроль данных</td><td>Итог выгрузки сверен с эталоном 3 025,50, контрольные суммы записаны</td><td>Сверка выполнена частично, итог известен по памяти</td><td>Суммы не сверялись, расхождений не заметили</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="sec" id="s-solution" data-sec="solution">
+<h2>Эталонное решение</h2>
+<details class="solution">
+<summary>Показать полное решение самостоятельной работы</summary>
+<div>
+<p><strong>Шаг 1. Сохранённый экспорт XLSX.</strong> Выделите qry_ВыручкаПоКатегориям → Внешние данные → Экспорт → Excel → путь C:\ShopData\export\revenue_by_category.xlsx → ОК → закройте Excel → в окне «Сохранение шагов экспорта» задайте имя «Выручка_категории_XLSX» и сохраните. Проверка: в книге 6 строк (заголовок + 5 данных), итог столбца Revenue = 3 025,50.</p>
+<p><strong>Шаг 2. CSV со спецификацией.</strong> Внешние данные → Экспорт → Текстовый файл → revenue_by_category.csv, флажок «с форматированием» снят → ОК → «С разделителями» → Дополнительно: разделитель «;», квалификатор «"», кодировка Windows (ANSI) → Сохранить как… → ExpCSV_Revenue → Готово → сохраните операцию «Выручка_категории_CSV». Проверка в Блокноте: первая строка Category;Revenue, далее 5 строк данных.</p>
+<p><strong>Шаг 3. Спецификация импорта.</strong> Внешние данные → Новый источник данных → Из файла → Текстовый файл → new_customers.csv → «Импорт в новую таблицу» → первый столбец содержит заголовки → разделитель «;» → тип ZipCodePrefix — Короткий текст, размер 5 → в окне «Дополнительно» нажмите «Сохранить как…» → ImpCSV_Customers → Готово → флажок «Сохранить шаги импорта» → имя «Импорт_покупатели_неделя».</p>
+<p><strong>Шаг 4. Связанная таблица.</strong> Внешние данные → Новый источник данных → Из файла → Текстовый файл → new_customers.csv → «Создать связанную таблицу…» → имя new_customers_link. Проверка: запрос SELECT * FROM new_customers_link; показывает содержимое файла; измените файл в Блокноте и обновите таблицу — данные изменились.</p>
+<p><strong>Шаг 5. Кнопка-макрос.</strong> Создание → Макрос → действие RunSavedImportExport → аргумент «Выручка_категории_XLSX» → сохранить как mcr_ЭкспортВыручки. На frm_Панель добавить кнопку (мастер: Разное → Выполнить макрос → mcr_ЭкспортВыручки).</p>
+<p><strong>Шаг 6. VBA-кнопка PDF.</strong> Откройте frm_Панель в конструкторе, добавьте кнопку btnExportTop10Pdf, в свойстве «Нажатие кнопки» выберите [Процедура обработки событий] и вставьте код:</p>
+<pre class="code"><code class="lang-vba">Private Sub btnExportTop10Pdf_Click()
+    ' Экспорт отчёта rpt_Топ10Товаров в PDF с датой в имени файла
+    Dim strFile As String
+    On Error GoTo ErrHandler
+    strFile = "C:\ShopData\export\top10_products_" &amp; _
+              Format(Date, "yyyy-mm-dd") &amp; ".pdf"
+    If Len(Dir(strFile)) &gt; 0 Then Kill strFile   ' убираем вчерашний файл
+    DoCmd.OutputTo acOutputReport, "rpt_Топ10Товаров", acFormatPDF, strFile
+    MsgBox "PDF готов: " &amp; strFile, vbInformation
+    Exit Sub
+ErrHandler:
+    MsgBox "Экспорт не выполнен. Ошибка " &amp; Err.Number &amp; ": " &amp; Err.Description, _
+           vbExclamation, "Экспорт PDF"
+End Sub</code></pre>
+<p>Как читать код: On Error GoTo переводит выполнение на обработчик при любой ошибке (например, 3051 — файл занят); Dir проверяет существование файла, Kill удаляет его; OutputTo рендерит отчёт в PDF «как на печать». Если rpt_Топ10Товаров у вас ещё не собран (задание I04), временно подставьте любой существующий отчёт.</p>
+<p><strong>Шаг 7. Контрольные суммы.</strong> Откройте XLSX: bed_bath_table = 769,50; informatica_acessorios = 746,50; moveis_decoracao = 640,00; health_beauty = 631,50; automotivo = 238,00; итог 3 025,50. Запишите значения в README рядом с датой проверки — это пригодится на защите итогового проекта.</p>
+</div>
+</details>
+</section>
+
+<section class="sec" id="s-summary" data-sec="summary">
+<h2>Краткое резюме</h2>
+<p>Вы закрыли последний контур конвейера: данные приходят через специфицированный импорт и связаны с источниками, а результаты уходят наружу тремя инструментами — OutputTo для PDF-отчётов «как на печать», TransferSpreadsheet для «голых» XLSX и TransferText для CSV со спецификацией; всё повторяющееся оформлено сохранёнными операциями и запускается кнопкой, макросом RunSavedImportExport или ключом /x из планировщика. Осталась эксплуатационная сторона жизни базы: как не потерять 2 ГБ, кто держит таблицы, когда сжимать и как разделять базу на BE и FE — это модуль 14, после которого вы будете готовы к итоговому проекту.</p>
+</section>
+
+</article>
+<!--CACHE-END-->
+</main>
+<script src="../js/app.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress.js"></script>
+<script src="../js/export.js"></script>
+<script src="../js/navigation.js"></script>
+<script src="../js/quiz.js"></script>
+</body>
+</html>

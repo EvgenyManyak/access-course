@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 760" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <title>Последовательность действий макроса mcr_ЭкспортМесяца</title>
+  <defs>
+    <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5c6a7a"/>
+    </marker>
+    <style>
+      .act { fill: #ffffff; stroke: #a4373a; stroke-width: 1.6; }
+      .acthead { fill: #a4373a; }
+      .cond { fill: #fff8ec; stroke: #b45309; stroke-width: 1.6; }
+      .err { fill: #fdeaea; stroke: #b91c1c; stroke-width: 1.6; }
+      .flow { stroke: #5c6a7a; stroke-width: 2; fill: none; marker-end: url(#arr3); }
+      .headtxt { fill: #ffffff; font-weight: 700; font-size: 13px; }
+      .actname { fill: #a4373a; font-weight: 700; font-size: 13px; }
+      .arg { fill: #1e2630; font-size: 12px; }
+      .bg { fill: #f7f9fc; }
+      .lbl { fill: #5c6a7a; font-size: 12px; font-weight: 700; }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="900" height="760" rx="12"/>
+
+  <text x="30" y="40" font-weight="700" font-size="16" fill="#1e2630">Макрос mcr_ЭкспортМесяца: последовательность действий (модуль 11)</text>
+  <text x="30" y="62" fill="#5c6a7a" font-size="12.5" font-style="italic">Конструктор макросов, Каталог действий; запуск — кнопкой на форме frm_Товары (задание V01)</text>
+
+  <!-- 1. Кнопка -->
+  <g transform="translate(90,100)">
+    <rect class="act" width="420" height="86" rx="10"/>
+    <rect class="acthead" width="420" height="30" rx="10"/>
+    <rect class="acthead" y="15" width="420" height="15"/>
+    <text class="headtxt" x="14" y="20">СОБЫТИЕ: нажатие кнопки «Экспорт месяца»</text>
+    <text class="arg" x="14" y="52">frm_Товары → свойства кнопки → События</text>
+    <text class="arg" x="14" y="72">→ Нажатие кнопки → [Встроенный макрос]</text>
+  </g>
+
+  <!-- 2. OpenQuery -->
+  <g transform="translate(90,220)">
+    <rect class="act" width="420" height="86" rx="10"/>
+    <rect class="acthead" width="420" height="30" rx="10"/>
+    <rect class="acthead" y="15" width="420" height="15"/>
+    <text class="headtxt" x="14" y="20">1. OpenQuery</text>
+    <text class="arg" x="14" y="52">Имя запроса: qry_ВыручкаПоКатегориям</text>
+    <text class="arg" x="14" y="72">Режим: Таблица данных (результат в окне)</text>
+  </g>
+
+  <!-- 3. Условие If -->
+  <g transform="translate(90,340)">
+    <polygon class="cond" points="210,0 420,52 210,104 0,52"/>
+    <text class="actname" x="120" y="44" fill="#b45309">2. If [Forms]![frm_Товары]![Месяц] Not Null</text>
+    <text class="arg" x="120" y="66">условие доступно с Access 2010</text>
+  </g>
+
+  <!-- 4. OutputTo -->
+  <g transform="translate(90,478)">
+    <rect class="act" width="420" height="108" rx="10"/>
+    <rect class="acthead" width="420" height="30" rx="10"/>
+    <rect class="acthead" y="15" width="420" height="15"/>
+    <text class="headtxt" x="14" y="20">3. OutputTo</text>
+    <text class="arg" x="14" y="52">Объект: qry_ВыручкаПоКатегориям · Тип: XLSX</text>
+    <text class="arg" x="14" y="72">Имя файла: export\выручка_&amp;_Format(Date(),"yyyy-mm")</text>
+    <text class="arg" x="14" y="92">Автозапуск: Нет (файл просто создаётся)</text>
+  </g>
+
+  <!-- 5. MessageBox -->
+  <g transform="translate(90,620)">
+    <rect class="act" width="420" height="86" rx="10"/>
+    <rect class="acthead" width="420" height="30" rx="10"/>
+    <rect class="acthead" y="15" width="420" height="15"/>
+    <text class="headtxt" x="14" y="20">4. MessageBox</text>
+    <text class="arg" x="14" y="52">Сообщение: «Выгрузка готова в папке export\»</text>
+    <text class="arg" x="14" y="72">Сигнал: Да · Тип: Информация</text>
+  </g>
+
+  <!-- Стрелки основного потока -->
+  <path class="flow" d="M300,186 L300,220"/>
+  <path class="flow" d="M300,306 L300,340"/>
+  <path class="flow" d="M300,444 L300,478"/>
+  <path class="flow" d="M300,586 L300,620"/>
+
+  <!-- Ветка «иначе» -->
+  <path class="flow" d="M510,392 L590,392 L590,520 L510,520"/>
+  <text class="lbl" x="520" y="380">Иначе</text>
+  <g transform="translate(600,470)">
+    <rect class="err" width="250" height="100" rx="10"/>
+    <text class="actname" x="14" y="26" fill="#b91c1c">MessageBox (предупреждение)</text>
+    <text class="arg" x="14" y="50">«Выберите месяц перед экспортом»</text>
+    <text class="arg" x="14" y="70">→ StopMacro: экспорт не выполняется,</text>
+    <text class="arg" x="14" y="88">пользователь видит понятное сообщение</text>
+  </g>
+  <path class="flow" d="M590,444 L600,470" stroke-dasharray="4 4"/>
+
+  <!-- Замечания -->
+  <g transform="translate(600,100)">
+    <rect x="0" y="0" width="270" height="200" rx="10" fill="#ffffff" stroke="#d9e1ea"/>
+    <text class="actname" x="14" y="26">Заметки</text>
+    <text class="arg" x="14" y="52">• Порядок действий важен:</text>
+    <text class="arg" x="14" y="72">сначала данные, потом файл,</text>
+    <text class="arg" x="14" y="92">потом сообщение пользователю.</text>
+    <text class="arg" x="14" y="120">• Если нужен полный контроль —</text>
+    <text class="arg" x="14" y="140">конвертируйте макрос в VBA</text>
+    <text class="arg" x="14" y="160">(лента → Преобразовать макрос</text>
+    <text class="arg" x="14" y="180">в код Visual Basic, модуль 12).</text>
+  </g>
+</svg>

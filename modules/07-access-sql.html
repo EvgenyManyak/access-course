@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Модуль 07. Access SQL и соединения таблиц — Учебник Microsoft Access</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../css/responsive.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+</head>
+<body data-module="m07">
+<a class="skip-link" href="#content">Перейти к содержимому</a>
+<main id="content" class="page__content">
+<!--CACHE-START-->
+<article class="module">
+
+<header class="module-header">
+  <h1 class="module-title"><span class="module-title__kicker">Модуль 07</span>Access SQL и соединения таблиц</h1>
+  <div class="module-header__meta">
+    <span class="chip chip--accent">Блок B. Запросы</span>
+    <span class="chip">⏱ 3 ч (2 Т + 1 П)</span>
+    <span class="chip chip--level2">Средний уровень</span>
+  </div>
+</header>
+
+<section class="sec" id="s-goals" data-sec="goals">
+<h2>Цели обучения</h2>
+<p>Конструктор запросов из модуля 06 — это лишь визуальная надстройка над текстом на языке SQL, который Access хранит вместе с каждым сохранённым запросом. В этом модуле мы снимаем капот: научимся читать, писать и осознанно редактировать SQL на диалекте JET/ACE, соединять таблицы связями всех типов и распознавать опасные ситуации вроде декартова произведения. Эти навыки напрямую переносятся на другие СУБД, но с поправками на особенности Access, которые мы сведём в справочную таблицу. По итогам модуля студент сможет:</p>
+<ul>
+<li>переключать запрос в режим SQL, читать сгенерированный конструктором текст и писать запросы вручную в порядке SELECT…FROM…WHERE…ORDER BY;</li>
+<li>применять псевдонимы AS для таблиц и столбцов, конкатенацию амперсандом и учитывать особенности диалекта: даты в решётках, Like со звёздочкой, IIF, TOP, DISTINCTROW, квадратные скобки;</li>
+<li>соединять от двух до пяти таблиц через INNER JOIN, LEFT JOIN и RIGHT JOIN, строить анти-join по шаблону LEFT JOIN … IS NULL и SELF-JOIN таблицы к самой себе;</li>
+<li>диагностировать декартово произведение по числу строк, объяснять его причину (пропущенный ON) и вылечивать соединением по цепочке ключей;</li>
+<li>склеивать списки запросами UNION и UNION ALL и понимать, когда дубликаты нужно убирать, а когда — сохранять.</li>
+</ul>
+</section>
+
+<section class="sec" id="s-prereq" data-sec="prereq">
+<h2>Необходимые предварительные знания</h2>
+<p>Модуль 07 опирается на схему данных ShopData и навыки работы в конструкторе запросов, полученные в предыдущих главах. Если вы уверенно читаете схему связей «один-ко-многим» и умеете фильтровать запрос в бланке QBE, сложности будет ровно столько, сколько нужно: SQL здесь вводится через то, что вы уже видели мышью. Перед стартом проверьте:</p>
+<ul>
+<li><strong>Модуль 03 (ключи и связи).</strong> Нужно свободно называть, кто родитель, кто ребёнок и по каким полям соединяются Customers→Orders, Orders→OrderDetails, Products→OrderDetails, Employees→Orders.</li>
+<li><strong>Модуль 06 (конструктор запросов).</strong> Нужно уметь добавлять таблицы в бланк, писать условия Between…And, Like и Is Null, создавать вычисляемые поля.</li>
+<li><strong>Базовый SQL из любого курса или опыта.</strong> Достаточно понимания, что SELECT перечисляет столбцы, FROM — источник, WHERE — фильтр.</li>
+<li><strong>Excel.</strong> Опыт с ВПР и удалением дубликатов поможет провести аналогии: JOIN — это ВПР, который возвращает все пары строк, а не одну.</li>
+</ul>
+<div class="callout callout--important"><div class="callout__title">Важно</div><p>Если вы не создавали связи из задания E02 и в схеме данных ShopData нет ссылочной целостности, JOIN-ы в этом модуле формально заработают, но на реальных данных такие запросы тихо теряют строки. Вернитесь к модулю 03 и восстановите связи — это два клика на таблицу.</p></div>
+</section>
+
+<section class="sec" id="s-theory" data-sec="theory">
+<h2>Теория</h2>
+<p>Когда вы сохраняете запрос, созданный в бланке QBE, Access складывает в файл базы не картинку с сеткой, а текст на внутреннем диалекте SQL (Jet/ACE SQL). Режим SQL — просто второй взгляд на тот же объект: конструктор переводит ваши клики в текст, а текст обратно в бланк. Для аналитика это значит, что чтение SQL — способ увидеть замысел любого чужого запроса, а письмо SQL — способ делать то, что мышью неудобно или невозможно: SELF-JOIN, UNION, аккуратный анти-join. Логический порядок работы запроса легко запомнить: сначала берутся таблицы из FROM, потом строки фильтруются по WHERE, затем формируются столбцы SELECT и в конце применяется сортировка ORDER BY.</p>
+<p>Два приёма делают текст запроса взрослым. Первый — псевдонимы: запись <code>FROM Customers AS c</code> позволяет дальше писать короткое <code>c.CustomerName</code>, а в SELF-JOIN без двух разных псевдонимов одной таблицы вообще не обойтись. Второй — конкатенация амперсандом: выражение <code>c.City &amp; ", " &amp; c.State</code> склеивает город и штат в одно поле результата, что удобнее для выгрузок и отчётов, чем два отдельных столбца. Строковые константы в Access пишутся в двойных кавычках, а имена с пробелами или совпадающие с ключевыми словами берутся в квадратные скобки: <code>[Имя поля]</code>.</p>
+<p>Диалект Access отличает его от привычных по курсам T-SQL и MySQL. Ниже — таблица замен, которую стоит держать под рукой: она же пригодится при переносе запросов «на сервер» и обратно. Отдельно запомните про подстановочные знаки: в интерфейсе Access и в DAO работает ANSI-89 со звёздочкой <code>Like "p-*"</code>, а в ADO и при включённом параметре «Синтаксис, совместимый с SQL Server (ANSI 92)» — процент <code>Like "p-%"</code>. Переключатель находится в <strong>Файл → Параметры → Объекты и конструкторы</strong>.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Конструкция</th><th>Access SQL (JET/ACE)</th><th>Привычный T-SQL / MySQL</th><th>Комментарий</th></tr></thead>
+<tbody>
+<tr><td>Дата в условии</td><td><code>Between #2018-01-01# And #2018-03-31#</code></td><td><code>'2018-01-01'</code></td><td>Решётки обязательны; кавычки дают сравнение со строкой и тихо ломают отбор.</td></tr>
+<tr><td>Шаблон в Like</td><td><code>Like "*мышь*"</code> (ANSI-89)</td><td><code>Like '%мышь%'</code></td><td>В ADO и при ANSI-92 — процент. В интерфейсе % найдёт буквальный процент.</td></tr>
+<tr><td>Условный выбор</td><td><code>IIF(условие; а; б)</code></td><td><code>CASE WHEN … END</code></td><td>IIF можно вкладывать (до 29 уровней), но читается он хуже CASE.</td></tr>
+<tr><td>Первые N строк</td><td><code>SELECT TOP 5</code>, <code>TOP 25 PERCENT</code></td><td><code>LIMIT 5</code></td><td>TOP пишется сразу после SELECT; дублируется свойством запроса «Возврат значений Top N».</td></tr>
+<tr><td>Уникальные строки</td><td><code>SELECT DISTINCTROW …</code></td><td><code>SELECT DISTINCT …</code></td><td>DISTINCTROW убирает повторы по ключам исходных таблиц — незаменим при JOIN «один-ко-многим».</td></tr>
+<tr><td>Имя с пробелом</td><td><code>[Имя поля]</code></td><td>кавычки или бэктики</td><td>Скобки также спасают, если имя совпало с ключевым словом.</td></tr>
+<tr><td>Склейка строк</td><td><code>"а" &amp; "б"</code></td><td><code>CONCAT()</code> или <code>+</code></td><td>Амперсанд; функция CONCAT в Access SQL запрещена.</td></tr>
+<tr><td>Строка-константа</td><td><code>"VIP"</code></td><td><code>'VIP'</code></td><td>Одиночные кавычки работают, но стандарт курса — двойные (ANSI-89).</td></tr>
+</tbody>
+</table>
+</div>
+<p>Соединения описываются в FROM конструкцией <code>таблица1 INNER JOIN таблица2 ON условие</code>. INNER JOIN оставляет только пары, у которых условие совпало; LEFT JOIN сохраняет все строки левой таблицы и подставляет NULL там, где пары справа нет; RIGHT JOIN — зеркально. Каждый JOIN добавляет ровно одно условие ON, поэтому для соединения четырёх таблиц нужно три условия, а при трёх и более соединениях Access требует круглые скобки, которые задают порядок попарного склеивания.</p>
+<figure class="figure">
+<svg viewBox="0 0 720 200" role="img" aria-label="Три типа соединения: INNER JOIN, LEFT JOIN, RIGHT JOIN">
+  <g font-size="13" font-family="sans-serif" fill="#333">
+    <text x="90" y="28" text-anchor="middle">INNER JOIN</text>
+    <circle cx="60" cy="90" r="46" fill="#2b6cb0" fill-opacity="0.28" stroke="#2b6cb0"/>
+    <circle cx="120" cy="90" r="46" fill="#dd6b20" fill-opacity="0.28" stroke="#dd6b20"/>
+    <text x="90" y="166" text-anchor="middle">только совпавшие пары</text>
+    <text x="30" y="42">c</text>
+    <text x="152" y="42">o</text>
+    <text x="330" y="28" text-anchor="middle">LEFT JOIN</text>
+    <circle cx="300" cy="90" r="46" fill="#2b6cb0" fill-opacity="0.55" stroke="#2b6cb0"/>
+    <circle cx="360" cy="90" r="46" fill="#dd6b20" fill-opacity="0.12" stroke="#dd6b20"/>
+    <text x="330" y="166" text-anchor="middle">все строки слева + пары</text>
+    <text x="270" y="42">c</text>
+    <text x="392" y="42">o</text>
+    <text x="570" y="28" text-anchor="middle">RIGHT JOIN</text>
+    <circle cx="540" cy="90" r="46" fill="#2b6cb0" fill-opacity="0.12" stroke="#2b6cb0"/>
+    <circle cx="600" cy="90" r="46" fill="#dd6b20" fill-opacity="0.55" stroke="#dd6b20"/>
+    <text x="570" y="166" text-anchor="middle">все строки справа + пары</text>
+    <text x="510" y="42">c</text>
+    <text x="632" y="42">o</text>
+  </g>
+</svg>
+<figcaption>Рис. 1. Три типа объединения таблиц: темнее закрашено то множество строк, которое вернёт запрос (пример для Customers и Orders)</figcaption>
+</figure>
+<p>Наконец, UNION — это не соединение по ключам, а приклейка списков: строки второго запроса дописываются под строками первого, поэтому у обеих частей должно быть одинаковое число и совместимые типы столбцов. UNION вычищает дубликаты, UNION ALL оставляет всё как есть и работает быстрее. Декартово произведение — результат соединения без условия ON: каждая строка первой таблицы прикладывается к каждой строке второй, и счётчик строк перемножается. Это главная ловушка модуля, и к ней мы вернёмся с живым примером из 15 позиций и 8 покупателей.</p>
+</section>
+
+<section class="sec" id="s-demo" data-sec="demo">
+<h2>Пошаговая демонстрация</h2>
+<p>Проведём первый запрос от мыши до текста и обратно: соберём в конструкторе три таблицы, заглянем в сгенерированный SQL, перепишем его руками и сохраним как <code>qry_Заказы1кв2018</code>. Этот запрос мы потом разберём построчно в секции SQL и повторим с его сверки в секции результата.</p>
+<ol class="steps">
+<li>Откройте базу ShopData.accdb и на вкладке <strong>Создание</strong> нажмите <strong>Конструктор запросов</strong>.</li>
+<li>В окне <strong>Добавление таблицы</strong> выберите по очереди <strong>Customers</strong>, <strong>Orders</strong>, <strong>Employees</strong>, нажимая <strong>Добавить</strong>, затем <strong>Закрыть</strong>. Access сам протянет линии связей: c→o по CustomerID, e→o по ManagerID.</li>
+<li>Правый клик по заголовку бланка запроса → <strong>Режим SQL</strong> (или вкладка <strong>Конструктор → Результат → Представление → Режим SQL</strong>). Access покажет текст с двумя INNER JOIN и скобками — это тот же ваш запрос, просто в другом представлении.</li>
+<li>Полностью замените текст на ручной вариант из секции SQL (запрос 1): псевдонимы <code>c</code>, <code>o</code>, <code>e</code>, условие по датам в решётках и сортировка.</li>
+<li>Нажмите <strong>Выполнить</strong> (кнопка с красным восклицательным знаком на вкладке <strong>Конструктор</strong>). Внизу окна сверяйте строку «Запись N из …» — должно быть 3.</li>
+<li>Вернитесь: правый клик по заголовку → <strong>Режим конструктора</strong>. Access разложил текст по бланку: поля — в строке «Поле», условие <code>Between #2018-01-01# And #2018-03-31#</code> — в строке «Условие отбора».</li>
+<li>Сохраните запрос: <strong>Ctrl+S</strong>, имя <code>qry_Заказы1кв2018</code> — с обязательным префиксом <code>qry_</code>.</li>
+<li>Снова откройте режим SQL и замените условие на февраль: <code>Between #2018-02-01# And #2018-02-28#</code>. Выполните — останется одна строка O-10008. Так редактирование текста заменяет возню с бланком.</li>
+<li>Для тренировки чтения откройте любой запрос из модуля 06 в режиме SQL и найдите знакомые элементы: амперсанды в вычисляемых полях, решётки в датах, звёздочку в Like.</li>
+</ol>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Кнопка режима SQL доступна и как стрелка на кнопке «Представление» слева на ленте. Привыкайте переключаться туда-обратно: параллельный взгляд «бланк ↔ текст» — самый быстрый способ выучить диалект Access.</p></div>
+</section>
+
+<section class="sec" id="s-case" data-sec="case">
+<h2>Пример из работы аналитика</h2>
+<p>В понедельник утром директор возвращается с квартальной планёрки и просит три вещи. Первая: «паспорт заказов» за I квартал 2018 года — каждый заказ с датой, именем и городом покупателя и фамилией менеджера, чтобы показать, кто из продавцов что привёз. Вторая: список товаров, которые мы до сих пор ни разу не продали, — он собирается решать, что вывести из ассортимента. Третья: схема подчинённости отдела продаж, потому что уволился сотрудник и надо передать его клиентов.</p>
+<p>Первое желание — классическое соединение трёх таблиц: Orders с Customers и Employees, с фильтром по датам в решётках и сортировкой по дате. Второе — анти-join: товары слева, продажи справа, а затем отбор строк, у которых справа пусто (LEFT JOIN … IS NULL). Третье — SELF-JOIN: таблица Employees дважды под двумя псевдонимами, где левая копия — сотрудник, а правая — его руководитель. Любой из этих трёх запросов в бланке QBE собирается с трудом или не собирается вовсе, зато в SQL каждый занимает пять строк.</p>
+<p>Что именно делаем:</p>
+<ol>
+<li>Строим <code>qry_Заказы1кв2018</code>: три таблицы, две пары псевдонимов, Between по датам — и сверяем, что вернулись 3 строки (O-10007, O-10008, O-10009).</li>
+<li>Строим <code>qry_НезаказанныеТовары</code>: LEFT JOIN Products к OrderDetails и отбор по <code>od.OrderDetailID IS NULL</code> — на расширенном ассортименте возвращается товар P-5002.</li>
+<li>Строим <code>qry_КтоКомуПодчиняется</code>: SELF-JOIN Employees по ManagerID — шесть строк, у менеджеров руководитель пустой.</li>
+<li>Каждый результат показываем директору со счётчиком строк, потому что именно число строк — главный индикатор того, что соединение написано верно.</li>
+</ol>
+</section>
+
+<section class="sec" id="s-data" data-sec="data">
+<h2>Исходные таблицы и поля</h2>
+<p>В модуле работают пять таблиц ShopData. Для SELF-JOIN мы добавляем в Employees поле <code>ManagerID</code> (Длинное целое, ссылка на Employees.EmployeeID) — это разрешённое расширение учебной базы: начальники отдела (Ana Souza и Maria Oliveira) не имеют руководителя, остальные подчиняются по городу. Для анти-join добавляем товар <code>P-5002 «Компрессор автомобильный»</code> (категория 5), который ещё не встречался в продажах — без него список «незаказанных» был бы пуст. Ниже — строки, используемые в примерах; полные справочники смотрите в спецификации датасета.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>OrderID</th><th>CustomerID</th><th>ManagerID</th><th>OrderStatus</th><th>OrderDate</th></tr></thead>
+<tbody>
+<tr><td>O-10001</td><td>C-0001</td><td>2</td><td>delivered</td><td>2017-03-15</td></tr>
+<tr><td>O-10007</td><td>C-0006</td><td>1</td><td>delivered</td><td>2018-01-17</td></tr>
+<tr><td>O-10008</td><td>C-0007</td><td>3</td><td>delivered</td><td>2018-02-14</td></tr>
+<tr><td>O-10009</td><td>C-0002</td><td>1</td><td>delivered</td><td>2018-03-08</td></tr>
+<tr><td>O-10010</td><td>C-0008</td><td>6</td><td>processing</td><td>2018-04-22</td></tr>
+</tbody>
+</table>
+</div>
+<p>Таблица Orders: 12 строк, ключевые поля для соединений — CustomerID и ManagerID.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>CustomerID</th><th>CustomerName</th><th>City</th><th>State</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td>C-0001</td><td>Ana Ribeiro</td><td>sao paulo</td><td>SP</td><td>Retail</td></tr>
+<tr><td>C-0002</td><td>Bruno Carvalho</td><td>rio de janeiro</td><td>RJ</td><td>VIP</td></tr>
+<tr><td>C-0006</td><td>Felipe Alves</td><td>porto alegre</td><td>RS</td><td>Wholesale</td></tr>
+<tr><td>C-0007</td><td>Gabriela Lima</td><td>salvador</td><td>BA</td><td>VIP</td></tr>
+<tr><td>C-0008</td><td>Henrique Souza</td><td>manaus</td><td>AM</td><td>Retail</td></tr>
+</tbody>
+</table>
+</div>
+<p>Таблица Customers: 8 строк, всего по одному на каждый CustomerID из Orders.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>EmployeeID</th><th>EmployeeName</th><th>ManagerID</th><th>Role</th><th>City</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Ana Souza</td><td>—</td><td>Менеджер</td><td>sao paulo</td></tr>
+<tr><td>2</td><td>Pedro Santos</td><td>1</td><td>Оператор</td><td>sao paulo</td></tr>
+<tr><td>3</td><td>Maria Oliveira</td><td>—</td><td>Менеджер</td><td>rio de janeiro</td></tr>
+<tr><td>4</td><td>Lucas Ferreira</td><td>1</td><td>Оператор</td><td>curitiba</td></tr>
+<tr><td>5</td><td>Julia Pereira</td><td>3</td><td>Аналитик</td><td>belo horizonte</td></tr>
+<tr><td>6</td><td>Rafael Lima</td><td>3</td><td>Оператор</td><td>salvador</td></tr>
+</tbody>
+</table>
+</div>
+<p>Таблица Employees: 6 строк; прочерк означает NULL в поле ManagerID.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>ProductID</th><th>ProductName</th><th>CategoryID</th></tr></thead>
+<tbody>
+<tr><td>P-1001</td><td>Набор постельного белья 2-сп</td><td>1</td></tr>
+<tr><td>P-3001</td><td>Беспроводная мышь</td><td>3</td></tr>
+<tr><td>P-5001</td><td>Насос для шин</td><td>5</td></tr>
+<tr><td>P-5002</td><td>Компрессор автомобильный</td><td>5</td></tr>
+</tbody>
+</table>
+</div>
+<p>Таблица Products (фрагмент): после добавления P-5002 в справочнике 9 товаров, из них в OrderDetails встречаются 8. Таблица OrderDetails в примерах используется как правая сторона анти-join: в ней 15 строк, ключевые поля — OrderID, ProductID, OrderDetailID.</p>
+</section>
+
+<section class="sec" id="s-sql" data-sec="sql">
+<h2>SQL-код и разбор по строкам</h2>
+<p>Разберём семь запросов — от разогрева до UNION. Для каждого приводится полный текст и пояснение каждой значимой строки; результаты сверены с мини-датасетом.</p>
+<p><strong>Запрос 0. Разогрев: псевдонимы столбцов и конкатенация.</strong></p>
+<pre class="code"><code class="lang-sql">SELECT c.CustomerName,
+       c.City &amp; ", " &amp; c.State AS CityState
+FROM Customers AS c
+WHERE c.Segment = "VIP"
+ORDER BY c.CustomerName;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT c.CustomerName,</code> — первый столбец результата: имя покупателя; префикс c указывает таблицу через псевдоним.</li>
+<li><code>c.City &amp; ", " &amp; c.State AS CityState</code> — амперсанд склеивает город, запятую и штат в одно поле; AS даёт столбцу результата имя CityState.</li>
+<li><code>FROM Customers AS c</code> — источник данных; псевдоним c короче полного имени таблицы и будет обязателен при соединениях.</li>
+<li><code>WHERE c.Segment = "VIP"</code> — строковый фильтр в двойных кавычках (ANSI-89); остаются C-0002 и C-0007.</li>
+<li><code>ORDER BY c.CustomerName;</code> — сортировка по алфавиту; точка с запятой завершает оператор.</li>
+</ol>
+<p>Результат — 2 строки: Bruno Carvalho (rio de janeiro, RJ) и Gabriela Lima (salvador, BA).</p>
+<p><strong>Запрос 1. Три таблицы: заказы I квартала 2018 (запрос из demo и case).</strong></p>
+<pre class="code"><code class="lang-sql">SELECT o.OrderID, o.OrderDate,
+       c.CustomerName, c.City,
+       e.EmployeeName AS Manager
+FROM (Customers AS c
+      INNER JOIN Orders AS o
+          ON c.CustomerID = o.CustomerID)
+      INNER JOIN Employees AS e
+          ON o.ManagerID = e.EmployeeID
+WHERE o.OrderDate Between #2018-01-01# And #2018-03-31#
+ORDER BY o.OrderDate;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT o.OrderID, o.OrderDate,</code> — паспорт заказа: номер и дата из таблицы заказов.</li>
+<li><code>c.CustomerName, c.City,</code> — имя и город покупателя; эти поля существуют только в Customers и приходят через соединение.</li>
+<li><code>e.EmployeeName AS Manager</code> — фамилия менеджера; псевдоним AS превращает EmployeeName в понятный столбец Manager.</li>
+<li><code>FROM (Customers AS c INNER JOIN Orders AS o ON c.CustomerID = o.CustomerID)</code> — первая пара соединяется в скобках: каждый заказ прикладывается к своему покупателю.</li>
+<li><code>INNER JOIN Employees AS e ON o.ManagerID = e.EmployeeID</code> — третья таблица присоединяется к результату первой пары; при трёх и более JOIN Access требует скобки, задающие порядок попарного склеивания.</li>
+<li><code>WHERE o.OrderDate Between #2018-01-01# And #2018-03-31#</code> — фильтр дат в решётках: срабатывает до формирования столбцов и оставляет заказы января–марта 2018.</li>
+<li><code>ORDER BY o.OrderDate;</code> — итоговая сортировка по возрастанию даты.</li>
+</ol>
+<p>Результат — 3 строки: O-10007, O-10008, O-10009 (полная таблица в секции «Ожидаемый результат»). Если бы ManagerID не нашёлся в Employees, строка была бы потеряна — именно поэтому INNER JOIN требует связи из модуля 03.</p>
+<p><strong>Запрос 2. Четыре таблицы: позиции заказов с товарами и покупателями.</strong></p>
+<pre class="code"><code class="lang-sql">SELECT o.OrderID,
+       c.CustomerName,
+       p.ProductName,
+       od.Quantity
+FROM ((Orders AS o
+       INNER JOIN Customers AS c
+           ON o.CustomerID = c.CustomerID)
+       INNER JOIN OrderDetails AS od
+           ON o.OrderID = od.OrderID)
+       INNER JOIN Products AS p
+           ON od.ProductID = p.ProductID
+WHERE o.OrderDate Between #2018-01-01# And #2018-03-31#
+ORDER BY o.OrderID, p.ProductName;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT o.OrderID,</code> — номер заказа, к которому относится позиция.</li>
+<li><code>c.CustomerName,</code> — покупатель приходит через заказ: прямого ключа у OrderDetails к Customers нет.</li>
+<li><code>p.ProductName,</code> — название товара из справочника Products.</li>
+<li><code>od.Quantity</code> — количество из строки продажи; псевдоним od обязателен, чтобы не путать OrderID заказа и ключи позиций.</li>
+<li><code>FROM ((Orders AS o INNER JOIN Customers AS c ON o.CustomerID = c.CustomerID)</code> — первая пара в двойных скобках: заказ + покупатель.</li>
+<li><code>INNER JOIN OrderDetails AS od ON o.OrderID = od.OrderID)</code> — раскрываем заказ в позиции; заказов 3, позиций по ним 4.</li>
+<li><code>INNER JOIN Products AS p ON od.ProductID = p.ProductID</code> — к каждой позиции прикладываем товар; четыре таблицы — три условия ON.</li>
+<li><code>WHERE o.OrderDate Between #2018-01-01# And #2018-03-31#</code> — тот же фильтр квартала, применённый к полю заказа.</li>
+<li><code>ORDER BY o.OrderID, p.ProductName;</code> — двойная сортировка: сначала заказы, внутри заказа — товары по алфавиту.</li>
+</ol>
+<p>Результат — 4 строки: O-10007 (Витамин C 1000 мг — 1, Насос для шин — 2), O-10008 (Набор постельного белья 2-сп — 1), O-10009 (Беспроводная мышь — 2).</p>
+<p><strong>Запрос 3. Анти-join: товары без продаж.</strong></p>
+<pre class="code"><code class="lang-sql">SELECT p.ProductID, p.ProductName
+FROM Products AS p
+     LEFT JOIN OrderDetails AS od
+         ON p.ProductID = od.ProductID
+WHERE od.OrderDetailID IS NULL;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT p.ProductID, p.ProductName</code> — показываем только справочник товаров; поля продаж в результат не выводим.</li>
+<li><code>FROM Products AS p</code> — левая таблица: хотим сохранить все 9 товаров, включая никогда не продававшиеся.</li>
+<li><code>LEFT JOIN OrderDetails AS od ON p.ProductID = od.ProductID</code> — левое соединение: у проданных товаров появятся пары-продажи, у непроданных поля od станут NULL.</li>
+<li><code>WHERE od.OrderDetailID IS NULL;</code> — отбираем строки, где пара не нашлась. Это и есть анти-join: «левые без правых».</li>
+</ol>
+<p>Результат — 1 строка: P-5002, Компрессор автомобильный. На INNER JOIN тот же текст вернул бы 15 строк пар, и P-5002 исчез бы — в этом практическая разница LEFT и INNER.</p>
+<p><strong>Запрос 4. RIGHT JOIN для полноты картины.</strong></p>
+<pre class="code"><code class="lang-sql">SELECT p.ProductName, od.OrderID
+FROM OrderDetails AS od
+     RIGHT JOIN Products AS p
+         ON od.ProductID = p.ProductID;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT p.ProductName, od.OrderID</code> — товар и заказ, в котором он продавался (или пусто).</li>
+<li><code>FROM OrderDetails AS od</code> — левая сторона в паре; заметим, что это 15 строк продаж.</li>
+<li><code>RIGHT JOIN Products AS p ON od.ProductID = p.ProductID;</code> — правое соединение сохраняет все строки правой таблицы: к 15 совпавшим парам добавляется P-5002 с NULL в OrderID — итого 16 строк.</li>
+</ol>
+<p>Любой RIGHT JOIN переписывается в LEFT JOIN переменой мест таблиц; конструктор Access показывает оба варианта в окне «Параметры объединения».</p>
+<p><strong>Запрос 5. SELF-JOIN: кто кому подчиняется.</strong></p>
+<pre class="code"><code class="lang-sql">SELECT e1.EmployeeName AS Сотрудник,
+       e2.EmployeeName AS Руководитель
+FROM Employees AS e1
+     LEFT JOIN Employees AS e2
+         ON e1.ManagerID = e2.EmployeeID
+ORDER BY e1.EmployeeID;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT e1.EmployeeName AS Сотрудник,</code> — левая копия таблицы играет роль сотрудника.</li>
+<li><code>e2.EmployeeName AS Руководитель</code> — правая копия играет роль руководителя; без псевдонимов различить две копии Employees было бы невозможно.</li>
+<li><code>FROM Employees AS e1</code> — первая копия: все 6 сотрудников.</li>
+<li><code>LEFT JOIN Employees AS e2 ON e1.ManagerID = e2.EmployeeID</code> — таблица соединяется сама с собой: ключ сотрудника ищется в ключах руководителей; LEFT сохраняет менеджеров, у которых ManagerID пуст.</li>
+<li><code>ORDER BY e1.EmployeeID;</code> — сортировка по табельному номеру, чтобы список читался по структуре отдела.</li>
+</ol>
+<p>Результат — 6 строк: у Ana Souza и Maria Oliveira руководитель пустой (NULL), Pedro Santos и Lucas Ferreira подчиняются Ana Souza, Julia Pereira и Rafael Lima — Maria Oliveira.</p>
+<p><strong>Запрос 6. Декартово произведение: сначала ошибка, потом лечение.</strong></p>
+<pre class="code"><code class="lang-sql">SELECT od.OrderDetailID, c.CustomerName
+FROM OrderDetails AS od, Customers AS c;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT od.OrderDetailID, c.CustomerName</code> — по виду всё безобидно: номер позиции и имя покупателя.</li>
+<li><code>FROM OrderDetails AS od, Customers AS c;</code> — старый синтаксис «таблицы через запятую» без условия ON: Access прикладывает каждую из 15 позиций к каждому из 8 покупателей.</li>
+</ol>
+<div class="callout callout--important"><div class="callout__title">Важно</div><p>Результат — 120 строк (15 × 8), и каждая строка бессмысленна: позиция O-10001/P-1001 «встречается» и у Ana Ribeiro, и у Henrique Souza. Запрос выполнится без единой ошибки — диагностика только по счётчику строк. Лечение — соединение по цепочке ключей: OrderDetails связан с Orders по OrderID, а Orders — с Customers по CustomerID.</p></div>
+<pre class="code"><code class="lang-sql">SELECT od.OrderDetailID, c.CustomerName
+FROM (Orders AS o
+      INNER JOIN OrderDetails AS od
+          ON o.OrderID = od.OrderID)
+      INNER JOIN Customers AS c
+          ON o.CustomerID = c.CustomerID;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT od.OrderDetailID, c.CustomerName</code> — те же столбцы, что и в ошибочном варианте.</li>
+<li><code>FROM (Orders AS o INNER JOIN OrderDetails AS od ON o.OrderID = od.OrderID)</code> — каждая позиция прикреплена к своему заказу: 15 пар.</li>
+<li><code>INNER JOIN Customers AS c ON o.CustomerID = c.CustomerID;</code> — пары дополняются покупателем заказа: снова 15 строк, теперь осмысленных.</li>
+</ol>
+<p><strong>Запрос 7. UNION и UNION ALL: города покупателей и сотрудников.</strong> Первый шаг сохраняем как <code>qry_ГородаВсе</code>:</p>
+<pre class="code"><code class="lang-sql">SELECT c.City, "Клиент" AS Кто
+FROM Customers AS c
+UNION ALL
+SELECT e.City, "Сотрудник" AS Кто
+FROM Employees AS e;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT c.City, "Клиент" AS Кто</code> — первая часть списка: города покупателей с меткой «Клиент».</li>
+<li><code>UNION ALL</code> — приклейка списков без вычистки дубликатов; обе части обязаны иметь одинаковое число столбцов.</li>
+<li><code>SELECT e.City, "Сотрудник" AS Кто</code> — вторая часть: города сотрудников с меткой «Сотрудник».</li>
+</ol>
+<p>Результат — 14 строк (8 городов покупателей + 6 городов сотрудников). Замените UNION ALL на UNION — останется 8 уникальных городов: belo horizonte, curitiba, manaus, porto alegre, recife, rio de janeiro, salvador, sao paulo. Второй шаг — подсчёт строк по городам. Access не допускает подзапрос в FROM, поэтому строим запрос поверх сохранённого <code>qry_ГородаВсе</code> (агрегаты подробно — в модуле 08):</p>
+<pre class="code"><code class="lang-sql">SELECT City, COUNT(*) AS ВсегоЧеловек
+FROM qry_ГородаВсе
+GROUP BY City
+ORDER BY ВсегоЧеловек DESC, City;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT City, COUNT(*) AS ВсегоЧеловек</code> — город и число строк списка с этим городом.</li>
+<li><code>FROM qry_ГородаВсе</code> — источник не таблица, а сохранённый UNION-запрос: так Access обходит запрет подзапросов в FROM.</li>
+<li><code>GROUP BY City</code> — строки сворачиваются по городу перед подсчётом.</li>
+<li><code>ORDER BY ВсегоЧеловек DESC, City;</code> — сортировка по убыванию счётчика, при равенстве — по алфавиту.</li>
+</ol>
+<p>Результат — 8 строк: sao paulo — 3, belo horizonte, curitiba, rio de janeiro и salvador — по 2, manaus, porto alegre и recife — по 1; сумма счётчиков равна 14 и сходится с числом строк UNION ALL.</p>
+<p>Для закрепления таблицы диалекта — пример DISTINCTROW: запрос <code>SELECT DISTINCTROW c.CustomerName FROM Customers AS c INNER JOIN Orders AS o ON c.CustomerID = o.CustomerID</code> вернёт 8 имён вместо 12 строк заказов, убрав повторы по ключу соединения.</p>
+</section>
+
+<section class="sec" id="s-designer" data-sec="designer">
+<h2>Вариант через конструктор запросов</h2>
+<p>Тот же запрос 1 (заказы I квартала 2018) собирается мышью за пару минут, и важно уметь оба пути: бланк быстрее для простых вещей, SQL — для соединений с хитростями. Схема действий такая:</p>
+<ol class="steps">
+<li><strong>Создание → Конструктор запросов</strong>; в окне <strong>Добавление таблицы</strong> добавьте Customers, Orders, Employees и закройте окно. Линии связей Access протянет сам — если линии нет, перетащите CustomerID из Customers на CustomerID в Orders.</li>
+<li>Перетащите в бланк поля: OrderID и OrderDate из Orders, CustomerName и City из Customers, EmployeeName из Employees.</li>
+<li>Двойной клик по линии c→o открывает окно <strong>Параметры объединения</strong>. Пункт 1 — «строки из обеих таблиц» (это INNER JOIN), пункт 2 — «все из Customers» (LEFT JOIN), пункт 3 — «все из Orders» (RIGHT JOIN). Выберите пункт 1 и закройте окно.</li>
+<li>В строке <strong>Условие отбора</strong> под OrderDate введите <code>Between #2018-01-01# And #2018-03-31#</code> — Access сохранит решётки как есть.</li>
+<li>В строке <strong>Сортировка</strong> под OrderDate выберите «по возрастанию».</li>
+<li>Нажмите <strong>Выполнить</strong> и сверьте: 3 записи, начиная с O-10007.</li>
+<li>Переключитесь в <strong>Режим SQL</strong> и сравните текст с ручным вариантом из секции SQL: конструктор поставит те же скобки и псевдонимы (может дать Employees_1 вместо e — это нормально).</li>
+<li>Сохраните запрос как <code>qry_Заказы1кв2018</code>.</li>
+</ol>
+<p>Мышью удобно и переключать тип соединения: пункт 2 в «Параметрах объединения» мгновенно превращает запрос в анти-join-заготовку — останется дописать в WHERE условие <code>IS NULL</code> по полю правой таблицы. А галочка <strong>Уникальные строки</strong> в окне свойств запроса (правый клик по серому фону бланка → Свойства) добавит в текст ключевое слово DISTINCTROW — так запрос с JOIN по «один-ко-многим» перестанет дублировать покупателей. Разница в том, что конструктор всегда хранит запрос текстом, и любое ваше кликанье — это редактирование SQL чужими руками.</p>
+</section>
+
+<section class="sec" id="s-result" data-sec="result">
+<h2>Ожидаемый результат</h2>
+<div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>Запрос 1 (qry_Заказы1кв2018) возвращает ровно 3 строки за I квартал 2018 года, отсортированные по дате; каждая строка содержит покупателя с городом и менеджера. Счётчик внизу окна — главный контрольный прибор модуля: он должен совпасть с эталоном до строки.</p></div>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>OrderID</th><th>OrderDate</th><th>CustomerName</th><th>City</th><th>Manager</th></tr></thead>
+<tbody>
+<tr><td>O-10007</td><td>2018-01-17</td><td>Felipe Alves</td><td>porto alegre</td><td>Ana Souza</td></tr>
+<tr><td>O-10008</td><td>2018-02-14</td><td>Gabriela Lima</td><td>salvador</td><td>Maria Oliveira</td></tr>
+<tr><td>O-10009</td><td>2018-03-08</td><td>Bruno Carvalho</td><td>rio de janeiro</td><td>Ana Souza</td></tr>
+</tbody>
+</table>
+</div>
+<p>Эталонные счётчики строк всех запросов модуля собраны в таблицу ниже — пользуйтесь ею для самопроверки при выполнении заданий S01–S04.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Запрос</th><th>Метод</th><th>Строк</th><th>Проверочная точка</th></tr></thead>
+<tbody>
+<tr><td>Разогрев (VIP)</td><td>SELECT + конкатенация</td><td>2</td><td>Bruno Carvalho первым при сортировке по имени</td></tr>
+<tr><td>qry_Заказы1кв2018</td><td>INNER JOIN 3 таблиц</td><td>3</td><td>последняя строка O-10009</td></tr>
+<tr><td>4-табличное соединение</td><td>INNER JOIN 4 таблиц</td><td>4</td><td>O-10007 даёт две позиции</td></tr>
+<tr><td>qry_НезаказанныеТовары</td><td>LEFT JOIN … IS NULL</td><td>1</td><td>P-5002 Компрессор автомобильный</td></tr>
+<tr><td>RIGHT JOIN Products</td><td>RIGHT JOIN</td><td>16</td><td>P-5002 с пустым OrderID</td></tr>
+<tr><td>qry_КтоКомуПодчиняется</td><td>SELF-JOIN</td><td>6</td><td>2 пустых руководителя</td></tr>
+<tr><td>Декартово (до лечения)</td><td>FROM A, B без ON</td><td>120</td><td>15 × 8 — сигнал ошибки</td></tr>
+<tr><td>qry_ГородаВсе / UNION</td><td>UNION ALL / UNION</td><td>14 / 8</td><td>sao paulo встречается 3 раза в ALL</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="sec" id="s-mistakes" data-sec="mistakes">
+<h2>Типичные ошибки</h2>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> запрос «раздулся» до 120 строк и выглядит как бред — позиция O-10001 приписана всем восьми покупателям. <strong>Причина:</strong> соединение без условия ON (таблицы через запятую или удалённая линия связи) — декартово произведение 15 × 8. <strong>Лечение:</strong> вернуть условие по цепочке ключей: OrderDetails→Orders→Customers через INNER JOIN, и счётчик вернётся к 15.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> при выполнении всплывает сообщение «Неоднозначно поле CustomerID в выражении». <strong>Причина:</strong> поле CustomerID есть и в Customers, и в Orders, а в тексте оно написано без префикса псевдонима. <strong>Лечение:</strong> ко всем полям, которые встречаются более чем в одной таблице соединения, дописать префикс: <code>c.CustomerID</code>, <code>o.CustomerID</code>.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> фильтр <code>WHERE o.OrderDate = "2018-03-08"</code> возвращает ноль строк, хотя заказ O-10009 точно есть. <strong>Причина:</strong> дата в кавычках — это текст; сравнение даты со строкой в Access не даёт совпадения. <strong>Лечение:</strong> обрамлять даты решётками: <code>#2018-03-08#</code>; для диапазона — Between с решётками на обеих границах.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> запрос <code>WHERE p.ProductName LIKE '%насос%'</code> находит ничего. <strong>Причина:</strong> в интерфейсе Access действует ANSI-89 со звёздочкой, а процент — буквальный символ. <strong>Лечение:</strong> писать <code>Like "*насос*"</code>; процент нужен только в ADO и при включённом ANSI-92 в параметрах Access.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> LEFT JOIN к Orders, а в результате исчезли покупатели без заказов — запрос ведёт себя как INNER. <strong>Причина:</strong> условие по правой таблице (например, <code>o.OrderStatus = "delivered"</code>) поставлено в WHERE: строки с NULL из-за сравнения отбрасываются. <strong>Лечение:</strong> переносить условия по правой таблице в сам ON, а анти-join строить только по шаблону <code>WHERE правое_поле IS NULL</code>.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> вставленный из статьи MySQL текст с LIMIT, CASE WHEN или CONCAT() падает с ошибкой синтаксиса. <strong>Причина:</strong> в JET/ACE этих конструкций нет. <strong>Лечение:</strong> заменить по таблице диалекта: LIMIT → TOP после SELECT, CASE → IIF, CONCAT() → амперсанд, кавычки дат → решётки.</p></div>
+</section>
+
+<section class="sec" id="s-tips" data-sec="tips">
+<h2>Практические советы</h2>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Конструктор — лучший репетитор: соберите соединение мышью и переключитесь в режим SQL. Три таких цикла «клик → текст» запоминают скобки при трёх JOIN и синтаксис ON лучше любой шпаргалки.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Вводите псевдонимы всегда, даже в одно-табличном запросе: c, o, e, p, od. Текст короче, поля читаются однозначно, а SELF-JOIN и правка чужих запросов перестанут требовать переписывания.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Держите под рукой эталонные счётчики строк (секция «Ожидаемый результат»): 12 заказов, 15 позиций, 8 покупателей, 120 при декартовом произведении. Строка «Запись N из …» внизу окна — самый быстрый тест на ошибку соединения.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Длинный текст SQL удобнее набирать в увеличенном окне: нажмите <strong>Shift+F2</strong> (кнопка «Ввод») в режиме SQL — откроется большое поле редактирования с кнопкой «Построить». Особенно выручает при длинных условиях и вложенных IIF.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Access не допускает подзапрос в FROM, зато разрешает строить запрос поверх сохранённого. Сложную задачу (как подсчёт городов после UNION) разбивайте на шаги: qry_ГородаВсе, затем запрос-счётчик поверх него. Так запросы остаются читаемыми и переиспользуемыми.</p></div>
+</section>
+
+<section class="sec" id="s-homework" data-sec="homework">
+<h2>Самостоятельная работа</h2>
+<p>Выполните четыре SQL-задания S01–S04 на базе ShopData. Работа идёт в режиме SQL: текст каждого запроса пишется руками (или дописывается за конструктором), результат сверяется с эталоном по счётчику строк и по конкретным значениям мини-датасета. Все четыре карточки ниже содержат полный эталонный SQL — сначала попробуйте сами, решение раскрывайте только для сверки.</p>
+<p>После выполнения запросов отметьте пункты чек-листа — он фиксирует и технику (режим SQL, скобки, псевдонимы), и дисциплину сверки результатов. Ход работы по каждому заданию описан в пошаговом плане карточки; расширения датасета (P-5002 и поле ManagerID) должны быть добавлены до старта.</p>
+<ul class="checklist" data-checklist="m07-self">
+<li><label><input type="checkbox" data-ck="m07:1"><span>Создать qry_ЗаказыМарт2018 в режиме SQL: три таблицы, даты в решётках (S01)</span></label></li>
+<li><label><input type="checkbox" data-ck="m07:2"><span>Сверить S01 с эталоном: 1 строка O-10009, менеджер Ana Souza</span></label></li>
+<li><label><input type="checkbox" data-ck="m07:3"><span>Добавить товар P-5002 и получить анти-join: 1 строка P-5002 (S02)</span></label></li>
+<li><label><input type="checkbox" data-ck="m07:4"><span>Проверить S03: отобраны cama_mesa_banho (159.90) и informatica_acessorios (104.45)</span></label></li>
+<li><label><input type="checkbox" data-ck="m07:5"><span>Собрать UNION и подсчёт городов: 8 городов, sao paulo — 3 (S04)</span></label></li>
+<li><label><input type="checkbox" data-ck="m07:6"><span>Воспроизвести декартово произведение 120 строк и вылечить его условием ON</span></label></li>
+</ul>
+<article class="task-card" id="task-s01" data-task="S01">
+  <div class="task-card__head">
+    <span class="chip chip--level2">Средний</span>
+    <span class="chip">⏱ 25 мин</span>
+    <span class="chip chip--accent">Задание S01</span>
+  </div>
+  <h3>S01. Заказы с клиентами и менеджерами</h3>
+  <p><strong>Цель:</strong> соединить три таблицы через INNER JOIN в режиме SQL и вывести заказы марта 2018 года с именами покупателей, городами и фамилиями менеджеров.</p>
+  <p><strong>Исходные таблицы:</strong> Orders (12 строк), Customers (8 строк), Employees (6 строк).</p>
+  <p><strong>Используемые поля:</strong> Orders: OrderID, OrderDate, CustomerID, ManagerID; Customers: CustomerName, City; Employees: EmployeeName.</p>
+  <p><strong>Пошаговый план:</strong></p>
+  <ol><li>Создайте новый запрос: <strong>Создание → Конструктор запросов</strong>, добавьте три таблицы, закройте бланк переключением в <strong>Режим SQL</strong>.</li><li>Напишите FROM со скобками: сначала пара Customers + Orders, затем присоедините Employees по ManagerID.</li><li>Выведите OrderID, OrderDate, CustomerName, City и EmployeeName под псевдонимом Manager.</li><li>Добавьте условие по датам в решётках: Between #2018-03-01# And #2018-03-31#.</li><li>Отсортируйте по OrderDate и выполните запрос кнопкой <strong>Выполнить</strong>.</li><li>Сверьте результат с эталоном и сохраните запрос как qry_ЗаказыМарт2018.</li></ol>
+  <div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>Ровно 1 строка: O-10009, 2018-03-08, Bruno Carvalho, rio de janeiro, менеджер Ana Souza. Если строк больше — проверьте границы Between и отсутствие дублей таблиц в бланке.</p></div>
+  <p><strong>Критерии оценки:</strong></p>
+  <ul><li>скобки вокруг первого JOIN расставлены, третья таблица присоединена к результату пары;</li><li>даты записаны в решётках, псевдонимы c, o, e использованы во всех полях;</li><li>результат — 1 строка, совпадающая с эталоном по всем пяти столбцам.</li></ul>
+  <div class="callout callout--tip"><div class="callout__title">Подсказка</div><p>Access сам поставит скобки, если сначала написать двухтабличный JOIN, выполнить запрос, а затем дописать второй INNER JOIN — так меньше шансов запутаться в порядке соединений.</p></div>
+  <details class="solution">
+    <summary>Показать эталонное решение</summary>
+    <div>
+      <p>Соединяем попарно: покупатель к заказу по CustomerID, менеджер к заказу по ManagerID. Март 2018 — единственный месяц, где у нас один заказ, поэтому результат лаконичен и легко проверяется.</p>
+      <pre class="code"><code class="lang-sql">SELECT o.OrderID, o.OrderDate,
+       c.CustomerName, c.City,
+       e.EmployeeName AS Manager
+FROM (Customers AS c
+      INNER JOIN Orders AS o
+          ON c.CustomerID = o.CustomerID)
+      INNER JOIN Employees AS e
+          ON o.ManagerID = e.EmployeeID
+WHERE o.OrderDate Between #2018-03-01# And #2018-03-31#
+ORDER BY o.OrderDate;</code></pre>
+      <p>Сверка по мини-датасету: в марте 2018 года один заказ — O-10009 от 2018-03-08 покупателя C-0002 (Bruno Carvalho, rio de janeiro) с менеджером EmployeeID 1 (Ana Souza). Итого 1 строка. Для сравнения: INNER JOIN без фильтра дат дал бы все 12 заказов.</p>
+    </div>
+  </details>
+  <p><strong>Дополнительное усложнение:</strong> расширьте период на весь I квартал (<code>Between #2018-01-01# And #2018-03-31#</code>) — получится 3 строки (O-10007, O-10008, O-10009) — и добавьте вычисляемый столбец <code>c.City &amp; ", " &amp; c.State AS CityState</code> вместо отдельного City.</p>
+</article>
+<article class="task-card" id="task-s02" data-task="S02">
+  <div class="task-card__head">
+    <span class="chip chip--level2">Средний</span>
+    <span class="chip">⏱ 30 мин</span>
+    <span class="chip chip--accent">Задание S02</span>
+  </div>
+  <h3>S02. Незаказанные товары</h3>
+  <p><strong>Цель:</strong> найти товары, у которых нет ни одной строки в OrderDetails, через анти-join LEFT JOIN … IS NULL, и объяснить разницу с INNER JOIN.</p>
+  <p><strong>Исходные таблицы:</strong> Products (9 строк — предварительно добавьте товар P-5002 «Компрессор автомобильный», категория 5, если ещё не завели его по модулю 07), OrderDetails (15 строк).</p>
+  <p><strong>Используемые поля:</strong> Products: ProductID, ProductName; OrderDetails: ProductID, OrderDetailID.</p>
+  <p><strong>Пошаговый план:</strong></p>
+  <ol><li>Откройте <strong>Создание → Конструктор запросов</strong>, добавьте Products и OrderDetails, перейдите в <strong>Режим SQL</strong>.</li><li>Напишите LEFT JOIN от Products к OrderDetails по ProductID — левая таблица должна остаться целиком.</li><li>Выведите p.ProductID и p.ProductName.</li><li>Добавьте условие <code>od.OrderDetailID IS NULL</code> — отбор строк без пары.</li><li>Выполните и сверьте счётчик строк.</li><li>Для сравнения замените LEFT JOIN на INNER JOIN и снова выполните: объясните письменно, почему список стал пустым относительно непроданных товаров.</li><li>Сохраните запрос как qry_НезаказанныеТовары.</li></ol>
+  <div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>1 строка: P-5002, Компрессор автомобильный. Версия с INNER JOIN вернёт 15 строк пар (каждая продажа со своим товаром) и не покажет непроданное вовсе — это и есть практическая разница соединений.</p></div>
+  <p><strong>Критерии оценки:</strong></p>
+  <ul><li>использован именно LEFT JOIN, а не INNER, и условие IS NULL стоит по полю правой таблицы;</li><li>в результате ровно одна строка P-5002;</li><li>в ответе сформулировано, почему INNER JOIN не годится для поиска отсутствующих пар.</li></ul>
+  <div class="callout callout--tip"><div class="callout__title">Подсказка</div><p>Для IS NULL берите служебное поле ключа правой таблицы (OrderDetailID): оно гарантированно заполнено в реальных парах, а значит NULL там означает именно «пары не было».</p></div>
+  <details class="solution">
+    <summary>Показать эталонное решение</summary>
+    <div>
+      <p>LEFT JOIN сохраняет все девять товаров; у восьми находятся продажи, у девятого поля правой таблицы остаются NULL — их и отбираем.</p>
+      <pre class="code"><code class="lang-sql">SELECT p.ProductID, p.ProductName
+FROM Products AS p
+     LEFT JOIN OrderDetails AS od
+         ON p.ProductID = od.ProductID
+WHERE od.OrderDetailID IS NULL;</code></pre>
+      <p>Сверка: в OrderDetails встречаются 8 товаров (P-1001, P-1002, P-2001, P-2002, P-3001, P-3002, P-4001, P-5001), поэтому без P-5002 список был бы пуст. INNER-версия того же запроса вернула бы 15 строк продаж и молча «съела» бы неподдерживаемый товар. Разница с INNER: LEFT JOIN отвечает на вопрос «кто остался без пары», INNER — только на «кто в паре».</p>
+    </div>
+  </details>
+  <p><strong>Дополнительное усложнение:</strong> найдите покупателей, у которых нет ни одного доставленного заказа: LEFT JOIN Customers к Orders с условием <code>ON c.CustomerID = o.CustomerID AND o.OrderStatus = "delivered"</code> и фильтром <code>o.OrderID IS NULL</code>. Эталон — 3 строки: Diego Silva (только shipped), Elena Costa (только canceled), Henrique Souza (только processing).</p>
+</article>
+<article class="task-card" id="task-s03" data-task="S03">
+  <div class="task-card__head">
+    <span class="chip chip--level2">Средний</span>
+    <span class="chip">⏱ 30 мин</span>
+    <span class="chip chip--accent">Задание S03</span>
+  </div>
+  <h3>S03. Категории под лупой</h3>
+  <p><strong>Цель:</strong> соединить три таблицы и применить итоговую группировку: отобрать категории, у которых больше одной строки продаж и средняя цена позиции выше 100 (GROUP BY + HAVING — первый шаг к модулю 08).</p>
+  <p><strong>Исходные таблицы:</strong> Categories (5 строк), Products (8 строк, P-5002 не участвует — у него нет продаж), OrderDetails (15 строк).</p>
+  <p><strong>Используемые поля:</strong> Categories: CategoryName; Products: CategoryID, ProductID; OrderDetails: ProductID, UnitPrice.</p>
+  <p><strong>Пошаговый план:</strong></p>
+  <ol><li>Соберите цепочку из трёх INNER JOIN в скобках: Categories → Products → OrderDetails.</li><li>Выведите CategoryName; затем нажмите кнопку <strong>Итоги (Σ)</strong> на ленте или допишите GROUP BY вручную в режиме SQL.</li><li>Добавьте агрегаты: COUNT(*) и AVG(od.UnitPrice) с псевдонимами столбцов.</li><li>Условия к агрегатам пишите в HAVING, а не в WHERE.</li><li>Выполните запрос и сверьте 2 строки с эталоном.</li><li>Объясните письменно, почему дорогая категория moveis_decoracao не попала в результат.</li></ol>
+  <div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>2 строки: cama_mesa_banho — 4 позиции, средняя 159.90; informatica_acessorios — 4 позиции, средняя 104.45. Ловушка: moveis_decoracao со средней 640.00 НЕ проходит условие COUNT(*) больше 1 — у неё всего одна строка продаж (торшер деревянный), и HAVING её отсекает.</p></div>
+  <p><strong>Критерии оценки:</strong></p>
+  <ul><li>скобки трёх JOIN расставлены верно, все поля с префиксами ca, p, od;</li><li>агрегатные условия записаны в HAVING, запрос без WHERE по агрегатам;</li><li>результат — 2 строки, средние совпадают с эталоном до копейки.</li></ul>
+  <div class="callout callout--tip"><div class="callout__title">Подсказка</div><p>WHERE фильтрует строки до группировки, HAVING — уже свёрнутые группы. Ошибка «условие по COUNT в WHERE» даёт сообщение о невозможности использования агрегата — сразу переписывайте в HAVING.</p></div>
+  <details class="solution">
+    <summary>Показать эталонное решение</summary>
+    <div>
+      <p>Цепочка соединений раскрывает каждую строку продажи до категории, группировка сворачивает по имени категории, HAVING применяет два условия сразу.</p>
+      <pre class="code"><code class="lang-sql">SELECT ca.CategoryName,
+       COUNT(*) AS Positions,
+       AVG(od.UnitPrice) AS AvgPrice
+FROM (Categories AS ca
+      INNER JOIN Products AS p
+          ON ca.CategoryID = p.CategoryID)
+      INNER JOIN OrderDetails AS od
+          ON p.ProductID = od.ProductID
+GROUP BY ca.CategoryName
+HAVING COUNT(*) &gt; 1 AND AVG(od.UnitPrice) &gt; 100;</code></pre>
+      <p>Сверка по мини-датасету: cama_mesa_banho — цены 189.90, 129.90, 189.90, 129.90, средняя 159.90; informatica_acessorios — 149.00, 59.90, 149.00, 59.90, средняя 104.45; beleza_saude отсеяна средней 72.14; automotivo — 119.00 при одной строке; moveis_decoracao — 640.00 при одной строке. Итог: 2 строки, что исправляет ожидание из брифа — категория с дорогой средней, но единственной продажей, честно отсекается COUNT.</p>
+    </div>
+  </details>
+  <p><strong>Дополнительное усложнение:</strong> добавьте MIN(od.UnitPrice) и MAX(od.UnitPrice) и отсортируйте результат по убыванию средней: <code>ORDER BY AVG(od.UnitPrice) DESC</code>. Эталонные пары для проверки: cama_mesa_banho 129.90–189.90, informatica_acessorios 59.90–149.00.</p>
+</article>
+<article class="task-card" id="task-s04" data-task="S04">
+  <div class="task-card__head">
+    <span class="chip chip--level2">Средний</span>
+    <span class="chip">⏱ 25 мин</span>
+    <span class="chip chip--accent">Задание S04</span>
+  </div>
+  <h3>S04. Города без повторов</h3>
+  <p><strong>Цель:</strong> объединить списки городов покупателей и сотрудников запросом UNION, понять разницу с UNION ALL и подсчитать число строк по каждому городу после объединения.</p>
+  <p><strong>Исходные таблицы:</strong> Customers (8 строк), Employees (6 строк); плюс сохранённый запрос qry_ГородаВсе, создаваемый в ходе работы.</p>
+  <p><strong>Используемые поля:</strong> Customers: City; Employees: City.</p>
+  <p><strong>Пошаговый план:</strong></p>
+  <ol><li>Создайте запрос и в режиме SQL напишите SELECT City FROM Customers UNION SELECT City FROM Employees; выполните — получите список без повторов.</li><li>Замените UNION на UNION ALL, чтобы получить все 14 строк, и сохраните запрос как qry_ГородаВсе.</li><li>Создайте второй запрос на основе qry_ГородаВсе (Access не допускает подзапрос в FROM — именно поэтому первый запрос сохраняем).</li><li>Во втором запросе напишите GROUP BY City и COUNT(*) с псевдонимом столбца.</li><li>Отсортируйте по убыванию счётчика и сверьте таблицу эталона.</li><li>Объясните письменно, почему счётчики во втором запросе считаются по UNION ALL, а не по UNION.</li></ol>
+  <div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>Первый запрос — 8 уникальных городов. Подсчёт поверх qry_ГородаВсе: sao paulo — 3; belo horizonte, curitiba, rio de janeiro, salvador — по 2; manaus, porto alegre, recife — по 1. Сумма счётчиков 14 сходится со строками UNION ALL.</p></div>
+  <p><strong>Критерии оценки:</strong></p>
+  <ul><li>у обеих частей UNION одинаковый состав столбцов;</li><li>qry_ГородаВсе использует UNION ALL, а счётчик строится отдельным запросом поверх него;</li><li>счётчики совпадают с эталоном и в сумме дают 14.</li></ul>
+  <div class="callout callout--tip"><div class="callout__title">Подсказка</div><p>Если сохранить qry_ГородаВсе с UNION вместо UNION ALL, счётчики станут единицами: дубликаты уже вычищены и считать по ним нечего. Сначала посчитайте, потом чистите.</p></div>
+  <details class="solution">
+    <summary>Показать эталонное решение</summary>
+    <div>
+      <p>Шаг 1 — сохраняемый запрос qry_ГородаВсе. Метка «Клиент»/«Сотрудник» не обязательна для подсчёта, но делает список самодокументируемым.</p>
+      <pre class="code"><code class="lang-sql">SELECT c.City, "Клиент" AS Кто
+FROM Customers AS c
+UNION ALL
+SELECT e.City, "Сотрудник" AS Кто
+FROM Employees AS e;</code></pre>
+      <p>Шаг 2 — запрос подсчёта поверх сохранённого:</p>
+      <pre class="code"><code class="lang-sql">SELECT City, COUNT(*) AS ВсегоЧеловек
+FROM qry_ГородаВсе
+GROUP BY City
+ORDER BY ВсегоЧеловек DESC, City;</code></pre>
+      <p>Сверка: sao paulo даёт 1 покупателя (Ana Ribeiro) и 2 сотрудников (Ana Souza, Pedro Santos) — итого 3; rio de janeiro — по одному с каждой стороны (Bruno Carvalho и Maria Oliveira); belo horizonte — Carla Mendes и Julia Pereira; curitiba — Diego Silva и Lucas Ferreira; salvador — Gabriela Lima и Rafael Lima; recife, porto alegre и manaus — по одному покупателю. Проверка суммы: 3 + 4 × 2 + 3 × 1 = 14. Вариант с чистым UNION вернул бы belo horizonte, curitiba, manaus, porto alegre, recife, rio de janeiro, salvador, sao paulo — 8 строк.</p>
+    </div>
+  </details>
+  <p><strong>Дополнительное усложнение:</strong> во втором запросе добавьте поле Кто в GROUP BY: <code>GROUP BY City, Кто</code> — получится 11 строк с разбивкой по источнику; сверьте, что в sao paulo строка «Сотрудник» встречается дважды, а «Клиент» — один раз.</p>
+</article>
+</section>
+
+<section class="sec" id="s-quiz" data-sec="quiz">
+<h2>Тест по модулю</h2>
+<p>Ответьте на восемь вопросов; для зачёта нужно не менее 80 процентов. Вопросы проверяют диалект Access SQL и поведение соединений, а не расположение кнопок.</p>
+<section class="quiz" data-quiz="m07">
+<script type="application/json">
+{
+  "title": "Тест: Access SQL и соединения таблиц",
+  "passScore": 80,
+  "questions": [
+    {
+      "q": "Как записать дату 1 марта 2018 года в условии Access SQL?",
+      "options": ["В двойных кавычках: \"2018-03-01\"", "В решётках: #2018-03-01#", "В одинарных кавычках: '2018-03-01'", "В квадратных скобках: [2018-03-01]"],
+      "correct": [1],
+      "explain": "Даты обрамляются решётками. В кавычках это текстовая константа: сравнение поля Дата/время со строкой отфильтрует не то, что ожидалось."
+    },
+    {
+      "q": "Какие утверждения о диалекте Access SQL верны?",
+      "options": ["Вместо CASE используется функция IIF", "Вместо LIMIT используется TOP", "В Like интерфейса вместо процента используется звёздочка (ANSI-89)", "Строки склеивает функция CONCAT()"],
+      "correct": [0, 1, 2],
+      "explain": "CONCAT в Access SQL запрещена: строки склеивает оператор амперсанда. IIF, TOP и звёздочка в Like — верные замены привычным конструкциям."
+    },
+    {
+      "q": "Запрос соединяет 15 строк OrderDetails и 8 строк Customers без условия ON. Сколько строк вернёт результат?",
+      "options": ["15", "8", "23", "120"],
+      "correct": [3],
+      "explain": "Это декартово произведение: каждая из 15 позиций прикладывается к каждому из 8 покупателей, 15 умножить на 8 равно 120. Лечение — JOIN по цепочке ключей через Orders."
+    },
+    {
+      "q": "Что верно про UNION и UNION ALL?",
+      "options": ["UNION убирает дубликаты строк", "UNION ALL не проверяет дубликаты и работает быстрее", "UNION ALL требует больше столбцов, чем UNION", "Обе части должны иметь одинаковое число столбцов"],
+      "correct": [0, 1, 3],
+      "explain": "Число и совместимость столбцов у частей обязаны совпадать. UNION тратит работу на скрытую сортировку и удаление дублей, UNION ALL просто приклеивает списки."
+    },
+    {
+      "q": "Что вернёт запрос с LEFT JOIN Products к OrderDetails и условием WHERE od.OrderDetailID IS NULL?",
+      "options": ["Товары, у которых нет ни одной строки продаж", "Только товары, которые продавались", "Все строки Products без соединения", "Ошибку синтаксиса"],
+      "correct": [0],
+      "explain": "Это анти-join: у товаров без пары поля правой таблицы равны NULL, и IS NULL отбирает именно их. На мини-датасете такой запрос найдёт P-5002."
+    },
+    {
+      "q": "Зачем в SELF-JOIN Employees нужны два псевдонима таблицы?",
+      "options": ["Чтобы различить две копии таблицы в одном запросе", "Чтобы запрос выполнялся быстрее", "Чтобы обращаться как e1.ManagerID и e2.EmployeeName без путаницы", "Они вообще не нужны: Access различит копии сам"],
+      "correct": [0, 2],
+      "explain": "Одна таблица выступает в двух ролях: сотрудник и руководитель. Без псевдонимов поля двух копий было бы не различить; скорость здесь ни при чём."
+    },
+    {
+      "q": "Почему условие по полю правой таблицы в WHERE может разрушить анти-join?",
+      "options": ["Сравнение NULL с обычным значением отбрасывает несовпавшие строки", "Access молча превращает запрос в INNER JOIN", "WHERE работает только с числовыми полями", "Нужно писать HAVING вместо WHERE"],
+      "correct": [0],
+      "explain": "У строк без пары поля правой таблицы равны NULL, а сравнение NULL со значением даёт «неизвестно», и строка не проходит фильтр. Анти-join строится только по шаблону IS NULL."
+    },
+    {
+      "q": "Сколько строк вернёт SELECT DISTINCTROW c.CustomerName из соединения Customers и Orders на мини-датасете?",
+      "options": ["8", "12", "15", "120"],
+      "correct": [0],
+      "explain": "12 строк заказов дают 8 уникальных покупателей; DISTINCTROW убирает повторы по ключам исходных таблиц. Без него было бы 12 строк."
+    }
+  ]
+}
+</script>
+</section>
+</section>
+
+<section class="sec" id="s-control" data-sec="control">
+<h2>Контрольные вопросы</h2>
+<p>Ответьте письменно, опираясь на запросы модуля и мини-датасет; в ответах на вопросы про количество строк сверяйтесь с эталонной таблицей из секции «Ожидаемый результат». Формулируйте ответы в терминах запросов: называйте ключевые слова, приводите фрагменты условий и счётчики строк — проверяющий должен увидеть, что вы именно читали SQL, а не пересказываете интерфейс по памяти.</p>
+<ol>
+<li>Почему Access требует круглые скобки, когда в FROM три и больше соединений, и как их правильно расставить в запросе с четырьмя таблицами?</li>
+<li>Чем LEFT JOIN отличается от RIGHT JOIN? Перепишите запрос 4 (RIGHT JOIN OrderDetails к Products) через LEFT JOIN, не меняя результата.</li>
+<li>По каким признакам в готовой выборке можно за десять секунд заподозрить декартово произведение, если запрос выполнился без ошибок?</li>
+<li>Что вернёт условие <code>WHERE o.OrderDate = "2018-03-08"</code> и почему? Какой синтаксис корректен для дат и для диапазона дат?</li>
+<li>Без чего невозможен SELF-JOIN, и почему в запросе «кто кому подчиняется» использован именно LEFT JOIN, а не INNER JOIN?</li>
+<li>Когда UNION ALL предпочтительнее UNION? Приведите пример из задания S04, где замена одного на другое ломает подсчёт.</li>
+<li>Почему запрос поверх сохранённого UNION (qry_ГородаВсе) обязан строиться отдельным запросом? Какое ограничение Access это диктует и как псевдонимы столбцов первой части влияют на второй запрос?</li>
+</ol>
+</section>
+
+<section class="sec" id="s-criteria" data-sec="criteria">
+<h2>Критерии проверки</h2>
+<p>Таблица используется при взаимной проверке работ: найдите свою строку по критерию и честно оцените колонку. «Брак» в любом критерии возвращает задание на доработку.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Критерий</th><th>Отлично</th><th>Допустимо</th><th>Брак</th></tr></thead>
+<tbody>
+<tr><td>Синтаксис соединений</td><td>3–4 таблицы, скобки расставлены, псевдонимы c, o, e, p, od во всех полях</td><td>Две таблицы без скобок, псевдонимы частично</td><td>Соединение без ON; результат — декартово произведение 120 строк</td></tr>
+<tr><td>Условия на даты</td><td>Between #2018-01-01# And #2018-03-31# с решётками на обеих границах</td><td>Отдельные сравнения с решётками</td><td>Даты в кавычках; отбор возвращает 0 строк</td></tr>
+<tr><td>Анти-join</td><td>LEFT JOIN и IS NULL по ключевому полю правой таблицы</td><td>Найдено Мастером поиска несоответствий без ручного SQL</td><td>Проверка на пустую строку вместо NULL; непроданный товар не найден</td></tr>
+<tr><td>UNION-запросы</td><td>Части одинаковы по столбцам; UNION ALL осознанно выбран для подсчёта</td><td>UNION без сортировки результата</td><td>Разное число столбцов в частях; запрос не выполняется</td></tr>
+<tr><td>Сверка с датасетом</td><td>Счётчики строк сверены с эталоном (3 / 4 / 1 / 6 / 120 / 14–8)</td><td>Сверено частично, основные запросы совпали</td><td>Результат принят на глаз без сверки</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="sec" id="s-solution" data-sec="solution">
+<h2>Эталонное решение</h2>
+<p>Ниже собраны полные SQL-тексты всех четырёх заданий самостоятельной работы. Сначала выполните задания сами; блоки ниже — для построчной сверки. Каждый запрос сопровождается контрольной точкой по мини-датасету.</p>
+<p><strong>S01. Заказы марта 2018 с клиентами и менеджерами.</strong> Контрольная точка: 1 строка, O-10009, менеджер Ana Souza.</p>
+<pre class="code"><code class="lang-sql">SELECT o.OrderID, o.OrderDate,
+       c.CustomerName, c.City,
+       e.EmployeeName AS Manager
+FROM (Customers AS c
+      INNER JOIN Orders AS o
+          ON c.CustomerID = o.CustomerID)
+      INNER JOIN Employees AS e
+          ON o.ManagerID = e.EmployeeID
+WHERE o.OrderDate Between #2018-03-01# And #2018-03-31#
+ORDER BY o.OrderDate;</code></pre>
+<p><strong>S02. Незаказанные товары.</strong> Требуется предварительное добавление товара P-5002 в Products. Контрольная точка: 1 строка, P-5002; версия с INNER JOIN вернёт 15 строк пар.</p>
+<pre class="code"><code class="lang-sql">SELECT p.ProductID, p.ProductName
+FROM Products AS p
+     LEFT JOIN OrderDetails AS od
+         ON p.ProductID = od.ProductID
+WHERE od.OrderDetailID IS NULL;</code></pre>
+<p><strong>S03. Категории под лупой.</strong> Контрольная точка: 2 строки — cama_mesa_banho (4 позиции, средняя 159.90) и informatica_acessorios (4 позиции, средняя 104.45); moveis_decoracao отсечена условием COUNT больше 1.</p>
+<pre class="code"><code class="lang-sql">SELECT ca.CategoryName,
+       COUNT(*) AS Positions,
+       AVG(od.UnitPrice) AS AvgPrice
+FROM (Categories AS ca
+      INNER JOIN Products AS p
+          ON ca.CategoryID = p.CategoryID)
+      INNER JOIN OrderDetails AS od
+          ON p.ProductID = od.ProductID
+GROUP BY ca.CategoryName
+HAVING COUNT(*) &gt; 1 AND AVG(od.UnitPrice) &gt; 100;</code></pre>
+<p><strong>S04. Города без повторов.</strong> Два шага: сохраняемый запрос qry_ГородаВсе (14 строк) и подсчёт поверх него (8 строк; sao paulo — 3).</p>
+<pre class="code"><code class="lang-sql">SELECT c.City, "Клиент" AS Кто
+FROM Customers AS c
+UNION ALL
+SELECT e.City, "Сотрудник" AS Кто
+FROM Employees AS e;</code></pre>
+<pre class="code"><code class="lang-sql">SELECT City, COUNT(*) AS ВсегоЧеловек
+FROM qry_ГородаВсе
+GROUP BY City
+ORDER BY ВсегоЧеловек DESC, City;</code></pre>
+<p>Если какой-то счётчик не сходится, вернитесь к таблице эталонов секции «Ожидаемый результат» и пройдите по цепочке: скобки соединений, префиксы полей, решётки дат, THEN тип соединения. Последняя проверка — декартово произведение из запроса 6: намеренно уберите ON, получите 120 строк и почините обратно.</p>
+</section>
+
+<section class="sec" id="s-summary" data-sec="summary">
+<h2>Краткое резюме</h2>
+<p>Вы научились смотреть на любой запрос Access с двух сторон: бланк QBE — это интерфейс, а хранится и выполняется текст на диалекте JET/ACE, где даты живут в решётках, Like работает со звёздочкой (ANSI-89) или процентом (ANSI-92 в ADO), условный выбор делает IIF, ограничение выборки — TOP, а строки склеивает амперсанд. Вы соединяли две, три и четыре таблицы с обязательными скобками и условиями ON по цепочке ключей, сохраняли «лишние» строки через LEFT и RIGHT JOIN, строили анти-join по шаблону IS NULL, разворачивали таблицу Employees саму на себя через SELF-JOIN, видели, как забытый ON перемножает 15 позиций на 8 покупателей в бессмысленные 120 строк, и приклеивали списки через UNION и UNION ALL с осознанным выбором между дубликатами и скоростью. Главный инструмент контроля — счётчик строк и эталонные значения из мини-датасета. В следующем модуле 08 на эти соединения лягут агрегаты и выручка по категориям: GROUP BY, SUM, HAVING, параметрические и перекрёстные запросы, а также action-запросы, которые меняют данные.</p>
+</section>
+
+</article>
+<!--CACHE-END-->
+</main>
+<script src="../js/app.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress.js"></script>
+<script src="../js/export.js"></script>
+<script src="../js/navigation.js"></script>
+<script src="../js/quiz.js"></script>
+</body>
+</html>

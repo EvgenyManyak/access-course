@@ -1,0 +1,83 @@
+/* ============================================================
+   responsive.css — адаптивная вёрстка
+   Подключается после styles.css.
+   ============================================================ */
+
+/* --- Планшеты и ниже: сайдбар уходит в off-canvas --- */
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-102%);
+    transition: transform .25s ease;
+    box-shadow: var(--shadow-lg);
+  }
+  body.nav-open .sidebar { transform: translateX(0); }
+  body.nav-open .sidebar-backdrop { display: block; }
+  body.nav-open { overflow: hidden; }
+
+  .app__main { margin-left: 0; }
+  .topbar__burger { display: inline-flex; }
+  .topbar .btn-text { display: none; }
+}
+
+/* --- Телефоны --- */
+@media (max-width: 720px) {
+  body { font-size: 15px; }
+
+  .page { padding: 18px 14px 32px; }
+  .topbar { padding: 0 12px; gap: 6px; }
+
+  h1.module-title { font-size: 24px; }
+  h2 { font-size: 19px; margin-top: 30px; }
+  h3 { font-size: 16px; }
+
+  .home-hero { padding: 22px 18px; }
+  .home-hero h1 { font-size: 24px; }
+
+  .card-grid { grid-template-columns: 1fr; }
+
+  /* Таблицы — горизонтальная прокрутка */
+  .table-wrap { margin: 12px -14px; }
+  .table-wrap table.data-table { min-width: 560px; }
+
+  pre.code { font-size: 12.5px; padding: 12px; }
+
+  .quiz { padding: 16px 14px; }
+  .quiz__opts { padding-left: 0; }
+  .quiz__explain { margin-left: 0; }
+
+  .task-card, .dataset-card { padding: 16px 14px; }
+  .dataset-card dl { grid-template-columns: 1fr; gap: 2px; }
+  .dataset-card dt { margin-top: 8px; }
+
+  .page__nav { flex-direction: column; }
+  .page-nav__btn--next { text-align: left; align-items: flex-start; }
+
+  /* Диалоги почти на весь экран */
+  .overlay { padding: 4vh 10px 10px; }
+  .dialog { max-height: 88vh; border-radius: 12px; }
+
+  ol.steps > li { padding-left: 40px; margin-left: 13px; }
+  ol.steps > li::before { left: -13px; width: 25px; height: 25px; }
+
+  .sql-explain > li { padding-left: 42px; }
+  .sql-explain > li::before { left: 8px; }
+
+  .figure { padding: 12px; }
+  .figure--scroll { overflow-x: auto; }
+  .figure--scroll svg { min-width: 560px; }
+}
+
+/* --- Очень узкие экраны --- */
+@media (max-width: 420px) {
+  h1.module-title { font-size: 21px; }
+  .topbar__title { font-size: 13.5px; }
+  .icon-btn { min-width: 34px; height: 34px; padding: 0 7px; }
+  .btn { height: 38px; padding: 0 14px; font-size: 13.5px; }
+}
+
+/* --- Печать управляется print.css --- */
+
+/* --- Уважение к «крупному шрифту» пользователя --- */
+@media (min-width: 721px) and (max-width: 1024px) {
+  .page__content, .page__nav, .done-btn-row, .page__footer { max-width: 100%; }
+}

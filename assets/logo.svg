@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 96" font-family="Segoe UI, Arial, sans-serif">
+  <title>Логотип учебника «Microsoft Access для аналитика»</title>
+  <rect x="2" y="10" width="76" height="76" rx="16" fill="#a4373a"/>
+  <rect x="18" y="22" width="44" height="52" rx="5" fill="#ffffff"/>
+  <rect x="18" y="22" width="10" height="52" rx="4" fill="#f2d7d8"/>
+  <rect x="33" y="32" width="22" height="5" rx="2.5" fill="#a4373a"/>
+  <rect x="33" y="42" width="22" height="3.5" rx="1.75" fill="#d9b0b1"/>
+  <rect x="33" y="49" width="22" height="3.5" rx="1.75" fill="#d9b0b1"/>
+  <rect x="33" y="56" width="15" height="3.5" rx="1.75" fill="#d9b0b1"/>
+  <text x="96" y="42" font-size="24" font-weight="700" fill="#1e2630">Microsoft Access</text>
+  <text x="96" y="68" font-size="16" font-weight="600" fill="#a4373a">2007–2016 · учебник для аналитика</text>
+  <text x="96" y="88" font-size="12" fill="#5c6a7a">от Excel и SQL к реляционной базе и прикладному VBA</text>
+</svg>

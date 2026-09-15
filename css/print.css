@@ -1,0 +1,170 @@
+/* ============================================================
+   print.css — печатные стили (кнопка «Печать / сохранить в PDF»)
+   Требования:
+   - скрыть боковое меню, кнопки управления, диалоги;
+   - сохранить заголовки, ссылки и нумерацию секций;
+   - титульная страница и оглавление (.print-cover, добавляется JS);
+   - не разрывать таблицы, блоки кода и карточки заданий;
+   - кириллица — системные шрифты, масштаб под A4.
+   Примечание про номера страниц: включите в диалоге печати браузера
+   опцию «Колонтитулы / Верхние и нижние колонтитулы» — браузер
+   проставит номера страниц и адрес документа.
+   ============================================================ */
+
+@page {
+  size: A4;
+  margin: 16mm 14mm 18mm;
+}
+
+@media print {
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 10.5pt;
+    line-height: 1.5;
+  }
+
+  /* --- Скрыть интерактивную оболочку --- */
+  .sidebar,
+  .sidebar-backdrop,
+  .topbar,
+  .topbar-progress,
+  .overlay,
+  .toast-wrap,
+  .page__nav,
+  .done-btn-row,
+  .code-block__copy,
+  .quiz__actions,
+  .no-print,
+  .icon-btn,
+  .btn { display: none !important; }
+
+  .app, .app__main { margin: 0 !important; min-height: auto; }
+  .page { padding: 0 !important; max-width: 100% !important; }
+  .page__content, .page__footer { max-width: 100% !important; }
+
+  /* --- Титульная страница + оглавление курса --- */
+  .print-cover {
+    display: block !important;
+    page-break-after: always;
+    break-after: page;
+    padding-top: 40mm;
+  }
+  .print-cover__title {
+    font-size: 24pt;
+    font-weight: 800;
+    text-align: center;
+    margin: 0 0 6mm;
+    line-height: 1.3;
+  }
+  .print-cover__subtitle {
+    font-size: 13pt;
+    text-align: center;
+    color: #333;
+    margin-bottom: 18mm;
+  }
+  .print-cover__meta {
+    text-align: center;
+    font-size: 10pt;
+    color: #444;
+    margin-top: 16mm;
+  }
+  .print-cover__toc-title {
+    font-size: 14pt;
+    font-weight: 700;
+    margin: 0 0 5mm;
+  }
+  .print-cover__toc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    column-count: 2;
+    column-gap: 10mm;
+    font-size: 10pt;
+  }
+  .print-cover__toc li { margin-bottom: 2.2mm; break-inside: avoid; }
+  .print-cover__toc .toc-num { font-weight: 700; margin-right: 2mm; }
+
+  /* --- Заголовки: не отрывать от текста --- */
+  h1, h2, h3, h4 { page-break-after: avoid; break-after: avoid; color: #000 !important; }
+  h1.module-title { font-size: 20pt; }
+  h2 { font-size: 15pt; margin-top: 22pt; }
+  h3 { font-size: 12.5pt; }
+
+  /* --- Не разрывать блоки --- */
+  pre.code,
+  table.data-table,
+  .task-card,
+  .callout,
+  .quiz,
+  .dataset-card,
+  details.solution,
+  .checklist,
+  .figure,
+  .home-stat,
+  .module-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* --- Раскрывающиеся блоки: показать содержимое (JS также открывает их на beforeprint) --- */
+  details, details.solution, details.disclose, details.versions {
+    display: block;
+    border: 1px solid #999 !important;
+  }
+  details > summary { color: #000 !important; }
+  details[open] > summary { font-weight: 700; }
+
+  /* --- Цвета элементов: печатаем в чёрно-белом с акцентами --- */
+  .callout { background: #f6f6f6 !important; border: 1px solid #bbb !important; border-left: 4px solid #555 !important; }
+  .callout__title { color: #000 !important; }
+  .task-card, .quiz, .dataset-card, .module-card { box-shadow: none !important; border: 1px solid #bbb !important; }
+  .chip, .chip--level1, .chip--level2, .chip--level3, .chip--accent {
+    background: #eee !important; color: #000 !important; border: 1px solid #bbb !important;
+  }
+
+  /* --- Код: читаемость на бумаге --- */
+  pre.code {
+    background: #f5f5f5 !important;
+    border: 1px solid #ccc !important;
+    color: #000 !important;
+    font-size: 8.8pt;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .tok-kw, .tok-str, .tok-com, .tok-num, .tok-fn { color: #000 !important; font-style: normal; }
+  .tok-kw { font-weight: 700; }
+  .tok-com { color: #555 !important; font-style: italic; }
+
+  code.inline, :not(pre) > code { background: #f2f2f2 !important; border: 1px solid #ccc !important; color: #000 !important; }
+
+  /* --- Таблицы --- */
+  table.data-table { font-size: 9pt; }
+  table.data-table th, table.data-table td { border: 1px solid #999 !important; }
+  table.data-table thead th { background: #eee !important; color: #000 !important; }
+
+  /* --- Ссылки: оставить различимыми, показать адрес внешним ссылкам --- */
+  a { color: #000 !important; text-decoration: underline !important; }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #444;
+    word-break: break-all;
+  }
+
+  /* --- Картинки и SVG --- */
+  .figure { border: 1px solid #bbb !important; background: #fff !important; }
+  img, svg { max-width: 100% !important; }
+
+  /* --- Тесты в печати: показывать вопрос и правильные ответы --- */
+  .quiz__q { page-break-inside: avoid; }
+  .quiz__opt input { display: none; }
+  .quiz__opt--correct { font-weight: 700; }
+  .quiz__result { display: none; }
+
+  /* --- Разрывы между модулями при печати всего курса --- */
+  .module { page-break-before: auto; }
+  .print-module-break { page-break-before: always; break-before: page; }
+
+  .page__footer { border-top: 1px solid #999 !important; }
+}

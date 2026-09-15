@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 600" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <title>Разделение базы Access на front-end и back-end</title>
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1c6fb8"/>
+    </marker>
+    <style>
+      .file { fill: #ffffff; stroke: #b9c5d2; stroke-width: 1.6; }
+      .behead { fill: #a4373a; }
+      .fehead { fill: #1c6fb8; }
+      .headtxt { fill: #ffffff; font-weight: 700; font-size: 14px; }
+      .obj { fill: #1e2630; font-size: 12.5px; }
+      .objm { fill: #5c6a7a; font-size: 12px; }
+      .link { stroke: #1c6fb8; stroke-width: 2; stroke-dasharray: 7 5; fill: none; marker-end: url(#arr2); }
+      .bg { fill: #f7f9fc; }
+      .lanetxt { fill: #1a7f37; font-weight: 700; font-size: 12px; }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1080" height="600" rx="12"/>
+
+  <!-- Back-end -->
+  <g transform="translate(390,80)">
+    <rect class="file" width="300" height="330" rx="12"/>
+    <rect class="behead" width="300" height="36" rx="12"/>
+    <rect class="behead" y="18" width="300" height="18"/>
+    <text class="headtxt" x="16" y="24">shopdata_be.accdb — BACK-END</text>
+    <text class="obj" x="16" y="66">Только данные:</text>
+    <text class="obj" x="16" y="92">• Customers · Categories · Products</text>
+    <text class="obj" x="16" y="114">• Employees · Orders</text>
+    <text class="obj" x="16" y="136">• OrderDetails · Calendar</text>
+    <text class="obj" x="16" y="166">Связи 1:М, ссылочная целостность,</text>
+    <text class="obj" x="16" y="188">каскады, индексы</text>
+    <text class="obj" x="16" y="218">Настройки:</text>
+    <text class="obj" x="16" y="244">• сжатие при закрытии</text>
+    <text class="obj" x="16" y="266">• регулярная резервная копия</text>
+    <text class="obj" x="16" y="288">• доступ в общей сетевой папке</text>
+    <text class="objm" x="16" y="314">Одна копия на всех (модуль 14)</text>
+  </g>
+
+  <!-- FE копия 1 -->
+  <g transform="translate(30,70)">
+    <rect class="file" width="290" height="220" rx="12"/>
+    <rect class="fehead" width="290" height="36" rx="12"/>
+    <rect class="fehead" y="18" width="290" height="18"/>
+    <text class="headtxt" x="16" y="24">shopdata_fe_ana.accdb</text>
+    <text class="obj" x="16" y="64">Запросы: qry_ВыручкаПоКатегориям…</text>
+    <text class="obj" x="16" y="88">Формы: frm_Панель · frm_Заказы</text>
+    <text class="obj" x="16" y="112">Отчёты: rpt_Топ10Товаров…</text>
+    <text class="obj" x="16" y="136">Макросы: mcr_ЭкспортМесяца</text>
+    <text class="obj" x="16" y="160">VBA: кнопки экспорта · RefreshLinks</text>
+    <text class="objm" x="16" y="192">Связанные таблицы смотрят</text>
+    <text class="objm" x="16" y="210">в общий BE</text>
+  </g>
+
+  <!-- FE копия 2 -->
+  <g transform="translate(30,350)">
+    <rect class="file" width="290" height="200" rx="12"/>
+    <rect class="fehead" width="290" height="36" rx="12"/>
+    <rect class="fehead" y="18" width="290" height="18"/>
+    <text class="headtxt" x="16" y="24">shopdata_fe_pedro.accdb</text>
+    <text class="obj" x="16" y="64">Своя копия интерфейса</text>
+    <text class="obj" x="16" y="88">у каждого пользователя:</text>
+    <text class="obj" x="16" y="112">свои настройки, свой кэш,</text>
+    <text class="obj" x="16" y="136">обновление — заменить файл</text>
+    <text class="lanetxt" x="16" y="176">ACCDE-вариант: код защищён</text>
+    <text class="objm" x="16" y="196">от изменений (модуль 14)</text>
+  </g>
+
+  <!-- Ссылки FE -> BE -->
+  <path class="link" d="M320,140 C360,140 380,150 390,160"/>
+  <path class="link" d="M320,450 C360,450 380,400 390,380"/>
+
+  <!-- Сетевая папка -->
+  <g transform="translate(740,120)">
+    <rect x="0" y="0" width="310" height="90" rx="10" fill="#ffffff" stroke="#1a7f37" stroke-width="1.6"/>
+    <text class="lanetxt" x="16" y="28">\\fileserver\databases\</text>
+    <text class="obj" x="16" y="52">общая сетевая папка: здесь живёт</text>
+    <text class="obj" x="16" y="72">shopdata_be.accdb и резервные копии</text>
+  </g>
+
+  <!-- Правило разделения -->
+  <g transform="translate(740,250)">
+    <rect x="0" y="0" width="310" height="270" rx="10" fill="#ffffff" stroke="#d9e1ea"/>
+    <rect x="0" y="0" width="310" height="36" rx="10" fill="#b45309"/>
+    <rect x="0" y="18" width="310" height="18" fill="#b45309"/>
+    <text class="headtxt" x="16" y="24">Правила разделения</text>
+    <text class="obj" x="16" y="62">1. Таблицы — только в BE.</text>
+    <text class="obj" x="16" y="90">2. Запросы, формы, отчёты,</text>
+    <text class="obj" x="16" y="112">макросы, VBA — только в FE.</text>
+    <text class="obj" x="16" y="140">3. FE раздаётся каждому</text>
+    <text class="obj" x="16" y="162">пользователю отдельным файлом.</text>
+    <text class="obj" x="16" y="190">4. Бэкапить нужно BE —</text>
+    <text class="obj" x="16" y="212">он один на всех.</text>
+    <text class="obj" x="16" y="240">5. Переподключение после</text>
+    <text class="obj" x="16" y="262">переезда — RefreshLinks (VBA).</text>
+  </g>
+
+  <!-- Заголовок -->
+  <text class="obj" x="30" y="40" font-weight="700" font-size="16">Разделение базы Access: один back-end, много front-end (модуль 14)</text>
+  <text class="objm" x="30" y="580">Пунктир — «связанные таблицы»: FE видит данные BE через постоянные подключения; данные обрабатываются локально на компьютере пользователя</text>
+</svg>

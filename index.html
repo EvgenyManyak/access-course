@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Интерактивный учебник Microsoft Access 2007–2016 для аналитиков: от Excel и SQL к реляционной базе данных, формам, отчётам, макросам и прикладному VBA.">
+<title>Microsoft Access 2007–2016 для аналитика — интерактивный учебник</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body data-page="index">
+<a class="skip-link" href="#content">Перейти к содержимому</a>
+<main id="content" class="page__content">
+<!--CACHE-START-->
+<div class="home">
+
+<section class="home-hero">
+  <h1>📗 Microsoft Access 2007–2016<br>для аналитика данных</h1>
+  <p class="lead">Интерактивный учебник для тех, кто свободно работает в Excel и знает SQL, но не имел опыта сборки законченного решения в Access: от импорта CSV до разделённой базы front-end/back-end, форм, отчётов, макросов и прикладного VBA.</p>
+  <p>Курс построен на <strong>одном сквозном датасете ShopData</strong> (интернет-магазин, основа — Kaggle Olist Brazilian E-commerce): вы проживаете полный путь данных — CSV/XLSX → импорт → очистка → нормализация → связи → запросы → формы → отчёты → экспорт.</p>
+  <div class="home-hero__cta">
+    <a class="btn" data-nav="m01" href="modules/01-access-basics.html">Начать обучение → Модуль 01</a>
+    <a class="btn btn--ghost" data-nav="datasets" href="datasets/kaggle-links.html">Датасеты Kaggle</a>
+    <a class="btn btn--ghost" href="https://github.com/your-username/access-course" target="_blank" rel="noopener">GitHub проекта ↗</a>
+  </div>
+</section>
+
+<section class="sec" id="s-about">
+  <h2>О курсе</h2>
+  <p><strong>Целевая аудитория:</strong> пользователи Excel и аналитики данных со знанием SQL на уровне SELECT … JOIN … GROUP BY, без практического опыта Access. Подходит бизнес- и финансовым аналитикам, специалистам отчётности, которые получают данные выгрузками и хотят перенести рабочие процессы из «плоского» Excel в реляционную модель.</p>
+  <p><strong>VBA не преподаётся «с нуля»</strong>: язык подключается на прикладном среднем уровне — чтение готового кода, запуск процедур, обработка событий, автоматизация форм, запросов, импорта и экспорта. Именно так аналитик встречается с чужим кодом в реальной работе.</p>
+  <div class="home-stats">
+    <div class="home-stat"><div class="home-stat__num">15</div><div class="home-stat__label">модулей с единой структурой из 17 секций</div></div>
+    <div class="home-stat"><div class="home-stat__num">80</div><div class="home-stat__label">академических часов (34 теория + 46 практика)</div></div>
+    <div class="home-stat"><div class="home-stat__num">20</div><div class="home-stat__label">практических заданий на одном датасете</div></div>
+    <div class="home-stat"><div class="home-stat__num">120+</div><div class="home-stat__label">вопросов в тестах с пояснениями</div></div>
+  </div>
+</section>
+
+<section class="sec" id="s-outcomes">
+  <h2>Чему вы научитесь</h2>
+  <ul>
+    <li>проектировать реляционную базу: таблицы, типы данных, ключи, индексы, нормализация до 3НФ;</li>
+    <li>импортировать CSV/XLSX, очищать и валидировать данные средствами Access;</li>
+    <li>строить запросы в конструкторе и на Access SQL: соединения, агрегаты, параметры, перекрёстные и action-запросы;</li>
+    <li>собирать интерфейс: формы, подчинённые формы, навигационная панель;</li>
+    <li>готовить отчёты с группировкой и итогами и экспортировать их в PDF;</li>
+    <li>автоматизировать рутину макросами и прикладным VBA (DoCmd, события, Recordset);</li>
+    <li>эксплуатировать решение: оптимизация, разделение front-end/back-end, резервное копирование;</li>
+    <li>собрать законченный аналитический проект в итоговом модуле.</li>
+  </ul>
+</section>
+
+<section class="sec" id="s-modules">
+  <h2>Модули курса</h2>
+  <p>Прогресс каждого модуля сохраняется в вашем браузере (localStorage) и отмечается галочкой. Прогресс и результаты тестов доступны только вам и не покидают компьютер.</p>
+  <div class="card-grid">
+
+    <a class="module-card" data-module-card="m01" data-nav="m01" href="modules/01-access-basics.html">
+      <span class="module-card__top"><span class="module-card__num">01</span><span class="module-card__icon">🧭</span></span>
+      <span class="module-card__title">Access для аналитика: отличие от Excel и SQL</span>
+      <span class="module-card__desc">Когда выбирать Access, интерфейс, шесть типов объектов, различия версий 2007–2016</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m02" data-nav="m02" href="modules/02-tables.html">
+      <span class="module-card__top"><span class="module-card__num">02</span><span class="module-card__icon">🗄️</span></span>
+      <span class="module-card__title">Проектирование таблиц и типы данных</span>
+      <span class="module-card__desc">Конструктор таблиц, типы данных, свойства полей, первичные ключи, нормализация до 3НФ</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m03" data-nav="m03" href="modules/03-relationships.html">
+      <span class="module-card__top"><span class="module-card__num">03</span><span class="module-card__icon">🔗</span></span>
+      <span class="module-card__title">Ключи, индексы и связи между таблицами</span>
+      <span class="module-card__desc">Схема данных, ссылочная целостность, каскадные обновления и удаления</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m04" data-nav="m04" href="modules/04-import.html">
+      <span class="module-card__top"><span class="module-card__num">04</span><span class="module-card__icon">📥</span></span>
+      <span class="module-card__title">Импорт CSV и Excel</span>
+      <span class="module-card__desc">Мастер импорта, типовые ошибки, staging-подход, сохранённые спецификации</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m05" data-nav="m05" href="modules/05-cleaning.html">
+      <span class="module-card__top"><span class="module-card__num">05</span><span class="module-card__icon">🧹</span></span>
+      <span class="module-card__title">Очистка и проверка данных</span>
+      <span class="module-card__desc">Дедупликация, пропуски, диапазоны, справочники, условия на значение</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m06" data-nav="m06" href="modules/06-query-builder.html">
+      <span class="module-card__top"><span class="module-card__num">06</span><span class="module-card__icon">🧮</span></span>
+      <span class="module-card__title">Конструктор запросов: фильтрация и сортировка</span>
+      <span class="module-card__desc">Сетка QBE, условия отбора, вычисляемые поля, TOP N, уникальные значения</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m07" data-nav="m07" href="modules/07-access-sql.html">
+      <span class="module-card__top"><span class="module-card__num">07</span><span class="module-card__icon">⌨️</span></span>
+      <span class="module-card__title">Access SQL и соединения таблиц</span>
+      <span class="module-card__desc">Диалект Access, INNER/LEFT/RIGHT JOIN, self-join, декартово произведение, UNION</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m08" data-nav="m08" href="modules/08-analytics.html">
+      <span class="module-card__top"><span class="module-card__num">08</span><span class="module-card__icon">📊</span></span>
+      <span class="module-card__title">Аналитические запросы</span>
+      <span class="module-card__desc">Агрегаты и HAVING, параметрические, перекрёстные (TRANSFORM…PIVOT), action-запросы</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m09" data-nav="m09" href="modules/09-forms.html">
+      <span class="module-card__top"><span class="module-card__num">09</span><span class="module-card__icon">🪟</span></span>
+      <span class="module-card__title">Формы и подчинённые формы</span>
+      <span class="module-card__desc">Мастер форм, элементы управления, поля со списком, Master/Child, навигационная форма</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m10" data-nav="m10" href="modules/10-reports.html">
+      <span class="module-card__top"><span class="module-card__num">10</span><span class="module-card__icon">🖨️</span></span>
+      <span class="module-card__title">Отчёты</span>
+      <span class="module-card__desc">Области отчёта, группировка и итоги, выражения, подчинённый отчёт, экспорт в PDF</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m11" data-nav="m11" href="modules/11-macros.html">
+      <span class="module-card__top"><span class="module-card__num">11</span><span class="module-card__icon">🤖</span></span>
+      <span class="module-card__title">Макросы Access</span>
+      <span class="module-card__desc">Конструктор макросов, действия и условия, макросы данных, AutoExec</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m12" data-nav="m12" href="modules/12-vba.html">
+      <span class="module-card__top"><span class="module-card__num">12</span><span class="module-card__icon">💻</span></span>
+      <span class="module-card__title">VBA на прикладном уровне</span>
+      <span class="module-card__desc">Чтение готового кода, запуск и отладка, события, DoCmd, Recordset, обработка ошибок</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m13" data-nav="m13" href="modules/13-export.html">
+      <span class="module-card__top"><span class="module-card__num">13</span><span class="module-card__icon">🔁</span></span>
+      <span class="module-card__title">Импорт и экспорт: автоматизация обмена</span>
+      <span class="module-card__desc">Сохранённые экспорты, OutputTo / TransferSpreadsheet / TransferText, связанные таблицы</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m14" data-nav="m14" href="modules/14-optimization.html">
+      <span class="module-card__top"><span class="module-card__num">14</span><span class="module-card__icon">🛠️</span></span>
+      <span class="module-card__title">Оптимизация, разделение базы и обслуживание</span>
+      <span class="module-card__desc">Сжатие, индексы, мастер разделения, BE/FE, резервное копирование, ACCDE</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+    <a class="module-card" data-module-card="m15" data-nav="m15" href="modules/15-final-project.html">
+      <span class="module-card__top"><span class="module-card__num">15</span><span class="module-card__icon">🏁</span></span>
+      <span class="module-card__title">Итоговый аналитический проект</span>
+      <span class="module-card__desc">Сквозное решение на ShopData: BE/FE, 6+ запросов, формы, отчёты, автоматизация, защита</span>
+      <span class="module-card__state">Не начат</span>
+    </a>
+
+  </div>
+</section>
+
+<section class="sec" id="s-datasets">
+  <h2>Датасеты курса</h2>
+  <p>Все практические задания выполняются на едином датасете <strong>ShopData</strong>, основанном на публичном наборе <strong>Olist Brazilian E-commerce</strong> с Kaggle. В разделе «Датасеты» собраны кликабельные ссылки Kaggle с описанием форматов, объёмов, полей, лицензий и датой проверки, словарь данных и пошаговые инструкции по импорту.</p>
+  <p><a class="btn" data-nav="datasets" href="datasets/kaggle-links.html">Открыть раздел датасетов →</a></p>
+  <div class="callout callout--important">
+    <div class="callout__title">Важно</div>
+    <p>Сами файлы датасетов в репозиторий не включены — только ссылки и инструкции. Скачивая данные с Kaggle, вы принимаете условия лицензии соответствующего набора (для Olist — CC BY-NC-SA 4.0). Ссылки могли устареть: перед началом работы проверьте их актуальность.</p>
+  </div>
+</section>
+
+<section class="sec" id="s-project">
+  <h2>Итоговый проект</h2>
+  <p>Кульминация курса — <strong>«Аналитическая панель магазина ТехноДом»</strong>: вы собираете законченное решение на ShopData — разделённую базу BE/FE с семью связанными таблицами, шестью и более запросами (включая параметрический и перекрёстный), навигационной формой, формой заказа с подчинённой формой, двумя отчётами, макросом экспорта и VBA-кнопкой. Проект сдаётся по 20-пунктовому чек-листу и защищается демонстрацией бизнес-сценария.</p>
+  <p><a class="btn" data-nav="m15" href="modules/15-final-project.html">Перейти к итоговому проекту →</a></p>
+</section>
+
+<section class="sec" id="s-docs">
+  <h2>Документация</h2>
+  <ul>
+    <li><a href="docs/course-outline.md">Программа курса</a> — паспорт курса, результаты обучения, карта модулей, система оценивания.</li>
+    <li><a href="docs/student-checklist.md">Чек-лист студента</a> — маршрут прохождения и самопроверка перед итоговым проектом.</li>
+    <li><a href="docs/instructor-guide.md">Руководство преподавателя</a> — как вести курс по учебнику: темп, проверка, типовые трудности.</li>
+    <li><a href="docs/testing-guide.md">Гайд по тестированию</a> — 18-пунктовый чек-лист проверки учебника перед публикацией.</li>
+  </ul>
+</section>
+
+<section class="sec" id="s-run">
+  <h2>Локальный запуск</h2>
+  <ol>
+    <li>Скачайте проект (кнопка <strong>Code → Download ZIP</strong> на GitHub или архив <code>access-course-project.zip</code>) и распакуйте в отдельную папку.</li>
+    <li>Откройте <code>index.html</code> двойным щелчком в любом современном браузере (Chrome, Edge, Firefox, Safari) — учебник работает полностью офлайн, сервер не нужен.</li>
+    <li>Для планшета/телефона удобнее файл <code>standalone.html</code> — весь курс в одном файле.</li>
+    <li>Если хотите, чтобы поиск и переходы работали как на сайте, запустите локальный сервер: <code>python -m http.server 8000</code> в папке проекта и откройте <code>http://localhost:8000</code> — это не серверная часть учебника, а просто способ раздачи статических файлов.</li>
+  </ol>
+  <div class="callout callout--tip">
+    <div class="callout__title">Практический совет</div>
+    <p>Добавьте страницу в закладки браузера (Ctrl+D) — прогресс курса хранится в браузере и привязан к адресу файла, поэтому при переносе проекта в другую папку localStorage может «начать с нуля».</p>
+  </div>
+</section>
+
+</div>
+<!--CACHE-END-->
+</main>
+<script src="js/app.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/export.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/quiz.js"></script>
+</body>
+</html>

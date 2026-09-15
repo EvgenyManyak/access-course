@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Favicon учебника Access</title>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="#a4373a"/>
+  <rect x="14" y="12" width="36" height="42" rx="4" fill="#ffffff"/>
+  <rect x="14" y="12" width="8" height="42" rx="3" fill="#f2d7d8"/>
+  <rect x="26" y="20" width="18" height="4" rx="2" fill="#a4373a"/>
+  <rect x="26" y="28" width="18" height="3" rx="1.5" fill="#d9b0b1"/>
+  <rect x="26" y="34" width="18" height="3" rx="1.5" fill="#d9b0b1"/>
+  <rect x="26" y="40" width="12" height="3" rx="1.5" fill="#d9b0b1"/>
+  <text x="40" y="58" font-family="Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">A</text>
+</svg>

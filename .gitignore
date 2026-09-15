@@ -1,0 +1,57 @@
+# ---- Git ----
+.git/
+.gitignore.bak
+*.orig
+
+# ---- Системные файлы ----
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---- Временные файлы ----
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+
+# ---- Логи и кэш ----
+*.log
+npm-debug.log*
+.cache/
+.cache/*
+
+# ---- Зависимости (на случай локальных экспериментов) ----
+node_modules/
+
+# ---- Редакторы ----
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ---- Сборка и архивы ----
+access-course-project.zip
+*.zip.tmp
+dist/
+build/
+
+# ---- Локальные конфиденциальные файлы ----
+.env
+.env.local
+secrets*
+credentials*
+
+# ---- Данные датасетов (в репозиторий не включаем — только ссылки!) ----
+import/
+*.csv
+*.xlsx
+*.accdb
+*.mdb
+*.laccdb
+
+# ---- Access-мусор ----
+*.ldb
+*.accde

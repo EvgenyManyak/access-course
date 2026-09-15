@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Модуль 05. Очистка и проверка данных — Учебник Microsoft Access</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../css/responsive.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+</head>
+<body data-module="m05">
+<a class="skip-link" href="#content">Перейти к содержимому</a>
+<main id="content" class="page__content">
+<!--CACHE-START-->
+<article class="module">
+
+<header class="module-header">
+  <h1 class="module-title"><span class="module-title__kicker">Модуль 05</span>Очистка и проверка данных</h1>
+  <div class="module-header__meta">
+    <span class="chip chip--accent">Блок A. Основы и данные</span>
+    <span class="chip">⏱ 3 ч (2 Т + 1 П)</span>
+    <span class="chip chip--level1">Базовый уровень</span>
+  </div>
+</header>
+
+<section class="sec" id="s-goals" data-sec="goals">
+<h2>Цели обучения</h2>
+<p>После импорта данные ещё нельзя считать пригодными для анализа: в них есть повторы, пропуски, случайные пробелы и значения вне справочников. Этот модуль учит проводить данные через конвейер очистки в правильном порядке и закреплять результат правилами на уровне таблицы. По итогам модуля студент сможет:</p>
+<ul>
+<li>проводить данные через пять шагов конвейера в правильной последовательности: дедупликация → пропуски → диапазоны → справочники → типы и защита;</li>
+<li>находить повторяющиеся записи мастером поиска дубликатов (Создание → Мастер запросов) и удалять их запросом на удаление, предварительно сделав резервную копию таблицы;</li>
+<li>различать NULL и пустую строку, отбирать пропуски условием Is Null и обрабатывать их функцией Nz() в вычислениях;</li>
+<li>проверять диапазоны значений (цена UnitPrice не меньше нуля, DeliveredDate не раньше OrderDate, длина ZipCodePrefix равна 5) и приводить текст к справочному виду функциями Trim, UCase и списками In (…);</li>
+<li>находить записи без пары в другой таблице мастером несоответствий и включать условие на значение как постоянный «щит» против новых ошибок.</li>
+</ul>
+</section>
+
+<section class="sec" id="s-prereq" data-sec="prereq">
+<h2>Необходимые предварительные знания</h2>
+<p>Модуль напрямую продолжает модуль 04: работаем с той же таблицей Customers_Staging, в которую легла выгрузка из CRM. Потребуются типы данных и свойства полей из модуля 02 (особенно «Условие на значение» и «Сообщение об ошибке») и представления модуля 03 о связях и ссылочной целостности — именно она определяет, почему чистить данные нужно до установки связей. Из техники достаточно уметь создавать запросы в конструкторе и переключать их в режим SQL.</p>
+<ul>
+<li><strong>Модуль 02</strong> — свойства поля: Условие на значение, Сообщение об ошибке, Обязательное поле.</li>
+<li><strong>Модуль 03</strong> — связи 1—М, ссылочная целостность, каскадные операции.</li>
+<li><strong>Модуль 04</strong> — таблица Customers_Staging (11 строк в сценарии очистки) и запрос на добавление.</li>
+</ul>
+<div class="callout callout--important"><div class="callout__title">Важно</div><p>Очистку выполняют до установки связей между таблицами. Если связи уже есть, запрос на удаление может быть заблокирован ссылочной целостностью, а повторы успеют «протянуть» связи в дочерние таблицы — исправлять такое в разы сложнее. Если вы уже создали схему данных, временно работайте на копии базы.</p></div>
+</section>
+
+<section class="sec" id="s-theory" data-sec="theory">
+<h2>Теория</h2>
+<p>Очистка данных — не разовый «костыль», а обязательный этап конвейера: импорт в staging (модуль 04) приносит сырые данные, и только после очистки их можно переносить в боевые таблицы и агрегировать в отчётах. Порядок шагов конвейера не случаен: дубликаты удаляют первыми, потому что они сильнее всего искажают любые подсчёты — каждый дубль покупателя inflates счётчик клиентов и может протянуть ложные связи дальше по цепочке. Затем разбираются пропуски, потом диапазоны и справочники, и в конце включается защита. Схема конвейера показана на рис. 5.1.</p>
+<figure class="figure">
+<svg viewBox="0 0 880 150" role="img" aria-label="Конвейер очистки: дубликаты, пропуски, диапазоны, справочники, типы и щит">
+  <g font-family="inherit" font-size="14" fill="currentColor">
+    <rect x="10" y="20" width="150" height="95" rx="8" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-opacity="0.6"/>
+    <text x="85" y="46" text-anchor="middle" font-weight="bold">1. Дубликаты</text>
+    <text x="85" y="68" text-anchor="middle" font-size="11">мастер поиска повторов,</text>
+    <text x="85" y="84" text-anchor="middle" font-size="11">запрос на удаление</text>
+    <rect x="185" y="20" width="150" height="95" rx="8" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-opacity="0.6"/>
+    <text x="260" y="46" text-anchor="middle" font-weight="bold">2. Пропуски</text>
+    <text x="260" y="68" text-anchor="middle" font-size="11">Is Null / Is Not Null,</text>
+    <text x="260" y="84" text-anchor="middle" font-size="11">Nz() в расчётах</text>
+    <rect x="360" y="20" width="150" height="95" rx="8" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-opacity="0.6"/>
+    <text x="435" y="46" text-anchor="middle" font-weight="bold">3. Диапазоны</text>
+    <text x="435" y="68" text-anchor="middle" font-size="11">UnitPrice не меньше 0,</text>
+    <text x="435" y="84" text-anchor="middle" font-size="11">даты по порядку</text>
+    <rect x="535" y="20" width="150" height="95" rx="8" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-opacity="0.6"/>
+    <text x="610" y="46" text-anchor="middle" font-weight="bold">4. Справочники</text>
+    <text x="610" y="68" text-anchor="middle" font-size="11">Trim, UCase,</text>
+    <text x="610" y="84" text-anchor="middle" font-size="11">списки In (…)</text>
+    <rect x="710" y="20" width="150" height="95" rx="8" fill="currentColor" fill-opacity="0.07" stroke="currentColor" stroke-opacity="0.6"/>
+    <text x="785" y="46" text-anchor="middle" font-weight="bold">5. Типы и щит</text>
+    <text x="785" y="68" text-anchor="middle" font-size="11">условие на значение</text>
+    <text x="785" y="84" text-anchor="middle" font-size="11">защищает результат</text>
+    <line x1="160" y1="67" x2="181" y2="67" stroke="currentColor" stroke-opacity="0.7"/>
+    <polygon points="181,63 187,67 181,71" fill="currentColor" fill-opacity="0.7"/>
+    <line x1="335" y1="67" x2="356" y2="67" stroke="currentColor" stroke-opacity="0.7"/>
+    <polygon points="356,63 362,67 356,71" fill="currentColor" fill-opacity="0.7"/>
+    <line x1="510" y1="67" x2="531" y2="67" stroke="currentColor" stroke-opacity="0.7"/>
+    <polygon points="531,63 537,67 531,71" fill="currentColor" fill-opacity="0.7"/>
+    <line x1="685" y1="67" x2="706" y2="67" stroke="currentColor" stroke-opacity="0.7"/>
+    <polygon points="706,63 712,67 706,71" fill="currentColor" fill-opacity="0.7"/>
+  </g>
+</svg>
+<figcaption>Рис. 5.1. Конвейер очистки: каждый шаг — отдельный запрос; порядок шагов менять нельзя</figcaption>
+</figure>
+<p>Дедупликация строится в два движения. Сначала мастер «Поиск повторяющихся записей» (Создание → Мастер запросов) строит запрос, группирующий таблицу по подозрительному полю — для покупателей это CustomerID — и показывающий только группы, где записей больше одной. Затем строится запрос на удаление, который соединяет таблицу с этим списком повторов и удаляет совпавшие строки. Перед любым запросом на удаление делается копия таблицы: Ctrl+C, Ctrl+V в области навигации дают точный слепок «структура и данные», из которого всё можно вернуть. В нашем сценарии дубликаты — полностью идентичные копии строк, поэтому после удаления всех копий повторы возвращаются из копии одним запросом на добавление со словом DISTINCT.</p>
+<p>Пропуски — вторая боль. Access различает NULL (значения нет вообще) и пустую строку (значение есть, но нулевой длины). Это не терминологическая придирка: условия отбора и вычисления ведут себя по-разному. Любое сравнение с NULL (даже DeliveredDate = DeliveredDate) возвращает «неизвестно», поэтому для отбора пустых дат пишут Is Null, а не «= пусто». В вычислениях NULL «заражает» результат, и лечится это функцией Nz(значение, замена). Для проекта ShopData типовой пропуск — DeliveredDate у недоставленных заказов O-10005, O-10006 и O-10010: там NULL законен, и «лечить» его нужно не заполнением, а корректной обработкой.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Критерий</th><th>Пустая строка ""</th><th>NULL</th></tr></thead>
+<tbody>
+<tr><td>Что означает</td><td>Значение есть, но нулевой длины</td><td>Значения нет и не было</td></tr>
+<tr><td>Как проверить в запросе</td><td>Условие = "" или Len(поле) = 0</td><td>Условие Is Null</td></tr>
+<tr><td>Учитывается в Count(поле)</td><td>Да, считается записью</td><td>Нет, не считается</td></tr>
+<tr><td>В арифметике</td><td>Участвует как текст</td><td>Возвращает NULL; спасает Nz(поле, замена)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Диапазоны и справочники — проверки содержания. Диапазонные правила для ShopData: цена UnitPrice в OrderDetails не меньше нуля, дата DeliveredDate не раньше OrderDate, длина ZipCodePrefix равна пяти символам. Справочные правила: Segment должен быть одним из Retail, Wholesale, VIP, а OrderStatus — одним из восьми статусов. Приведение текста к справочному виду делают функции Trim (лишние пробелы по краям: « sao paulo » становится sao paulo) и UCase (регистр: sp становится SP), а целевые проверки удобно писать списком In ("Retail","Wholesale","VIP"). Для поиска записей без пары в другой таблице (товар без заказов, клиент без заказов, сотрудник без назначенных заказов) есть готовый мастер несоответствий — Find Unmatched Query Wizard.</p>
+<p>Последний шаг конвейера — «щит»: условие на значение на уровне поля или таблицы. Очищенная таблица без щита снова испачкается при следующем импорте; щит из правил (In ("Retail","Wholesale","VIP") для Segment, Len([ZipCodePrefix])=5 для индекса) отклоняет плохие записи прямо в момент ввода или добавления, сообщая понятную ошибку. Так правила очистки превращаются в постоянные правила данных — это ключевой переход от «мы почистили» к «у нас чисто».</p>
+</section>
+
+<section class="sec" id="s-demo" data-sec="demo">
+<h2>Пошаговая демонстрация</h2>
+<p>Проводим через конвейер таблицу Customers_Staging, в которую загружен архивный файл customers_archive.csv: 11 строк, из них 8 уникальных покупателей и 3 полных дубля (C-0002, C-0003, C-0007 продублированы). Кроме того, в данных грязь: у C-0009 город записан как « sao paulo » с пробелами, у C-0011 штат — строчными sp и сегмент — retail.</p>
+<ol class="steps">
+<li>Сделайте резервную копию: в области навигации выделите Customers_Staging, нажмите Ctrl+C, затем Ctrl+V; в диалоге «Вставка таблицы» введите имя Customers_Staging_Backup, выберите «Структура и данные», ОК. В копии — те же 11 строк.</li>
+<li>Дедупликация, шаг первый: <strong>Создание → Мастер запросов → Поиск повторяющихся записей в текущей или связанной таблице</strong>. Выберите таблицу Customers_Staging, нажмите «Далее».</li>
+<li>В списке полей отметьте CustomerID (это поле, по которому ищем повторы), нажмите «Далее», оставьте «Показывать все поля» отмеченным, задайте имя qry_ПовторыCustomerID и нажмите «Готово». Запрос вернёт 3 строки: C-0002, C-0003, C-0007, у каждой ЧислоПовторов = 2.</li>
+<li>Шаг второй: <strong>Создание → Конструктор запросов</strong>; добавьте Customers_Staging и qry_ПовторыCustomerID — Access соединит их линией по CustomerID.</li>
+<li>Перетащите из списка полей Customers_Staging звёздочку «*» в первый столбец сетки — в строке «Удаление» появится «Из». Затем перетащите CustomerID из qry_ПовторыCustomerID во второй столбец; в строке «Удаление» выберите «Условие» и в строке «Условие отбора» введите Is Not Null.</li>
+<li>На вкладке <strong>Конструктор</strong> нажмите <strong>Тип запроса → Удаление</strong>. Перед запуском посмотрите набор в режиме таблицы: должно быть 6 строк — все копии повторяющихся CustomerID. Вернитесь в конструктор и нажмите <strong>Выполнить</strong>; подтвердите удаление 6 строк. В таблице осталось 5 строк.</li>
+<li>Верните по одному экземпляру повторов из копии: новый запрос на базе Customers_Staging_Backup; в свойствах запроса (клавиша F4) установите «Уникальные значения: Да»; тип запроса — «Добавление» в Customers_Staging; в строке «Условие отбора» для CustomerID — Not In (SELECT CustomerID FROM Customers_Staging). Выполните: Access вставит 3 строки. Итого в таблице снова 8 строк — по одной на CustomerID.</li>
+<li>Проверьте пропуски: запрос SELECT Count(*) FROM Customers_Staging WHERE CustomerID Is Null Or CustomerName Is Null Or State Is Null вернёт 0. Для сравнения запустите на Orders: SELECT OrderID FROM Orders WHERE DeliveredDate Is Null — вернутся O-10005, O-10006, O-10010: пропуск законен, заказ ещё не доставлен.</li>
+<li>Приведите текст к справочному виду: выполните три запроса на обновление из секции SQL — Trim для City (обновлена 1 строка: « sao paulo » → sao paulo), UCase для State (1 строка: sp → SP), фиксированное значение для Segment (1 строка: retail → Retail).</li>
+<li>Проверьте диапазоны и справочники: Count(*) с условием Len(ZipCodePrefix) не равна 5 — 0 строк; SELECT * FROM OrderDetails WHERE UnitPrice меньше нуля — 0 строк; Count(*) WHERE Segment Not In ("Retail","Wholesale","VIP") — 0 строк. Данные чисты.</li>
+<li>Поставьте «щит»: откройте Customers_Staging в конструкторе, выберите поле Segment и на вкладке «Общие» задайте «Условие на значение»: In ("Retail","Wholesale","VIP") и «Сообщение об ошибке»: «Сегмент должен быть Retail, Wholesale или VIP». Попробуйте ввести retail — Access отклонит значение.</li>
+<li>Бонус: найдите записи без пары — <strong>Создание → Мастер запросов → Поиск записей в одной таблице, не имеющих соответствующих в другой</strong>: таблица Employees против Orders, связь EmployeeID ↔ ManagerID. Мастер вернёт одну строку — Julia Pereira (EmployeeID 5): она аналитик и не ведёт заказов, то есть несоответствие объяснимо.</li>
+</ol>
+</section>
+
+<section class="sec" id="s-case" data-sec="case">
+<h2>Пример из работы аналитика</h2>
+<p>В понедельник директор сервиса просит к среде чистый справочник покупателей: «Мы готовим региональную рассылку, и в прошлый раз три магазина получили письмо дважды — в справочнике оказались дубли из CRM. И не хочу увидеть в списке один и тот же город в трёх написаниях». Источник — тот же staging с архивной выгрузкой: 11 строк, из которых только 8 настоящих покупателей.</p>
+<p>Аналитик запускает конвейер очистки, не изобретая велосипед. Копия таблицы — страховка на случай неудачного условия в запросе на удаление. Мастер поиска дубликатов мгновенно показывает три повторяющихся CustomerID: C-0002, C-0003, C-0007; запрос на удаление снимает 6 строк, и запрос на добавление со «Уникальными значениями» возвращает из копии по одному экземпляру. Пропуски проверяются одним Count(*) — обязательных полей без значений нет, а три пустых DeliveredDate живут в Orders и касаются доставки, а не рассылки. Текстовые поля приводятся к справочному виду: Trim убирает пробелы у sao paulo, UCase поднимает sp до SP, сегмент retail становится Retail.</p>
+<p>Что именно делаем:</p>
+<ol>
+<li>Копия Customers_Staging_Backup (11 строк) — страховка всех операций.</li>
+<li>Дедупликация: qry_ПовторыCustomerID (3 строки) → запрос на удаление (минус 6) → добавление DISTINCT (плюс 3) → ровно 8 уникальных CustomerID.</li>
+<li>Пропуски: Count(*) по обязательным полям staging — 0 пропусков.</li>
+<li>Справочники и диапазоны: три запроса на обновление, затем проверки In (…) и длины — 0 нарушений.</li>
+<li>Щит: условие на значение на Segment и ZipCodePrefix, чтобы справочник больше не пачкался.</li>
+</ol>
+</section>
+
+<section class="sec" id="s-data" data-sec="data">
+<h2>Исходные таблицы и поля</h2>
+<p>Главная таблица модуля — Customers_Staging после импорта архива customers_archive.csv. В 11 строках — 8 уникальных покупателей и 3 полных дубля; колонка «Пометка» объясняет каждую строку (в реальной таблице этой колонки нет, она нужна вам для чтения сценария):</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>CustomerID</th><th>CustomerName</th><th>ZipCodePrefix</th><th>City</th><th>State</th><th>Segment</th><th>Пометка</th></tr></thead>
+<tbody>
+<tr><td>C-0001</td><td>Ana Ribeiro</td><td>01310</td><td>sao paulo</td><td>SP</td><td>Retail</td><td>эталон</td></tr>
+<tr><td>C-0002</td><td>Bruno Carvalho</td><td>20040</td><td>rio de janeiro</td><td>RJ</td><td>VIP</td><td>эталон</td></tr>
+<tr><td>C-0002</td><td>Bruno Carvalho</td><td>20040</td><td>rio de janeiro</td><td>RJ</td><td>VIP</td><td>дубль — копия строки выше</td></tr>
+<tr><td>C-0003</td><td>Carla Mendes</td><td>30120</td><td>belo horizonte</td><td>MG</td><td>Wholesale</td><td>эталон</td></tr>
+<tr><td>C-0003</td><td>Carla Mendes</td><td>30120</td><td>belo horizonte</td><td>MG</td><td>Wholesale</td><td>дубль — копия строки выше</td></tr>
+<tr><td>C-0005</td><td>Elena Costa</td><td>50050</td><td>recife</td><td>PE</td><td>Retail</td><td>эталон</td></tr>
+<tr><td>C-0007</td><td>Gabriela Lima</td><td>40020</td><td>salvador</td><td>BA</td><td>VIP</td><td>эталон</td></tr>
+<tr><td>C-0007</td><td>Gabriela Lima</td><td>40020</td><td>salvador</td><td>BA</td><td>VIP</td><td>дубль — копия строки выше</td></tr>
+<tr><td>C-0009</td><td>Lucas Almeida</td><td>04570</td><td> sao paulo </td><td>SP</td><td>Retail</td><td>новый; грязь: пробелы в City</td></tr>
+<tr><td>C-0010</td><td>Marina Duarte</td><td>51020</td><td>recife</td><td>PE</td><td>Wholesale</td><td>новый</td></tr>
+<tr><td>C-0011</td><td>Tatiana Rocha</td><td>13010</td><td>campinas</td><td>sp</td><td>retail</td><td>новый; грязь: регистр State и Segment</td></tr>
+</tbody>
+</table>
+</div>
+<p>Для шага «Пропуски» пригодится фрагмент Orders — единственной таблицы проекта, где пустые значения законны. У недоставленных заказов DeliveredDate содержит NULL:</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>OrderID</th><th>OrderStatus</th><th>OrderDate</th><th>DeliveredDate</th><th>Комментарий</th></tr></thead>
+<tbody>
+<tr><td>O-10001</td><td>delivered</td><td>2017-03-15</td><td>2017-03-24</td><td>доставлен, дата есть</td></tr>
+<tr><td>O-10005</td><td>shipped</td><td>2017-10-30</td><td>(NULL)</td><td>ещё в пути</td></tr>
+<tr><td>O-10006</td><td>canceled</td><td>2017-11-05</td><td>(NULL)</td><td>отменён, доставки не будет</td></tr>
+<tr><td>O-10010</td><td>processing</td><td>2018-04-22</td><td>(NULL)</td><td>в обработке</td></tr>
+</tbody>
+</table>
+</div>
+<p>Целевое состояние staging после конвейера: 8 строк, без дублей, City без лишних пробелов, State в верхнем регистре, Segment строго из списка Retail, Wholesale, VIP.</p>
+</section>
+
+<section class="sec" id="s-sql" data-sec="sql">
+<h2>SQL-код и разбор по строкам</h2>
+<p>Ядро дедупликации — пара запросов: список повторов (его строит мастер) и запрос на удаление (его мы собираем сами). Запрос-список выглядит так:</p>
+<pre class="code"><code class="lang-sql">SELECT CustomerID, Count(*) AS ЧислоПовторов
+FROM Customers_Staging
+GROUP BY CustomerID
+HAVING Count(*) &gt; 1;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT CustomerID, Count(*) AS ЧислоПовторов</code> — выводим значение поля и количество записей в каждой группе; псевдоним ЧислоПовторов делает результат читаемым.</li>
+<li><code>FROM Customers_Staging</code> — источник — рабочая таблица staging.</li>
+<li><code>GROUP BY CustomerID</code> — собираем строки в группы по одинаковому CustomerID; агрегат Count(*) считается по каждой группе.</li>
+<li><code>HAVING Count(*) &gt; 1;</code> — фильтр по группам: оставляем только CustomerID, встречающиеся больше одного раза. Условия над агрегатами пишутся в HAVING, а не в WHERE. Результат: 3 строки (C-0002, C-0003, C-0007 с числом 2).</li>
+</ol>
+<p>Запрос на удаление соединяет staging со списком повторов и удаляет совпавшие строки:</p>
+<pre class="code"><code class="lang-sql">DELETE DISTINCTROW s.*
+FROM Customers_Staging AS s
+INNER JOIN qry_ПовторыCustomerID AS d
+        ON s.CustomerID = d.CustomerID
+WHERE d.CustomerID Is Not Null;</code></pre>
+<ol class="sql-explain">
+<li><code>DELETE DISTINCTROW s.*</code> — удаляем строки слева; слово DISTINCTROW требует Access для запросов на удаление с соединением, чтобы удалялись именно уникальные строки таблицы-источника.</li>
+<li><code>FROM Customers_Staging AS s</code> — таблица, из которой физически удаляются записи; псевдоним s.</li>
+<li><code>INNER JOIN qry_ПовторыCustomerID AS d</code> — присоединяем список повторов; соединение оставит только строки staging с CustomerID из списка.</li>
+<li><code>ON s.CustomerID = d.CustomerID</code> — условие соединения: строки совпадают по идентификатору покупателя.</li>
+<li><code>WHERE d.CustomerID Is Not Null;</code> — дополнительная страховка (в INNER JOIN она всегда истинна): удаляются только строки, у которых нашёлся дубль. Результат запуска: удалено 6 строк, в staging осталось 5.</li>
+</ol>
+<p>Возврат по одному экземпляру из резервной копии делает запрос на добавление с «Уникальными значениями» и защитой от повторной вставки:</p>
+<pre class="code"><code class="lang-sql">INSERT INTO Customers_Staging ( CustomerID, CustomerName, ZipCodePrefix, City, State, Segment )
+SELECT DISTINCT b.CustomerID, b.CustomerName, b.ZipCodePrefix, b.City, b.State, b.Segment
+FROM Customers_Staging_Backup AS b
+WHERE b.CustomerID Not In (SELECT CustomerID FROM Customers_Staging);</code></pre>
+<ol class="sql-explain">
+<li><code>INSERT INTO Customers_Staging ( … )</code> — целевая таблица и список её полей; порядок полей задан явно.</li>
+<li><code>SELECT DISTINCT b.CustomerID, …</code> — отбираем строки из копии; DISTINCT схлопывает одинаковые строки, поэтому из двух идентичных копий C-0002 вернётся одна.</li>
+<li><code>FROM Customers_Staging_Backup AS b</code> — источник — резервная копия до удаления.</li>
+<li><code>WHERE b.CustomerID Not In (SELECT CustomerID FROM Customers_Staging);</code> — не возвращать то, что уже есть в таблице: из 8 уникальных CustomerID копии в staging отсутствуют только C-0002, C-0003, C-0007. Access вставит ровно 3 строки; итог — 8 строк.</li>
+</ol>
+<p>Нормализация текста выполняется тремя короткими запросами на обновление — Access выполняет их по одному:</p>
+<pre class="code"><code class="lang-sql">UPDATE Customers_Staging SET City = Trim([City]);
+UPDATE Customers_Staging SET State = UCase([State]);
+UPDATE Customers_Staging SET Segment = "Retail"
+WHERE Segment = "retail";</code></pre>
+<p>Первая команда обновляет 1 строку ( sao paulo → sao paulo), вторая — 1 строку (sp → SP), третья — 1 строку (retail → Retail; здесь точное условие, потому что слепое UCase превратило бы VIP в VIP без пользы, а Retail уже верен). Для законных пропусков в Orders пригодится Nz — замена NULL значением по умолчанию в вычислениях:</p>
+<pre class="code"><code class="lang-sql">SELECT OrderID, OrderStatus,
+       Nz([DeliveredDate], 0) AS ФактДоставка
+FROM Orders;</code></pre>
+<p>Для доставленных заказов Nz возвращает настоящую дату (для O-10001 — 2017-03-24), для O-10005, O-10006, O-10010 — маркер 0, с которым расчёт не «заразится» NULL.</p>
+</section>
+<section class="sec" id="s-designer" data-sec="designer">
+<h2>Вариант через конструктор запросов</h2>
+<p>Оба ключевых запроса дедупликации собираются мышью, и полезно видеть, как каждая строка SQL отображается в сетке конструктора. Сначала запрос на удаление:</p>
+<ol>
+<li><strong>Создание → Конструктор запросов</strong>; в диалоге «Добавление таблицы» выберите Customers_Staging и qry_ПовторыCustomerID, нажмите «Добавить», затем «Закрыть». Access нарисует линию связи между таблицами по CustomerID — это будущий INNER JOIN.</li>
+<li>Перетащите звёздочку «*» из списка полей Customers_Staging в первый столбец сетки: в строке «Поле» появится s.*, а строка «Удаление» сразу покажет значение «Из» — это строка <code>DELETE s.*</code> из SQL.</li>
+<li>Перетащите CustomerID из qry_ПовторыCustomerID во второй столбец. В строке «Удаление» смените значение на «Условие» и в строке «Условие отбора» введите Is Not Null — это условие WHERE.</li>
+<li>Если Access не вставил слово DISTINCTROW автоматически, откройте окно свойств (F4) и установите «Уникальные строки: Да» — это то же самое свойство.</li>
+<li>Нажмите <strong>Тип запроса → Удаление</strong> на вкладке «Конструктор». Проверьте режим таблицы: 6 строк. Запустите кнопкой <strong>Выполнить</strong> и подтвердите удаление.</li>
+</ol>
+<p>Теперь запрос на добавление из копии:</p>
+<ol>
+<li>Новый конструктор: добавьте только Customers_Staging_Backup. Перетащите в сетку шесть полей: CustomerID, CustomerName, ZipCodePrefix, City, State, Segment.</li>
+<li>Откройте свойства запроса (F4) и установите «Уникальные значения: Да» — Access добавит в SQL слово DISTINCT, и одинаковые строки копии схлопнутся.</li>
+<li>В строке «Условие отбора» под CustomerID введите Not In (SELECT CustomerID FROM Customers_Staging) — защита от повторной вставки существующих покупателей.</li>
+<li>Нажмите <strong>Тип запроса → Добавление</strong>; в диалоге укажите «В таблицу:» Customers_Staging. Строка «Добавление» заполнится именами полей.</li>
+<li><strong>Выполнить</strong>: Access сообщит о вставке 3 строк. Откройте таблицу и убедитесь, что CustomerID встречается по одному разу.</li>
+</ol>
+<p>Полезная привычка: собрав запрос мышью, откройте режим SQL (контекстное меню вкладки запроса → Режим SQL) и сравните с кодом из предыдущей секции. Сетка конструктора и SQL — два вида одного объекта; умение переводить одно в другое ускоряет работу в разы.</p>
+</section>
+
+<section class="sec" id="s-result" data-sec="result">
+<h2>Ожидаемый результат</h2>
+<div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>Customers_Staging прошла конвейер: было 11 строк — стало ровно 8, по одному экземпляру на каждый CustomerID. У C-0009 City теперь sao paulo без пробелов; у C-0011 State = SP, Segment = Retail. Проверки пропусков, диапазонов и справочников возвращают 0 нарушений. Условие на значение на Segment и ZipCodePrefix включено: попытка ввести retail или индекс из 4 цифр отклоняется с вашим текстом ошибки.</p></div>
+<p>Контрольные числа по шагам конвейера (сверяйте каждое):</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Показатель</th><th>До очистки</th><th>После очистки</th></tr></thead>
+<tbody>
+<tr><td>Строк в Customers_Staging</td><td>11</td><td>8</td></tr>
+<tr><td>Уникальных CustomerID</td><td>8</td><td>8</td></tr>
+<tr><td>Строк, удалённых запросом на удаление</td><td>—</td><td>6</td></tr>
+<tr><td>Строк, добавленных из копии (DISTINCT + Not In)</td><td>—</td><td>3</td></tr>
+<tr><td>City с лишними пробелами</td><td>1 ( sao paulo )</td><td>0</td></tr>
+<tr><td>State в нижнем регистре</td><td>1 (sp)</td><td>0</td></tr>
+<tr><td>Segment вне списка Retail/Wholesale/VIP</td><td>1 (retail)</td><td>0</td></tr>
+<tr><td>ZipCodePrefix длиной не 5 символов</td><td>0</td><td>0</td></tr>
+</tbody>
+</table>
+</div>
+<p>Итоговый список CustomerID для сверки: C-0001, C-0002, C-0003, C-0005, C-0007, C-0009, C-0010, C-0011 — восемь строк, ни одного повтора. Это ровно то состояние, при котором staging можно переносить в боевые таблицы.</p>
+</section>
+
+<section class="sec" id="s-mistakes" data-sec="mistakes">
+<h2>Типичные ошибки</h2>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> после запроса на удаление в таблице не осталось ни одной копии повторяющихся покупателей — ни повторной, ни исходной. <strong>Причина:</strong> удалены все совпавшие строки, а вернуть их неоткуда: копия таблицы перед операцией сделана не была. <strong>Лечение:</strong> всегда делайте копию «структура и данные» перед запросом на удаление; если копии нет — только повторный импорт из исходного файла и повторная дедупликация.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> запрос с условием DeliveredDate = "" возвращает 0 строк, хотя в таблице видно пустое поле DeliveredDate. <strong>Причина:</strong> в поле NULL, а не пустая строка; сравнение с NULL через равенство всегда даёт «неизвестно» и не отбирает записи. <strong>Лечение:</strong> писать Is Null для отбора пустых значений и Nz(поле, замена) для вычислений.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> запрос на удаление дубликатов не выполняется — Access сообщает о нарушении ссылочной целостности или не даёт удалить строки. <strong>Причина:</strong> очистка начата после установки связей, и удаляемые записи уже имеют связанные дочерние записи. <strong>Лечение:</strong> чистить данные до построения схемы данных; если связи уже есть, работать на копии базы и восстанавливать порядок: сначала очистка, затем связи.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> уникальных CustomerID всё ещё 8, но запрос на добавление из копии внёс 5 строк, и в таблице снова появились повторы. <strong>Причина:</strong> забыта защита Not In (SELECT CustomerID FROM Customers_Staging): добавились и те три, которых не хватало, и те пять, что уже были в таблице. <strong>Лечение:</strong> включать условие Not In в каждый запрос возврата и проверять подтверждение Access — там должно быть ровно 3 строки.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> после установки условия на значение In ("Retail","Wholesale","VIP") запрос на обновление Segment падает с сообщением об ошибке, хотя данные вроде бы верны. <strong>Причина:</strong> щит поставили до приведения регистра: запрос пытался записать retail, а правило требует Retail. <strong>Лечение:</strong> порядок конвейера: сначала очистка данных, затем щит; при импорте новых файлов щит сообщит о проблеме в момент добавления — это его работа.</p></div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div><p><strong>Симптом:</strong> почистили один экземпляр дубля руками прямо в таблице, а через неделю дублей стало больше. <strong>Причина:</strong> ручная правка не воспроизводится; источник данных по-прежнему присылает копии строк. <strong>Лечение:</strong> чистить запросами и сохранять их (qry_ПовторыCustomerID, qry_УдалениеПовторов, qry_ВозвратУникальных) — тогда еженедельная очистка сводится к трём запускам.</p></div>
+</section>
+
+<section class="sec" id="s-tips" data-sec="tips">
+<h2>Практические советы</h2>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Считайте строки до и после каждого шага конвейера: Count(*) — самый дешёвый и честный контроль. Цепочка чисел 11 → 5 → 8 сама покажет, где вы потеряли или задвоили записи.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Дубли ищите по первичному ключу источника (CustomerID), а не по имени: у CustomerName хватает вариаций (Bruno Carvalho против Bruno  Carvalho с двумя пробелами), из-за которых мастер пропустит настоящие повторы.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Давайте запросам очистки говорящие имена с префиксом qry_: qry_ПовторыCustomerID, qry_УдалениеПовторов, qry_ВозвратУникальных, qry_НормализацияГорода. Через месяц вы (или коллега) соберёте конвейер за минуту, а не по памяти.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Используйте Nz только в вычислениях и выгрузках — не «заполняйте» NULL в самих таблицах маркерами вроде «нет даты»: NULL честнее, а Nz всегда готов подставить замену там, где нужен расчёт.</p></div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div><p>Мастер несоответствий хорош не только для поиска ошибок: он быстро отвечает на бизнес-вопросы вида «какие товары ни разу не заказывались». В мини-датасете все 8 товаров заказаны, а вот сотрудник Julia Pereira не ведёт ни одного заказа — и это норма, а не брак.</p></div>
+</section>
+
+<section class="sec" id="s-homework" data-sec="homework">
+<h2>Самостоятельная работа</h2>
+<p>Задание: самостоятельно провести дедупликацию Customers_Staging — от резервной копии до состояния «8 уникальных CustomerID» — и закрепить результат правилами. Работайте на копии базы. Выполняйте шаги по чек-листу и сверяйте числа с карточкой задания E04: если какое-то число не сходится, вернитесь на шаг и перечитайте секцию «Типичные ошибки».</p>
+<ul class="checklist" data-checklist="m05-self">
+<li><label><input type="checkbox" data-ck="m05:1"><span>Сделать копию Customers_Staging_Backup (структура и данные, 11 строк) перед любыми изменениями</span></label></li>
+<li><label><input type="checkbox" data-ck="m05:2"><span>Построить мастером qry_ПовторыCustomerID и получить 3 строки: C-0002, C-0003, C-0007</span></label></li>
+<li><label><input type="checkbox" data-ck="m05:3"><span>Собрать запрос на удаление (s.* + CustomerID из qry_ПовторыCustomerID + Is Not Null) и удалить ровно 6 строк</span></label></li>
+<li><label><input type="checkbox" data-ck="m05:4"><span>Вернуть уникальные из копии: Уникальные значения = Да, Not In, вставлено ровно 3 строки</span></label></li>
+<li><label><input type="checkbox" data-ck="m05:5"><span>Сверить итог: 8 строк, список CustomerID без повторов (C-0001…C-0011 без C-0004, C-0006, C-0008)</span></label></li>
+<li><label><input type="checkbox" data-ck="m05:6"><span>Выполнить нормализацию: Trim для City, UCase для State, retail → Retail; проверки возвращают 0 нарушений</span></label></li>
+<li><label><input type="checkbox" data-ck="m05:7"><span>Поставить щит: условие на значение на Segment (In ("Retail","Wholesale","VIP")) и на длину ZipCodePrefix = 5</span></label></li>
+</ul>
+<article class="task-card" id="task-e04" data-task="E04">
+  <div class="task-card__head">
+    <span class="chip chip--level1">Начальный уровень</span>
+    <span class="chip">⏱ 30 мин</span>
+    <span class="chip chip--accent">Задание E04</span>
+  </div>
+  <h3>E04. Дедупликация Customers</h3>
+  <p><strong>Цель:</strong> удалить повторяющиеся записи покупателей из рабочей таблицы, оставив по одной строке на CustomerID, и проверить результат числом уникальных ключей. После дедупликации в Customers_Staging должно остаться 8 уникальных CustomerID.</p>
+  <p><strong>Исходные таблицы:</strong> Customers_Staging (11 строк: 8 уникальных покупателей плюс по одному полному дублю для C-0002, C-0003, C-0007); создаваемые qry_ПовторыCustomerID и Customers_Staging_Backup.</p>
+  <p><strong>Используемые поля:</strong> CustomerID, CustomerName, ZipCodePrefix, City, State, Segment (все шесть полей staging).</p>
+  <p><strong>Пошаговый план:</strong></p>
+  <ol>
+    <li>Скопируйте Customers_Staging в Customers_Staging_Backup (Ctrl+C, Ctrl+V, «Структура и данные»). Убедитесь, что в копии 11 строк.</li>
+    <li>Создайте запрос на повторы: Создание → Мастер запросов → «Поиск повторяющихся записей», таблица Customers_Staging, поле CustomerID, имя qry_ПовторыCustomerID. Ожидание: 3 строки с ЧислоПовторов = 2.</li>
+    <li>Соберите запрос на удаление: конструктор, таблицы Customers_Staging и qry_ПовторыCustomerID; поле s.* («Удаление: Из»), CustomerID из qry («Удаление: Условие», критерий Is Not Null); тип запроса «Удаление».</li>
+    <li>Посмотрите набор в режиме таблицы (6 строк), затем выполните запрос и подтвердите удаление 6 строк.</li>
+    <li>Соберите запрос возврата: источник Customers_Staging_Backup, свойства «Уникальные значения: Да», тип «Добавление» в Customers_Staging, условие Not In (SELECT CustomerID FROM Customers_Staging) по CustomerID.</li>
+    <li>Выполните запрос: Access должен сообщить о вставке ровно 3 строк.</li>
+    <li>Проверьте итог запросом SELECT CustomerID, Count(*) FROM Customers_Staging GROUP BY CustomerID: все группы имеют Count = 1, всего 8 строк; CustomerID список совпадает с эталонным.</li>
+  </ol>
+  <div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div><p>В Customers_Staging осталось 8 строк с уникальными CustomerID: C-0001, C-0002, C-0003, C-0005, C-0007, C-0009, C-0010, C-0011. Дублей нет ни по CustomerID, ни по полным совпадениям строк. Копия Customers_Staging_Backup сохранена как страховка, оба запроса сохранены с именами qry_УдалениеПовторов и qry_ВозвратУникальных.</p></div>
+  <p><strong>Критерии оценки:</strong></p>
+  <ul>
+    <li>Перед удалением существует копия таблицы с 11 строками.</li>
+    <li>Запрос на удаление опирается на список повторов (мастер или HAVING Count(*) больше 1) и удаляет ровно 6 строк.</li>
+    <li>Запрос возврата использует Уникальные значения (DISTINCT) и условие Not In; вставлено ровно 3 строки.</li>
+    <li>Итог: 8 строк, 8 уникальных CustomerID, каждая группа Count = 1.</li>
+  </ul>
+  <div class="callout callout--tip"><div class="callout__title">Подсказка</div><p>Перед запуском запроса на удаление всегда переключайтесь в режим таблицы и смотрите, что именно попадёт под условие: 6 строк — идём дальше, другое число — возвращаемся к соединению таблиц.</p></div>
+  <details class="solution">
+    <summary>Показать эталонное решение</summary>
+    <div>
+      <p>Шаг 1–2. Копия сделана (11 строк). Мастер поиска дубликатов построил запрос:</p>
+      <pre class="code"><code class="lang-sql">SELECT CustomerID, Count(*) AS ЧислоПовторов
+FROM Customers_Staging
+GROUP BY CustomerID
+HAVING Count(*) &gt; 1;</code></pre>
+      <p>Результат: 3 строки — C-0002 (2), C-0003 (2), C-0007 (2).</p>
+      <p>Шаг 3–4. Запрос на удаление (сохранён как qry_УдалениеПовторов):</p>
+      <pre class="code"><code class="lang-sql">DELETE DISTINCTROW s.*
+FROM Customers_Staging AS s
+INNER JOIN qry_ПовторыCustomerID AS d
+        ON s.CustomerID = d.CustomerID
+WHERE d.CustomerID Is Not Null;</code></pre>
+      <p>Просмотр перед запуском: 6 строк (по две копии каждого повторяющегося CustomerID). После выполнения — Access сообщает об удалении 6 строк; в таблице осталось 5 строк: C-0001, C-0005, C-0009, C-0010, C-0011.</p>
+      <p>Шаг 5–6. Запрос возврата уникальных (сохранён как qry_ВозвратУникальных):</p>
+      <pre class="code"><code class="lang-sql">INSERT INTO Customers_Staging ( CustomerID, CustomerName, ZipCodePrefix, City, State, Segment )
+SELECT DISTINCT b.CustomerID, b.CustomerName, b.ZipCodePrefix, b.City, b.State, b.Segment
+FROM Customers_Staging_Backup AS b
+WHERE b.CustomerID Not In (SELECT CustomerID FROM Customers_Staging);</code></pre>
+      <p>Access вставляет 3 строки (C-0002, C-0003, C-0007). Итог — 8 строк.</p>
+      <p>Шаг 7. Контрольная проверка:</p>
+      <pre class="code"><code class="lang-sql">SELECT CustomerID, Count(*) AS ЧислоЗаписей
+FROM Customers_Staging
+GROUP BY CustomerID
+ORDER BY CustomerID;</code></pre>
+      <p>Результат: 8 строк, у каждой ЧислоЗаписей = 1. Список: C-0001, C-0002, C-0003, C-0005, C-0007, C-0009, C-0010, C-0011. Дедупликация выполнена полностью.</p>
+    </div>
+  </details>
+  <p><strong>Дополнительное усложнение:</strong> добавьте в Customers_Staging поле StagingID (Счётчик, первичный ключ) и удалите дубли одним запросом на удаление с самообъединением таблицы на себя: две копии Customers_Staging, соединение по CustomerID, условие s.StagingID &gt; s2.StagingID — удаляется более поздняя копия каждой пары. Объясните, почему для этого запроса нужен DISTINCTROW.</p>
+</article>
+</section>
+
+<section class="sec" id="s-quiz" data-sec="quiz">
+<h2>Тест по модулю</h2>
+<p>Тест проверяет порядок конвейера очистки, различие NULL и пустой строки и работу с запросами на удаление. В вопросах с несколькими верными ответами нужно отметить все правильные варианты.</p>
+<div class="quiz" data-quiz="m05">
+<script type="application/json">
+{
+  "title": "Тест: Очистка и проверка данных",
+  "passScore": 80,
+  "questions": [
+    {
+      "q": "Чем NULL отличается от пустой строки в Access?",
+      "options": [
+        "Это одно и то же, разные названия",
+        "NULL — отсутствие значения, пустая строка — значение нулевой длины",
+        "NULL — это одиночный пробел",
+        "NULL появляется только после выполнения запроса на удаление"
+      ],
+      "correct": [1],
+      "explain": "Пустая строка — реальное значение нулевой длины, NULL — признак отсутствия значения. Различие видно в проверках (Is Null против равенства) и в Count(поле): NULL не считается."
+    },
+    {
+      "q": "Какое условие отберёт заказы без даты доставки?",
+      "options": [
+        "DeliveredDate = 0",
+        "DeliveredDate Is Null",
+        "DeliveredDate = пусто",
+        "DeliveredDate Like *"
+      ],
+      "correct": [1],
+      "explain": "Отсутствие значения проверяется только Is Null. Любое сравнение с NULL через равенство даёт «неизвестно», и строки не отбираются."
+    },
+    {
+      "q": "Какие проверки относятся к этапу «Диапазоны» конвейера очистки?",
+      "options": [
+        "UnitPrice в OrderDetails не меньше нуля",
+        "DeliveredDate не раньше OrderDate",
+        "Segment входит в список Retail, Wholesale, VIP",
+        "В поле CustomerName нет лишних пробелов по краям"
+      ],
+      "correct": [0, 1],
+      "explain": "Диапазоны — это сравнения чисел и дат: цена неотрицательна, дата доставки не раньше даты заказа. Список сегментов — этап «Справочники», а пробелы убирает Trim на том же этапе справочников."
+    },
+    {
+      "q": "Какой мастер находит записи одной таблицы, не имеющие пары в другой?",
+      "options": [
+        "Мастер поиска дубликатов",
+        "Мастер поиска несоответствий (Find Unmatched)",
+        "Мастер перекрёстных запросов",
+        "Мастер разделения базы данных"
+      ],
+      "correct": [1],
+      "explain": "Find Unmatched Query Wizard (Поиск записей в одной таблице, не имеющих соответствующих в другой) строит запрос с LEFT JOIN и проверкой Is Null по правой таблице. Мастер дубликатов ищет повторы внутри одной таблицы."
+    },
+    {
+      "q": "Что вернёт выражение Nz([DeliveredDate], 0) для заказа O-10006 со статусом canceled?",
+      "options": [
+        "Пустую строку",
+        "0 — значение замены, потому что DeliveredDate содержит NULL",
+        "Дату 2017-11-05",
+        "Ошибку несоответствия типов"
+      ],
+      "correct": [1],
+      "explain": "Nz подставляет значение замены, когда исходное поле NULL. У O-10006 доставки не было, DeliveredDate — NULL, поэтому выражение вернёт 0. Для доставленных заказов вернётся настоящая дата."
+    },
+    {
+      "q": "Почему дубликаты удаляют до установки связей между таблицами?",
+      "options": [
+        "Так мастер поиска дубликатов работает быстрее",
+        "После установки связей удаление блокируется ссылочной целостностью, а повторы успевают получить дочерние записи",
+        "Дубликаты исчезают сами при создании схемы данных",
+        "Это требование формата файла .accdb"
+      ],
+      "correct": [1],
+      "explain": "Как только связь установлена, удалить строку, на которую ссылаются дочерние записи, нельзя без каскадов; а если дубль успел «притянуть» заказы, чистка превращается в перенос связей. Порядок конвейера: сначала чистота, потом связи."
+    },
+    {
+      "q": "Что делает запрос на удаление безопасным?",
+      "options": [
+        "Предварительная копия таблицы (структура и данные)",
+        "Проверка числа строк в режиме таблицы перед запуском",
+        "Запуск без показа предупреждений Access",
+        "Сверка условия отбора с эталонным списком повторов"
+      ],
+      "correct": [0, 1, 3],
+      "explain": "Копия позволяет откатить операцию, просмотр набора показывает, что именно удалят, а сверка условия защищает от слишком широкого критерия. Отключение предупреждений как раз лишает вас последнего рубежа защиты."
+    },
+    {
+      "q": "Какое свойство поля включает «щит» после очистки?",
+      "options": [
+        "Условие на значение (Validation Rule) с сообщением об ошибке",
+        "Формат поля",
+        "Подпись поля",
+        "Размер поля"
+      ],
+      "correct": [0],
+      "explain": "Условие на значение проверяет каждое вводимое или добавляемое значение и отклоняет неверное с вашим текстом ошибки. Например, In (Retail, Wholesale, VIP) для поля Segment не пропустит retail."
+    }
+  ]
+}
+</script>
+</div>
+</section>
+
+<section class="sec" id="s-control" data-sec="control">
+<h2>Контрольные вопросы</h2>
+<p>Ответьте письменно и своими словами; при устной проверке от вас ждут примеров из мини-датасета ShopData:</p>
+<ol>
+<li>Перечислите пять шагов конвейера очистки в правильном порядке и объясните, почему дубликаты удаляются раньше всего остального.</li>
+<li>Чем NULL отличается от пустой строки? Приведите по одному примеру проверки для каждого случая — на полях DeliveredDate и CustomerName.</li>
+<li>Что делает мастер поиска дубликатов и почему его результат — это запрос, а не «разовая таблица»? Какое поле вы выбрали бы для поиска повторов среди покупателей и почему?</li>
+<li>Опишите три функции для нормализации текста (Trim, UCase, Replace-подход с точным значением) и для каждого случая из staging скажите, что вернёт функция: Trim(« sao paulo »), UCase(sp), и что нужно написать, чтобы retail стал Retail.</li>
+<li>Почему в запросе возврата из резервной копии нужны и DISTINCT, и условие Not In? Что сломается, если убрать каждое из них?</li>
+<li>Мастер несоответствий по паре Employees и Orders нашёл Julia Pereira. Ошибка ли это данных? Как отличить «исправляемое несоответствие» от «объяснимого»? Приведите пример каждого вида.</li>
+</ol>
+</section>
+
+<section class="sec" id="s-criteria" data-sec="criteria">
+<h2>Критерии проверки</h2>
+<p>Самостоятельная работа оценивается по четырём критериям. Ориентир — контрольные числа: 11 строк до, 6 удалено, 3 добавлено, 8 уникальных CustomerID после.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Критерий</th><th>Отлично</th><th>Допустимо</th><th>Брак</th></tr></thead>
+<tbody>
+<tr><td>Безопасность</td><td>Копия Customers_Staging_Backup сделана до изменений; в копии 11 строк</td><td>Копия сделана после первого шага, но до удаления строк</td><td>Изменения без копии; откатить нечем</td></tr>
+<tr><td>Дедупликация</td><td>Мастер дал 3 повтора; удалено ровно 6; добавлено ровно 3; итог 8 строк</td><td>Итог 8 строк, но один шаг выполнен вручную через таблицу</td><td>Остались дубли или удалены нужные строки (меньше 8 уникальных)</td></tr>
+<tr><td>Нормализация текста</td><td>Trim, UCase и точная замена выполнены запросами; проверки In (…) и длины дают 0 нарушений</td><td>Текст исправлен, но правки внесены вручную в таблицу</td><td>В данных остались пробелы, нижний регистр или retail</td></tr>
+<tr><td>Защита результата</td><td>Условие на значение на Segment и ZipCodePrefix включено; текст ошибки написан вами и понятен</td><td>Щит стоит только на одном поле</td><td>Щита нет: таблица снова может принять retail или индекс из 4 цифр</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="sec" id="s-solution" data-sec="solution">
+<h2>Эталонное решение</h2>
+<p>Полное решение самостоятельной работы и задания E04 — все три запроса конвейера и контрольные проверки.</p>
+<details class="solution">
+  <summary>Показать полное решение</summary>
+  <div>
+    <p><strong>Шаг 1. Резервная копия.</strong> Выделите Customers_Staging в области навигации, Ctrl+C, Ctrl+V, имя Customers_Staging_Backup, вариант «Структура и данные». Контроль: SELECT Count(*) FROM Customers_Staging_Backup вернёт 11.</p>
+    <p><strong>Шаг 2. Список повторов.</strong> Мастер «Поиск повторяющихся записей» по полю CustomerID (сохранён qry_ПовторыCustomerID). Тот же запрос в SQL:</p>
+    <pre class="code"><code class="lang-sql">SELECT CustomerID, Count(*) AS ЧислоПовторов
+FROM Customers_Staging
+GROUP BY CustomerID
+HAVING Count(*) &gt; 1;</code></pre>
+    <p>Результат: C-0002 — 2, C-0003 — 2, C-0007 — 2.</p>
+    <p><strong>Шаг 3. Удаление копий.</strong> qry_УдалениеПовторов, тип «Запрос на удаление»:</p>
+    <pre class="code"><code class="lang-sql">DELETE DISTINCTROW s.*
+FROM Customers_Staging AS s
+INNER JOIN qry_ПовторыCustomerID AS d
+        ON s.CustomerID = d.CustomerID
+WHERE d.CustomerID Is Not Null;</code></pre>
+    <p>Просмотр перед запуском: 6 строк. После подтверждения — удалено 6, осталось 5 строк (C-0001, C-0005, C-0009, C-0010, C-0011).</p>
+    <p><strong>Шаг 4. Возврат уникальных.</strong> qry_ВозвратУникальных, тип «Запрос на добавление», свойства запроса: «Уникальные значения: Да»:</p>
+    <pre class="code"><code class="lang-sql">INSERT INTO Customers_Staging ( CustomerID, CustomerName, ZipCodePrefix, City, State, Segment )
+SELECT DISTINCT b.CustomerID, b.CustomerName, b.ZipCodePrefix, b.City, b.State, b.Segment
+FROM Customers_Staging_Backup AS b
+WHERE b.CustomerID Not In (SELECT CustomerID FROM Customers_Staging);</code></pre>
+    <p>Вставлено 3 строки: C-0002, C-0003, C-0007. Итог таблицы — 8 строк.</p>
+    <p><strong>Шаг 5. Нормализация и проверки.</strong> Три запроса на обновление: City = Trim([City]) (1 строка), State = UCase([State]) (1 строка), Segment = "Retail" WHERE Segment = "retail" (1 строка). Контрольные проверки, каждая должна вернуть 0: Count(*) WHERE Segment Not In ("Retail","Wholesale","VIP"); Count(*) WHERE Len(ZipCodePrefix) не равна 5; Count(*) WHERE City Like "* *".</p>
+    <p><strong>Шаг 6. Щит.</strong> Конструктор таблицы Customers_Staging, поле Segment: «Условие на значение» In ("Retail","Wholesale","VIP"), «Сообщение об ошибке»: «Сегмент должен быть Retail, Wholesale или VIP». Поле ZipCodePrefix: условие Len([ZipCodePrefix])=5 Or Is Null, сообщение «Индекс состоит из 5 цифр». Проверьте щит: попытка сохранить retail отклоняется.</p>
+    <p><strong>Контроль итога.</strong> SELECT CustomerID, Count(*) AS ЧислоЗаписей FROM Customers_Staging GROUP BY CustomerID ORDER BY CustomerID — 8 строк, каждая группа по 1: C-0001, C-0002, C-0003, C-0005, C-0007, C-0009, C-0010, C-0011.</p>
+  </div>
+</details>
+</section>
+
+<section class="sec" id="s-summary" data-sec="summary">
+<h2>Краткое резюме</h2>
+<p>Данные после импорта — это сырьё, и вы теперь умеете доводить его до готовности по конвейеру из пяти шагов: дубликаты (мастер повторов плюс запрос на удаление с копией-страховкой), пропуски (Is Null против пустой строки, Nz в вычислениях), диапазоны (цены, даты, длины), справочники (Trim, UCase, списки In (…) и мастер несоответствий) и защита — условие на значение, которое держит таблицу чистой после того, как вы её почистили. Контрольные числа staging — 11 до, 8 уникальных CustomerID после — этот же приём счётчиков вы будете применять везде. В модуле 06 переходим к главному инструменту аналитика: конструктору запросов — сетке условий, сортировке, вычисляемым полям и выборке TOP N.</p>
+</section>
+
+</article>
+<!--CACHE-END-->
+</main>
+<script src="../js/app.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress.js"></script>
+<script src="../js/export.js"></script>
+<script src="../js/navigation.js"></script>
+<script src="../js/quiz.js"></script>
+</body>
+</html>

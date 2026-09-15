@@ -1,0 +1,45 @@
+MIT License
+
+Copyright (c) 2026 Access Course Authors
+
+Разрешается свободно пользоваться, копировать, изменять и распространять
+настоящий учебник и его исходный код на условиях лицензии MIT, изложенной ниже.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+
+ПРИМЕЧАНИЕ О СТОРОННИХ ДАННЫХ (DATASETS)
+
+Настоящая лицензия MIT распространяется ТОЛЬКО на учебник, его код и учебные
+материалы. Она НЕ распространяется на сторонние датасеты, ссылки на которые
+приведены в каталоге datasets/ (в том числе Olist Brazilian E-commerce,
+Superstore, Online Retail/UCI и любые другие наборы с Kaggle или иных
+источников).
+
+1. Файлы датасетов НЕ включены в этот репозиторий — хранятся только ссылки
+   и инструкции по скачиванию.
+2. Скачивая и используя датасеты, вы принимаете условия лицензии каждого
+   конкретного набора, опубликованные на его странице (для Olist —
+   CC BY-NC-SA 4.0: некоммерческое использование с указанием авторства).
+3. Ссылки на датасеты могут изменяться или прекращать действие; проверяйте
+   их актуальность по датам проверки в datasets/kaggle-links.html.
+4. Учебные синтетические поля (CustomerName, EmployeeName, ManagerID,
+   Quantity, HireDate, Segment) и мини-датасет ShopData Mini принадлежат
+   курсу и ограничений сторонних лицензий не наследуют.

@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 700" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <title>Схема данных ShopData: 7 таблиц и 6 связей</title>
+  <defs>
+    <style>
+      .tbox { fill: #ffffff; stroke: #b9c5d2; stroke-width: 1.5; rx: 8; }
+      .thead { fill: #a4373a; }
+      .thead2 { fill: #1c6fb8; }
+      .ttxt { fill: #ffffff; font-weight: 700; font-size: 14px; }
+      .fld { fill: #1e2630; font-size: 12.5px; }
+      .pk { fill: #a4373a; font-weight: 700; }
+      .fk { fill: #1c6fb8; font-weight: 700; }
+      .rel { stroke: #5c6a7a; stroke-width: 1.6; fill: none; }
+      .card { fill: #5c6a7a; font-size: 12px; font-weight: 700; }
+      .bg { fill: #f7f9fc; }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1080" height="700" rx="12"/>
+
+  <!-- Categories -->
+  <g transform="translate(40,60)">
+    <rect class="tbox" width="220" height="118" rx="8"/>
+    <rect class="thead" width="220" height="30" rx="8"/>
+    <rect class="thead" y="15" width="220" height="15"/>
+    <text class="ttxt" x="12" y="20">Categories — категории</text>
+    <text class="fld pk" x="12" y="50">🔑 CategoryID · Счётчик</text>
+    <text class="fld" x="12" y="70">CategoryName (уник.)</text>
+    <text class="fld" x="12" y="90">CategoryNameEn</text>
+    <text class="fld" x="12" y="108" fill="#5c6a7a">5 строк в мини-датасете</text>
+  </g>
+
+  <!-- Products -->
+  <g transform="translate(40,300)">
+    <rect class="tbox" width="220" height="170" rx="8"/>
+    <rect class="thead" width="220" height="30" rx="8"/>
+    <rect class="thead" y="15" width="220" height="15"/>
+    <text class="ttxt" x="12" y="20">Products — товары</text>
+    <text class="fld pk" x="12" y="50">🔑 ProductID (32)</text>
+    <text class="fld" x="12" y="70">ProductName</text>
+    <text class="fld fk" x="12" y="90">↗ CategoryID · FK</text>
+    <text class="fld" x="12" y="110">UnitPrice · WeightG</text>
+    <text class="fld" x="12" y="130">LengthCm · HeightCm · WidthCm</text>
+    <text class="fld" x="12" y="152" fill="#5c6a7a">8 строк в мини-датасете</text>
+  </g>
+
+  <!-- Customers -->
+  <g transform="translate(820,60)">
+    <rect class="tbox" width="220" height="150" rx="8"/>
+    <rect class="thead2" width="220" height="30" rx="8"/>
+    <rect class="thead2" y="15" width="220" height="15"/>
+    <text class="ttxt" x="12" y="20">Customers — покупатели</text>
+    <text class="fld pk" x="12" y="50">🔑 CustomerID (32)</text>
+    <text class="fld" x="12" y="70">CustomerName · Segment</text>
+    <text class="fld" x="12" y="90">ZipCodePrefix (текст!)</text>
+    <text class="fld" x="12" y="110">City · State</text>
+    <text class="fld" x="12" y="132" fill="#5c6a7a">8 строк в мини-датасете</text>
+  </g>
+
+  <!-- Employees -->
+  <g transform="translate(820,330)">
+    <rect class="tbox" width="220" height="150" rx="8"/>
+    <rect class="thead2" width="220" height="30" rx="8"/>
+    <rect class="thead2" y="15" width="220" height="15"/>
+    <text class="ttxt" x="12" y="20">Employees — сотрудники</text>
+    <text class="fld pk" x="12" y="50">🔑 EmployeeID · Счётчик</text>
+    <text class="fld" x="12" y="70">EmployeeName · Role</text>
+    <text class="fld" x="12" y="90">SellerID (уник.)</text>
+    <text class="fld" x="12" y="110">City · State · HireDate</text>
+    <text class="fld" x="12" y="132" fill="#5c6a7a">6 строк в мини-датасете</text>
+  </g>
+
+  <!-- Orders -->
+  <g transform="translate(430,240)">
+    <rect class="tbox" width="230" height="190" rx="8"/>
+    <rect class="thead" width="230" height="30" rx="8"/>
+    <rect class="thead" y="15" width="230" height="15"/>
+    <text class="ttxt" x="12" y="20">Orders — заказы</text>
+    <text class="fld pk" x="12" y="50">🔑 OrderID (32)</text>
+    <text class="fld fk" x="12" y="70">↗ CustomerID · FK</text>
+    <text class="fld fk" x="12" y="90">↗ ManagerID · FK → Employees</text>
+    <text class="fld" x="12" y="110">OrderStatus (8 значений)</text>
+    <text class="fld" x="12" y="130">OrderDate · DeliveredDate</text>
+    <text class="fld" x="12" y="150">EstimatedDate</text>
+    <text class="fld" x="12" y="172" fill="#5c6a7a">12 строк в мини-датасете</text>
+  </g>
+
+  <!-- OrderDetails -->
+  <g transform="translate(430,510)">
+    <rect class="tbox" width="230" height="170" rx="8"/>
+    <rect class="thead" width="230" height="30" rx="8"/>
+    <rect class="thead" y="15" width="230" height="15"/>
+    <text class="ttxt" x="12" y="20">OrderDetails — позиции</text>
+    <text class="fld pk" x="12" y="50">🔑 OrderDetailID · Счётчик</text>
+    <text class="fld fk" x="12" y="70">↗ OrderID · FK (каскад)</text>
+    <text class="fld fk" x="12" y="90">↗ ProductID · FK</text>
+    <text class="fld" x="12" y="110">Quantity · UnitPrice</text>
+    <text class="fld" x="12" y="130">FreightValue · ShippingLimitDate</text>
+    <text class="fld" x="12" y="152" fill="#5c6a7a">15 строк в мини-датасете</text>
+  </g>
+
+  <!-- Calendar -->
+  <g transform="translate(770,545)">
+    <rect class="tbox" width="270" height="135" rx="8"/>
+    <rect class="thead2" width="270" height="30" rx="8"/>
+    <rect class="thead2" y="15" width="270" height="15"/>
+    <text class="ttxt" x="12" y="20">Calendar — календарь</text>
+    <text class="fld pk" x="12" y="50">🔑 CalDate · Дата/время</text>
+    <text class="fld" x="12" y="70">CalYear · CalQuarter · CalMonth</text>
+    <text class="fld" x="12" y="90">MonthName · MonthYear</text>
+    <text class="fld" x="12" y="110">WeekDay · IsWeekend</text>
+  </g>
+
+  <!-- Связи -->
+  <path class="rel" d="M150,178 L150,300"/>
+  <text class="card" x="128" y="196">1</text><text class="card" x="158" y="290">М</text>
+  <text class="fld" x="160" y="240" fill="#1a7f37">целостность</text>
+
+  <path class="rel" d="M260,555 L430,555"/>
+  <text class="card" x="270" y="547">1</text><text class="card" x="408" y="547">М</text>
+
+  <path class="rel" d="M660,430 L660,510"/>
+  <text class="card" x="668" y="448">1</text><text class="card" x="668" y="502">М</text>
+  <text class="fld" x="560" y="478" fill="#b45309">каскадное удаление</text>
+
+  <path class="rel" d="M660,545 C660,640 770,628 770,620"/>
+  <text class="card" x="668" y="560">М</text><text class="card" x="752" y="575">1</text>
+  <text class="fld" x="690" y="600" fill="#5c6a7a">CalDate = OrderDate</text>
+
+  <path class="rel" d="M660,300 C660,200 760,140 820,135"/>
+  <text class="card" x="668" y="316">М</text><text class="card" x="800" y="128">1</text>
+
+  <path class="rel" d="M660,360 C740,360 760,395 820,400"/>
+  <text class="card" x="700" y="352">М</text><text class="card" x="800" y="392">1</text>
+
+  <!-- Легенда -->
+  <g transform="translate(40,560)">
+    <rect x="0" y="0" width="330" height="110" rx="8" fill="#ffffff" stroke="#d9e1ea"/>
+    <text class="fld pk" x="14" y="26">🔑 — первичный ключ (PK)</text>
+    <text class="fld fk" x="14" y="48">↗ — внешний ключ (FK)</text>
+    <text class="fld" x="14" y="70">1 — М : «один ко многим», 6 связей</text>
+    <text class="fld" x="14" y="92" fill="#5c6a7a">Модуль 03: создать в окне «Схема данных»</text>
+  </g>
+</svg>

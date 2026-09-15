@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Модуль 12. VBA на прикладном уровне — Учебник Microsoft Access</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../css/responsive.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+</head>
+<body data-module="m12">
+<a class="skip-link" href="#content">Перейти к содержимому</a>
+<main id="content" class="page__content">
+<!--CACHE-START-->
+<article class="module">
+
+<header class="module-header">
+  <h1 class="module-title"><span class="module-title__kicker">Модуль 12</span>VBA на прикладном уровне</h1>
+  <div class="module-header__meta">
+    <span class="chip chip--accent">Блок C. Интерфейс и автоматизация</span>
+    <span class="chip">⏱ 5 ч (3 Т + 2 П)</span>
+    <span class="chip chip--level3">Продвинутый уровень</span>
+  </div>
+</header>
+
+<section class="sec" id="s-goals" data-sec="goals">
+<h2>Цели обучения</h2>
+<p>Модули 11 и 12 завершают линию автоматизации курса: в макросах вы собирали действия мышью, здесь вы открываете «взрослый» уровень — готовый VBA-код, который пишут разработчики Access. Сразу договоримся о стиле: мы не учим переменные и операторы с нуля. Мы учимся читать чужой код, запускать его, отлаживать и аккуратно модифицировать — именно эти навыки отделяют аналитика, который может поддержать автоматизацию, от аналитика, который только ползует чужие базы. Весь код модуля взят из реального файла материалов курса <code>vba/export-examples.bas</code> и из задания V02. По итогам модуля студент сможет:</p>
+<ul>
+<li>работать в редакторе VBE (Alt+F11): находить модули в Project Explorer, пользоваться окнами Immediate (Ctrl+G) и Locals, запускать процедуры по F5, проходить по шагам по F8, ставить точки останова по F9 и печатать значения через Debug.Print;</li>
+<li>читать незнакомую процедуру по устойчивому шаблону Sub…End Sub, Dim, Set, With, DoCmd.…, On Error GoTo, Exit Sub, ErrHandler и объяснять каждую строку своими словами;</li>
+<li>применять методы DoCmd — OpenForm, OpenQuery, OpenReport с WhereCondition, OutputTo, TransferText, TransferSpreadsheet, RunSQL — и выбирать между CurrentDb.Execute и DoCmd.RunSQL осознанно, понимая разницу в предупреждениях;</li>
+<li>читать recordset-цикл (OpenRecordset, Do While Not rs.EOF, rs.Fields, rs.MoveNext, rs.Close) и сверять его результат с SQL-запросом на мини-датасете ShopData;</li>
+<li>запустить готовую процедуру btnImportCsv_Click в учебной базе и модифицировать её под другой файл, не сломав обработку ошибок.</li>
+</ul>
+</section>
+
+<section class="sec" id="s-prereq" data-sec="prereq">
+<h2>Необходимые предварительные знания</h2>
+<p>VBA управляет всеми объектами, которые вы уже построили в ShopData: он открывает ваши формы, запускает ваши запросы, выгружает ваши отчёты и импортирует ваши файлы. Поэтому практическая часть модуля имеет смысл только на «живой» базе: почти каждый шаг ссылается на конкретный объект из предыдущих модулей. Программирования с нуля не будет — синтаксис VBA мы осваиваем exclusively через разбор готовых процедур, а понятия «переменная», «строка», «выражение» вы уже встречали в выражениях запросов и макросах. Для входа в модуль нужны:</p>
+<ul>
+<li>модуль 11 — макросы, действие RunCode, окно свойств формы, вкладка «События», включение содержимого в центре управления безопасностью;</li>
+<li>модуль 9 — формы frm_Товары и frm_Заказы, кнопки и их свойство «Нажатие кнопки»;</li>
+<li>модуль 8 — итоговый запрос qry_ВыручкаПоКатегориям (SUM, GROUP BY), понимание action-запросов;</li>
+<li>модуль 4 — импорт CSV, сохранённая спецификация импорта, таблица Customers_Staging;</li>
+<li>модуль 7 — INNER JOIN и условия WHERE, чтобы читать SQL внутри VBA-строк.</li>
+</ul>
+<div class="callout callout--important"><div class="callout__title">Важно</div>
+<p>Если запрос qry_ВыручкаПоКатегориям ещё не собран, ExportCategoryToXlsx вернёт ошибку 7874 «не удаётся найти объект» — и это не сбой, а нормальная работа обработчика ошибок: вы увидите аккуратный MsgBox вместо аварийного окна. Для полного сценария соберите запрос (модуль 8) и отчёт rpt_Топ10Товаров (модуль 10).</p>
+</div>
+</section>
+
+<section class="sec" id="s-theory" data-sec="theory">
+<h2>Теория</h2>
+<p>Макрос из модуля 11 — это список готовых действий, а VBA — язык, теми же действиями управляющий, но с возможностью переменных, циклов, условий и обработки ошибок. Аналитику VBA нужен не для того, чтобы писать программы, а для трёх задач: прочитать и запустить процедуру, оставленную коллегой или найденную в материалах курса; добавить к форме кнопку с нетривиальной логикой (импорт файла, выгрузка, сверка); понять, почему автоматизация не сработала, и починить её. Все три задачи решаются чтением кода, поэтому правило модуля звучит жёстко: сначала чтение готовых процедур, затем их запуск, и только потом модификация.</p>
+<p>Редактор VBE (Alt+F11) устроен как маленькая IDE внутри Access. Окно Project Explorer (Ctrl+R) показывает дерево проекта: формы (каждая со своим модулем), отчёты и стандартные модули. Окно Immediate (Ctrl+G) — «зелёнка» отладчика: в нём выполняются выражения с вопросительным знаком (?CurrentProject.Path) и копится вывод Debug.Print. Окно Locals (Вид → Окно локальных значений) на паузе показывает все переменные текущей процедуры и их значения — это «рентген» чужого кода. Запуск — F5, пошагово — F8, точка останова — F9: этих четырёх клавиш хватает для 90% разборов.</p>
+<p>Любая процедура на VBA читается по устойчивому каркасу. Заголовок Sub…End Sub задаёт границы; Dim объявляет переменные; Set присваивает объектам (базе, recordset, запросу) ссылки; методы DoCmd делают действия Access; On Error GoTo перенаправляет ошибки в обработчик ErrHandler; Exit Sub завершает штатный путь до обработчика, чтобы он не сработал на успехе. Разберём этот каркас на первой процедуре файла vba/export-examples.bas — она выгружает запрос qry_ВыручкаПоКатегориям в Excel:</p>
+<pre class="code"><code class="lang-vba">Public Sub ExportCategoryToXlsx()
+    ' Экспортирует сохранённый запрос qry_ВыручкаПоКатегориям в файл Excel.
+    ' Ожидаемый результат: файл qry_ВыручкаПоКатегориям.xlsx в папке базы
+    ' с 5 строками категорий (bed_bath_table 769,50 ... auto 238,00).
+
+    Dim strFile As String                 ' полный путь к файлу результата
+
+    On Error GoTo ErrHandler              ' при любой ошибке исполнения переходим в обработчик
+
+    strFile = CurrentProject.Path &amp; "\qry_ВыручкаПоКатегориям.xlsx"   ' папка базы + имя файла
+    DoCmd.OutputTo acOutputQuery, "qry_ВыручкаПоКатегориям", acFormatXLSX, strFile, False
+    ' acOutputQuery — экспортируем запрос; acFormatXLSX — формат .xlsx;
+    ' последний аргумент False — не открывать Excel автоматически после экспорта.
+
+    MsgBox "Файл сохранён: " &amp; strFile, vbInformation, "Экспорт в Excel"
+
+    Exit Sub                              ' штатный выход — ОБЯЗАТЕЛЬНО выше обработчика
+
+ErrHandler:                               ' обработчик ошибок
+    ' Типичные причины: запрос не существует (2501/7874), файл занят Excel (открыт пользователем)
+    MsgBox "Ошибка " &amp; Err.Number &amp; ": " &amp; Err.Description, vbCritical, "Экспорт в Excel"
+End Sub</code></pre>
+<p>Читаем по строкам. <code>Public Sub ExportCategoryToXlsx()</code> — имя процедуры, по которому её можно вызвать из макроса RunCode или повесить на кнопку; скобки пустые, параметров нет. <code>Dim strFile As String</code> — переменная под полный путь к файлу. <code>On Error GoTo ErrHandler</code> — страховка: любая ошибка исполнения (файл занят Excel, запрос не существует) перескакивает на метку ErrHandler внизу. <code>strFile = CurrentProject.Path &amp; "\qry_ВыручкаПоКатегориям.xlsx"</code> — путь собирается конкатенацией из папки базы и имени файла, поэтому процедура работает на любой машине. <code>DoCmd.OutputTo</code> — само действие экспорта: тип объекта (acOutputQuery), имя, формат (acFormatXLSX), путь и False = «самим Excel не открывать». <code>MsgBox</code> сообщает пользователю об успехе, <code>Exit Sub</code> завершает процедуру раньше, чем выполнение «провалится» в обработчик, а <code>ErrHandler:</code> показывает номер и описание ошибки через Err.Number и Err.Description. Блок With в этом примере не нужен, но в recordset-примере ниже вы его увидите: он сокращает повторяющиеся обращения к одному объекту (с <code>rs.Fields…</code> до <code>.Fields…</code>).</p>
+<p>Код на VBA чаще всего «оживает» на событиях форм. Пять событий покрывают почти все задачи аналитика:</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Событие</th><th>Когда возникает</th><th>Пример в ShopData</th></tr></thead>
+<tbody>
+<tr><td>Form_Load</td><td>форма открыта, записи загружены, но пользователь ещё ничего не делал</td><td>frm_Заказы при открытии выставляет начальные даты панели и заголовок</td></tr>
+<tr><td>Form_Current</td><td>курсор перешёл на другую запись (или форма перечиталась)</td><td>frm_Заказы показывает в надписи сумму позиций текущего заказа</td></tr>
+<tr><td>BeforeUpdate</td><td>перед сохранением записи — последний шанс её проверить</td><td>в форме товаров: если UnitPrice отрицательный, показываем MsgBox и отменяем (Cancel = True)</td></tr>
+<tr><td>Form_AfterUpdate</td><td>запись уже сохранена в таблице</td><td>после правки товара обновляем список: Me.Requery, чтобы qry_ВыручкаПоКатегориям считалась по свежим данным</td></tr>
+<tr><td>Click</td><td>щелчок по кнопке</td><td>btnImportCsv_Click — импорт еженедельного CSV одним нажатием</td></tr>
+</tbody>
+</table>
+</div>
+<p>Методы DoCmd — это те же макрокоманды из модуля 11, только вызываемые из кода. Рабочий набор аналитика:</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Метод</th><th>Что делает</th><th>Пример в ShopData</th></tr></thead>
+<tbody>
+<tr><td>DoCmd.OpenForm</td><td>открывает форму; WhereCondition фильтрует записи</td><td><code>DoCmd.OpenForm "frm_Заказы", acViewNormal, , "CustomerID = 'C-0002'"</code></td></tr>
+<tr><td>DoCmd.OpenQuery</td><td>открывает запрос (action-запрос — выполняет)</td><td><code>DoCmd.OpenQuery "qry_ВыручкаПоКатегориям"</code></td></tr>
+<tr><td>DoCmd.OpenReport</td><td>открывает или печатает отчёт; WhereCondition ограничивает данные</td><td><code>DoCmd.OpenReport "rpt_Накладная", acViewPreview, , "OrderID = 'O-10003'"</code></td></tr>
+<tr><td>DoCmd.OutputTo</td><td>выгружает объект в файл XLSX/PDF/RTF</td><td><code>DoCmd.OutputTo acOutputReport, "rpt_Топ10Товаров", acFormatPDF, strFile, False</code></td></tr>
+<tr><td>DoCmd.TransferText</td><td>импортирует/экспортирует текстовые файлы (CSV) по спецификации</td><td><code>DoCmd.TransferText acImportDelim, "spec_ИмпортКлиентов", "Customers_Staging", strFile, True</code></td></tr>
+<tr><td>DoCmd.TransferSpreadsheet</td><td>импортирует/экспортирует листы Excel</td><td><code>DoCmd.TransferSpreadsheet acImport, acSpreadsheetTypeExcel12Xml, "Products_Staging", strFile, True</code></td></tr>
+<tr><td>DoCmd.RunSQL</td><td>выполняет action-SQL с предупреждениями Access</td><td><code>DoCmd.RunSQL "UPDATE Products SET UnitPrice = UnitPrice * 1.05 WHERE CategoryID = 5"</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Отдельного внимания заслуживает выбор между <code>DoCmd.RunSQL</code> и <code>CurrentDb.Execute</code>. RunSQL — метод уровня Access: перед удалением или обновлением он показывает предупреждающие окна («Будет изменено N строк»), которые можно погасить парой DoCmd.SetWarnings False / True, но забытое False оставляет базу без предупреждений навсегда. Execute — метод DAO над текущей базой: он выполняет запрос без предупреждений, а флаг dbFailOnError заставляет его откатывать изменение при ошибке. Для автоматизации (кнопка, импорт, очистка staging) надёжнее <code>CurrentDb.Execute "DELETE FROM Customers_Staging", dbFailOnError</code>; RunSQL уместен в интерактивных сценариях, где подтверждение пользователя действительно нужно. Наконец, MsgBox показывает сообщение (vbInformation, vbCritical, vbExclamation), а InputBox запрашивает строку у пользователя — например, имя файла: <code>strFile = InputBox("Имя файла CSV:", "Импорт")</code>. Этого диалогового минимума достаточно для всех кнопок курса.</p>
+</section>
+
+<section class="sec" id="s-demo" data-sec="demo">
+<h2>Пошаговая демонстрация</h2>
+<p>Демонстрация проходит на учебной базе ShopData и файле материалов курса <code>vba/export-examples.bas</code>. Мы импортируем готовый модуль, запускаем процедуру экспорта, затем отлаживаем её по шагам и добавляем собственную процедуру суммирования выручки. Понадобятся собранные объекты: запрос qry_ВыручкаПоКатегориям (модуль 8) и, для второго экспорта, отчёт rpt_Топ10Товаров (модуль 10).</p>
+<ol class="steps">
+<li>Скопируйте файл <strong>vba/export-examples.bas</strong> из материалов курса в папку учебной базы. Откройте базу ShopData и нажмите <strong>Alt+F11</strong> — запустится редактор VBE.</li>
+<li>В меню VBE выберите <strong>File → Import File…</strong> и укажите export-examples.bas. В окне <strong>Project Explorer</strong> (если панель не видна — <strong>Ctrl+R</strong>) в папке Modules появится модуль <strong>modExportExamples</strong>.</li>
+<li>Дважды щёлкните по modExportExamples и прочитайте шапку модуля (строки с апострофом): четыре процедуры, требования к объектам, примечание про Access 2007 RTM.</li>
+<li>Нажмите <strong>Ctrl+F</strong>, найдите <strong>ExportCategoryToXlsx</strong> и прочитайте процедуру по строкам, сверяясь с разбором в разделе «Теория»: Dim → On Error GoTo → путь → DoCmd.OutputTo → MsgBox → Exit Sub → ErrHandler.</li>
+<li>Поставьте курсор внутрь процедуры и нажмите <strong>F5</strong> (Run → Run Sub/UserForm). Появится MsgBox «Файл сохранён: …». Найдите в папке базы файл <strong>qry_ВыручкаПоКатегориям.xlsx</strong> и откройте: 5 строк категорий, от bed_bath_table 769,50 до auto 238,00.</li>
+<li>Поставьте точку останова: щёлкните серую полосу слева от строки <strong>DoCmd.OutputTo</strong> (или курсор в строку и <strong>F9</strong>). Снова F5 — выполнение остановится на строке, обозначенной жёлтой стрелкой.</li>
+<li>Нажимайте <strong>F8</strong> (Debug → Step Into): код выполняется по одной строке. Наведите мышь на strFile — всплывёт текущее значение пути. Откройте <strong>Вид → Окно локальных значений</strong> (Locals): видны все переменные процедуры и их значения.</li>
+<li>Нажмите <strong>Ctrl+G</strong> — откроется окно <strong>Immediate</strong>. Выполните в нём <code>?CurrentProject.Path</code> и <code>?Format(Date, "yyyy-mm")</code> — вопросительный знак печатает значение выражения прямо в окно.</li>
+<li>Снимите точку останова (F9 на той же строке) и допишите перед End Sub строку <code>Debug.Print "Экспорт завершён"</code>. Это ваша первая модификация чужого кода: нажмите F5 и найдите надпись «Экспорт завершён» в Immediate.</li>
+<li>В конец модуля добавьте процедуру <strong>SumRevenueByOrder</strong> (код ниже): она проходит recordset по заказам, печатает выручку каждого заказа в Immediate и итог.</li>
+<li>Поставьте курсор внутрь SumRevenueByOrder и нажмите <strong>F8</strong>: в Locals следите за rs, значением .Fields("СуммаЗаказа") и накоплением curTotal. В Immediate появятся 11 строк заказов и строка «ИТОГО: 3025,50». Сверьте с таблицей в разделе «Ожидаемый результат».</li>
+<li>Для тренировки обработчика переименуйте qry_ВыручкаПоКатегориям.xlsx в открытый Excel, снова запустите ExportCategoryToXlsx по F5 — MsgBox «Ошибка 70…» вместо аварийного окна. Отладка завершена.</li>
+</ol>
+<p>Процедура суммирования выручки — образец «чтения» recordset-цикла; добавьте её в modExportExamples целиком:</p>
+<pre class="code"><code class="lang-vba">Public Sub SumRevenueByOrder()
+    ' Считает выручку каждого заказа (SUM(UnitPrice * Quantity), без отменённых)
+    ' и печатает построчный отчёт в окно Immediate (Ctrl+G).
+    ' Ожидаемый итог по мини-датасету: 3025,50 (11 заказов без canceled).
+
+    Dim db As DAO.Database                ' текущая база
+    Dim rs As DAO.Recordset               ' набор строк: заказ и его сумма
+    Dim curTotal As Currency              ' общий итог
+    Dim curOrder As Currency              ' сумма очередного заказа
+
+    On Error GoTo ErrHandler
+
+    Set db = CurrentDb                    ' ссылка на текущую базу — всегда через Set
+    Set rs = db.OpenRecordset( _
+        "SELECT o.OrderID, SUM(d.UnitPrice * d.Quantity) AS СуммаЗаказа " &amp; _
+        "FROM Orders AS o INNER JOIN OrderDetails AS d ON o.OrderID = d.OrderID " &amp; _
+        "WHERE o.OrderStatus &lt;&gt; 'canceled' " &amp; _
+        "GROUP BY o.OrderID ORDER BY o.OrderID", dbOpenSnapshot)
+    ' dbOpenSnapshot — копия данных только для чтения: менять строки не будем.
+
+    With rs                               ' далее обращения к rs сокращены до .Свойство
+        Do While Not .EOF                 ' пока есть непрочитанные строки
+            curOrder = .Fields("СуммаЗаказа")        ' значение поля текущей строки
+            curTotal = curTotal + curOrder           ' накапливаем итог
+            Debug.Print .Fields("OrderID") &amp; "  " &amp; curOrder   ' строка отчёта в Immediate
+            .MoveNext                       ' ОБЯЗАТЕЛЬНО: переход к следующей строке
+        Loop
+        .Close                              ' закрываем recordset после цикла
+    End With
+
+    Set rs = Nothing                        ' освобождаем ссылку
+    Debug.Print "ИТОГО: " &amp; curTotal
+
+    Exit Sub
+
+ErrHandler:
+    MsgBox "Ошибка " &amp; Err.Number &amp; ": " &amp; Err.Description, vbCritical, "Суммирование выручки"
+    If Not rs Is Nothing Then rs.Close      ' при ошибке тоже закрываем
+End Sub</code></pre>
+<p>Обратите внимание на связку конструкции: <code>With rs</code> избавляет от повторов имени объекта; <code>Do While Not .EOF</code> задаёт условие «пока не кончились строки»; <code>.Fields("СуммаЗаказа")</code> читает поле текущей строки; <code>.MoveNext</code> переводит курсор — забытый MoveNext превращает цикл в вечный; <code>.Close</code> освобождает ресурс. Если сумма нужна без построчного отчёта, recordset вообще не нужен: один оператор <code>?DSum("UnitPrice*Quantity","OrderDetails")</code> в Immediate или SQL с SUM вернёт готовое число — выбирайте recordset только тогда, когда нужна построчная обработка.</p>
+</section>
+
+<section class="sec" id="s-case" data-sec="case">
+<h2>Пример из работы аналитика</h2>
+<p>В понедельник директор собирает планёрку: «Маркетплейс каждую неделю присылает CSV с новыми клиентами, менеджер десять минут щёлкает по мастеру импорта, иногда забывает спецификацию — и ZipCodePrefix снова превращается из 01310 в 1310. Сделайте кнопку: нажал — файл импортировался, нажал, а файла нет — программа внятно сказала об этом, а не ругалась». Задача на 45 минут, но решать её вы будете не с чистого листа: у коллеги из соседнего отдела уже есть форма с кнопкой btnImportCsv, и она согласилась поделиться кодом.</p>
+<p>Это классическая ситуация «чужой код быстрее своего»: процедура уже написана, проверена и содержит обработку ошибок, в которой легко ошибиться с нуля. Прежде чем что-то менять, мы читаем её по каркасу из теории: где заголовок и чей это модуль формы; что объявлено в Dim; где стоит On Error GoTo и на какую метку; что делает DoCmd.TransferText и с какими аргументами; есть ли Exit Sub перед обработчиком. Только после этого запускаем её в своей учебной базе на безопасном файле-примере и убеждаемся, что в Customers_Staging появились строки, а ZipCodePrefix сохранил ведущие нули.</p>
+<p>Что именно делаем:</p>
+<ul>
+<li>воспроизводим у себя кнопку btnImportCsv на форме frm_Товары (как в модуле 11 — она у нас работает «панелью автоматизации») и вставляем код коллеги;</li>
+<li>кладём файл customers_import.csv в папку базы, жмём кнопку и проверяем результат запросом к Customers_Staging;</li>
+<li>специально убираем файл и проверяем, что обработчик ошибок выдаёт понятное сообщение, а Access не падает;</li>
+<li>модифицируем процедуру под второй файл — products_import.csv в Products_Staging — меняя только спецификацию, таблицу и имя файла.</li>
+</ul>
+<p>Полная формулировка с критериями — в карточке задания V02 раздела «Самостоятельная работа»; построчный разбор кода и эталонное решение — в разделе «Эталонное решение».</p>
+</section>
+
+<section class="sec" id="s-data" data-sec="data">
+<h2>Исходные таблицы и поля</h2>
+<p>Для модуля нужны три источника. Первый — файл <strong>customers_import.csv</strong> (еженедельная выгрузка маркетплейса), лежащий в папке базы; его структура повторяет Customers, а в примере — три новых клиента, которых ещё нет в основной таблице. Файл импортируется в таблицу <strong>Customers_Staging</strong> (шесть полей, как в Customers; создана в модуле 4) по сохранённой спецификации <strong>ИмпортКлиентов</strong> — она задаёт разделитель «запятая», кодировку и текстовый тип для ZipCodePrefix, чтобы ведущий ноль 04578 не превращался в 4578.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>CustomerID</th><th>CustomerName</th><th>ZipCodePrefix</th><th>City</th><th>State</th><th>Segment</th></tr></thead>
+<tbody>
+<tr><td>C-0009</td><td>Julia Duarte</td><td>04578</td><td>sao paulo</td><td>SP</td><td>Retail</td></tr>
+<tr><td>C-0010</td><td>Marcos Dias</td><td>59060</td><td>natal</td><td>RN</td><td>Wholesale</td></tr>
+<tr><td>C-0011</td><td>Tania Almeida</td><td>60010</td><td>fortaleza</td><td>CE</td><td>Retail</td></tr>
+</tbody>
+</table>
+</div>
+<p>Второй источник — данные для recordset-примера SumRevenueByOrder: выручка заказов из Orders и OrderDetails. Мини-датасет содержит 12 заказов; один (O-10006, canceled) исключается условием WHERE, остаются 11. Вот первые пять строк набора, который вернёт SQL из раздела «SQL-код и разбор по строкам» (сумма = SUM(UnitPrice * Quantity), без доставки):</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>OrderID</th><th>OrderStatus</th><th>СуммаЗаказа</th></tr></thead>
+<tbody>
+<tr><td>O-10001</td><td>delivered</td><td>369,70</td></tr>
+<tr><td>O-10002</td><td>delivered</td><td>149,00</td></tr>
+<tr><td>O-10003</td><td>delivered</td><td>776,50</td></tr>
+<tr><td>O-10004</td><td>delivered</td><td>259,80</td></tr>
+<tr><td>O-10005</td><td>shipped</td><td>239,60</td></tr>
+</tbody>
+</table>
+</div>
+<p>Третий источник — объекты, которые процедурa ExportCategoryToXlsx выгружает в Excel: запрос qry_ВыручкаПоКатегориям (модуль 8) по справочнику Categories из пяти категорий (cama_mesa_banho, beleza_saude, informatica_acessorios, moveis_decoracao, automotivo). Для усложнения задания V02 понадобится также таблица Products_Staging (создаётся один раз ручным импортом с вариантом «Создание таблиц») и файл products_import.csv с полями ProductID, ProductName, CategoryID, WeightG.</p>
+</section>
+
+<section class="sec" id="s-sql" data-sec="sql">
+<h2>SQL-код и разбор по строкам</h2>
+<p>Внутри процедуры SumRevenueByOrder живёт SQL-строка, собранная из четырёх кусков конкатенацией с переносом строки (<code>&amp;</code> и подчёркивание <code>_</code>). Вот она целиком, как её видел бы конструктор запросов в режиме SQL; это обычный итоговый запрос Access (модуль 8), просто записанный внутри VBA:</p>
+<pre class="code"><code class="lang-sql">SELECT o.OrderID,
+       SUM(d.UnitPrice * d.Quantity) AS СуммаЗаказа
+FROM Orders AS o
+INNER JOIN OrderDetails AS d ON o.OrderID = d.OrderID
+WHERE o.OrderStatus &lt;&gt; 'canceled'
+GROUP BY o.OrderID
+ORDER BY o.OrderID;</code></pre>
+<ol class="sql-explain">
+<li><code>SELECT o.OrderID,</code> — первая колонка результата: идентификатор заказа из Orders (псевдоним o задан ниже).</li>
+<li><code>SUM(d.UnitPrice * d.Quantity) AS СуммаЗаказа</code> — агрегат по позициям заказа: цена каждого товара умножается на количество, SUM складывает позиции одного заказа; AS даёт полю имя, по которому VBA обратится к нему: rs.Fields("СуммаЗаказа").</li>
+<li><code>FROM Orders AS o</code> — источник-заказы; короткий псевдоним o экономит длину VBA-строки.</li>
+<li><code>INNER JOIN OrderDetails AS d ON o.OrderID = d.OrderID</code> — позиции присоединяются по ключу связи из схемы данных (модуль 3); без совпадающих позиций заказ бы выпал.</li>
+<li><code>WHERE o.OrderStatus &lt;&gt; 'canceled'</code> — исключаем отменённый O-10006; одинарные кавычки вокруг текста допустимы в Access SQL и удобны внутри VBA-строки в двойных кавычках.</li>
+<li><code>GROUP BY o.OrderID</code> — одна строка результата на заказ; именно поэтому recordset прочитает 11 строк, а не 15 позиций.</li>
+<li><code>ORDER BY o.OrderID;</code> — сортировка по возрастанию, чтобы отчёт в Immediate шёл в порядке O-10001…O-10012.</li>
+</ol>
+<p>Сверим результат: набор из 11 строк — O-10001 369,70; O-10002 149,00; O-10003 776,50; O-10004 259,80; O-10005 239,60; O-10007 283,50; O-10008 189,90; O-10009 298,00; O-10010 59,90; O-10011 269,70; O-10012 129,90. Та же выборка, свёрнутая до категорий, даёт значения, которые ExportCategoryToXlsx выгружает в Excel: bed_bath_table 769,50; informatica_acessorios 746,50; moveis_decoracao 640,00; beleza_saude 631,50; automotivo 238,00. Если ваш итог отличается — проверьте условие WHERE: типичная причина расхождения на копейку-два — случайно посчитанный canceled-заказ O-10006 (89,90).</p>
+</section>
+
+<section class="sec" id="s-designer" data-sec="designer">
+<h2>Вариант через конструктор запросов</h2>
+<p>Тот же итоговый запрос можно собрать мышью и не писать ни строки VBA — а затем открыть его SQL-текст и вставить в код. Так удобно проверять VBA-строку: если recordset печатает не то, сравните его SQL с конструктором.</p>
+<ol class="steps">
+<li><strong>Создание → Конструктор запросов</strong>; в окне «Добавление таблицы» добавьте <strong>Orders</strong> и <strong>OrderDetails</strong> — связь по OrderID подтянется из схемы данных автоматически.</li>
+<li>На ленте <strong>Конструктор</strong> нажмите кнопку <strong>Σ (Итоги)</strong> — в бланке появится строка «Групповая операция».</li>
+<li>Перетащите поле <strong>OrderID</strong> из Orders: в строке «Групповая операция» оставьте <strong>Группировка</strong>.</li>
+<li>В пустом столбце впишите вычисляемое поле <strong>СуммаЗаказа: [UnitPrice]*[Quantity]</strong>, а в строке «Групповая операция» для него выберите <strong>Sum</strong>.</li>
+<li>Добавьте поле <strong>OrderStatus</strong>, в строке «Групповая операция» смените на <strong>Условие</strong> и в строке «Условие отбора» впишите <code>&lt;&gt;"canceled"</code> — галочку «Показывать» снимите, чтобы статус не попадал в результат.</li>
+<li>Для поля OrderID задайте <strong>сортировку по возрастанию</strong>; сохраните запрос как <strong>qry_ВыручкаПоЗаказам</strong>.</li>
+<li>Щёлкните правой кнопкой по заголовку запроса → <strong>Режим SQL</strong> — увидите текст, совпадающий с VBA-строкой из предыдущего раздела (плюс необязательные скобки и DISTINCTROW, которые Access добавляет сам).</li>
+</ol>
+<p>Запустите qry_ВыручкаПоЗаказам в режиме таблицы: 11 строк, от O-10001 (369,70) до O-10012 (129,90). Если добавить в конец запроса столбец с общим итогом не хочется, а общая сумма нужна одной цифрой — используйте в VBA DSum или добавьте в бланк вторую сумму по группе «Выражение»; мы же в модуле идём дальше: recordset-цикл полезен, когда к каждой строке надо применить код (печать, файл, накопление), а не только сложить.</p>
+</section>
+
+<section class="sec" id="s-result" data-sec="result">
+<h2>Ожидаемый результат</h2>
+<div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div>
+<p>После демонстрации: в папке базы лежит qry_ВыручкаПоКатегориям.xlsx (5 строк категорий), в окне Immediate напечатаны 11 строк заказов и итог 3025,50, отладка по F8 пройдена с наблюдением переменных в Locals. После выполнения V02: кнопка btnImportCsv добавляет три строки (C-0009…C-0011) в Customers_Staging с сохранённым ведущим нулём ZipCodePrefix, а при отсутствии файла показывает предупреждение и не аварийно завершает работу.</p>
+</div>
+<p>Результат ExportCategoryToXlsx — содержимое qry_ВыручкаПоКатегориям.xlsx:</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>CategoryNameEn</th><th>Выручка</th></tr></thead>
+<tbody>
+<tr><td>bed_bath_table</td><td>769,50</td></tr>
+<tr><td>informatica_acessorios</td><td>746,50</td></tr>
+<tr><td>moveis_decoracao</td><td>640,00</td></tr>
+<tr><td>beleza_saude</td><td>631,50</td></tr>
+<tr><td>automotivo</td><td>238,00</td></tr>
+</tbody>
+</table>
+</div>
+<p>Результат SumRevenueByOrder — отчёт в окне Immediate (полностью, все 11 строк и итог):</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Строка Immediate</th><th>OrderID</th><th>СуммаЗаказа</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>O-10001</td><td>369,70</td></tr>
+<tr><td>2</td><td>O-10002</td><td>149,00</td></tr>
+<tr><td>3</td><td>O-10003</td><td>776,50</td></tr>
+<tr><td>4</td><td>O-10004</td><td>259,80</td></tr>
+<tr><td>5</td><td>O-10005</td><td>239,60</td></tr>
+<tr><td>6</td><td>O-10007</td><td>283,50</td></tr>
+<tr><td>7</td><td>O-10008</td><td>189,90</td></tr>
+<tr><td>8</td><td>O-10009</td><td>298,00</td></tr>
+<tr><td>9</td><td>O-10010</td><td>59,90</td></tr>
+<tr><td>10</td><td>O-10011</td><td>269,70</td></tr>
+<tr><td>11</td><td>O-10012</td><td>129,90</td></tr>
+<tr><td>итог</td><td colspan="2">ИТОГО: 3025,50</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="sec" id="s-mistakes" data-sec="mistakes">
+<h2>Типичные ошибки</h2>
+<p>Почти все ошибки новичка в VBA предсказуемы, и каждая лечится одной строкой или одной привычкой. Проверьте себя по этому списку после выполнения задания V02.</p>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div>
+<p><strong>Симптом:</strong> Access «Не отвечает», процесс грузит процессор, окно VBE не реагирует. <strong>Причина:</strong> в recordset-цикле забыт <code>rs.MoveNext</code> — курсор навсегда остаётся на первой строке, EOF не наступает, цикл вечный. <strong>Лечение:</strong> нажмите Ctrl+Break, чтобы прервать код, добавьте <code>.MoveNext</code> последней строкой перед Loop и запустите заново.</p>
+</div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div>
+<p><strong>Симптом:</strong> экспорт проходит успешно, но после MsgBox «Файл сохранён» всплывает ещё и MsgBox «Ошибка …» с пустым номером. <strong>Причина:</strong> удалён или стоит ниже положенного <code>Exit Sub</code> — штатный путь «проваливается» в обработчик ErrHandler. <strong>Лечение:</strong> Exit Sub обязан стоять после всех строк успеха и до метки ErrHandler.</p>
+</div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div>
+<p><strong>Симптом:</strong> кнопка btnImportCsv молчит: код вставлен, ошибок нет, ничего не происходит. <strong>Причина:</strong> процедура btnImportCsv_Click вставлена в стандартный модуль, а событие «Нажатие кнопки» смотрит в модуль формы и находит там пустую заготовку. <strong>Лечение:</strong> код события формы живёт в модуле формы — откройте его кнопкой «…» у свойства «Нажатие кнопки» (либо [Процедура обработки событий]) и вставьте процедуру туда.</p>
+</div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div>
+<p><strong>Симптом:</strong> «Ошибка 3051/3027» при OutputTo или TransferText, хотя вчера всё работало. <strong>Причина:</strong> файл результата открыт в Excel или файл-источник лежит не в папке базы, а путь собирается из CurrentProject.Path. <strong>Лечение:</strong> закройте Excel, проверьте в Immediate <code>?CurrentProject.Path</code> и положите CSV рядом с базой.</p>
+</div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div>
+<p><strong>Симптом:</strong> «Ошибка 91 — Object variable or With block variable not set» на первой же строке работы с базой. <strong>Причина:</strong> объектная переменная присвоена без Set: <code>db = CurrentDb</code> вместо <code>Set db = CurrentDb</code> (или опечатка в имени после With-блока). <strong>Лечение:</strong> объектам — Set; проверьте, что обращения внутри With начинаются с точки и блок закрыт End With.</p>
+</div>
+<div class="callout callout--error"><div class="callout__title">Типичная ошибка</div>
+<p><strong>Симптом:</strong> после RunSQL Access перед каждой строкой спрашивает подтверждение, либо, наоборот, в базе навсегда исчезли предупреждения. <strong>Причина:</strong> RunSQL всегда предупреждает, а пара SetWarnings False/True записана наполовину — False выполнен, True забыт. <strong>Лечение:</strong> в автоматизации используйте <code>CurrentDb.Execute "...", dbFailOnError</code> — он молчит и честно откатывает при ошибке; SetWarnings применяйте только парами.</p>
+</div>
+</section>
+
+<section class="sec" id="s-tips" data-sec="tips">
+<h2>Практические советы</h2>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div>
+<p>Читайте чужую процедуру вслух, строка за строкой, своими словами: «объявляю путь», «включаю страховку», «собираю путь», «выгружаю запрос», «сообщаю», «выхожу», «а сюда попадаем при ошибке». Если какую-то строку пересказать не получается — вы нашли то, что надо проверить в справке или спросить у коллеги; это ровно тот навык, который проверяет задание V02.</p>
+</div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div>
+<p>В циклах вместо MsgBox используйте <code>Debug.Print</code>: пятьдесят всплывающих окон убьют отладку, а вывод в Immediate накопится целиком и его можно скроллить. Заодно Ctrl+G и <code>?CurrentProject.Path</code>, <code>?Err.Number</code>, <code>?rs.RecordCount</code> отвечают на большинство вопросов «а что у нас сейчас в переменных».</p>
+</div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div>
+<p>Связка «точка останова F9 + пошагово F8 + окно Locals» — рентген чужого кода: вы видите каждую переменную на каждом шаге. Ставьте остановку на первой содержательной строке (обычно это присвоение пути или Set), затем идите F8 и следите, как меняются значения, — быстрее, чем десять раз перечитывать текст.</p>
+</div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div>
+<p>Имя файла и путь держите в одной переменной strFile, как сделано в export-examples.bas: модифицируя процедуру под другой файл, вы меняете одну строку вместо трёх, а MsgBox продолжает показывать корректный путь. Это же правило упрощает проверку: одна строка — одно место для опечатки.</p>
+</div>
+<div class="callout callout--tip"><div class="callout__title">Практический совет</div>
+<p>Тестируйте обработчик ошибок намеренно: переименуйте файл, занесите его в Excel, укажите несуществующую спецификацию. Обработчик, который ни разу не срабатывал при вас, при руководителе сработает не так. Номер и описание удобно смотреть в Immediate: после остановки на ошибке выполните <code>?Err.Number</code> и <code>?Err.Description</code>.</p>
+</div>
+</section>
+
+<section class="sec" id="s-homework" data-sec="homework">
+<h2>Самостоятельная работа</h2>
+<p>Работа строится в два слоя. Слой «чтение и отладка» — по демонстрации: импортировать vba/export-examples.bas, запустить ExportCategoryToXlsx, пройти её по шагам с F9/F8 и Locals, поработать в Immediate и сверить результат SumRevenueByOrder с суммой 3025,50. Слой «модификация» — карточка задания V02: разобрать построчно готовую процедуру btnImportCsv_Click, запустить её в учебной базе кнопкой на форме, затем модифицировать под другой файл. Выполняйте пункты по порядку и отмечайте их в чек-листе — он же черновик отчёта по модулю.</p>
+<ul class="checklist" data-checklist="m12-self">
+<li><label><input type="checkbox" data-ck="m12:1"><span>Импортировать vba/export-examples.bas в учебную базу (Alt+F11 → File → Import File…), модуль modExportExamples виден в Project Explorer</span></label></li>
+<li><label><input type="checkbox" data-ck="m12:2"><span>Запустить ExportCategoryToXlsx по F5 и открыть qry_ВыручкаПоКатегориям.xlsx: 5 строк, от bed_bath_table 769,50 до auto 238,00</span></label></li>
+<li><label><input type="checkbox" data-ck="m12:3"><span>Пройти процедуру по шагам: точка останова F9 на DoCmd.OutputTo, далее F8; значение strFile наблюдается в Locals и подсказке</span></label></li>
+<li><label><input type="checkbox" data-ck="m12:4"><span>Выполнить в Immediate (Ctrl+G): ?CurrentProject.Path, ?Format(Date, "yyyy-mm") и Debug.Print из изменённой процедуры</span></label></li>
+<li><label><input type="checkbox" data-ck="m12:5"><span>Добавить SumRevenueByOrder, запустить и сверить вывод в Immediate с эталоном: 11 строк, ИТОГО: 3025,50</span></label></li>
+<li><label><input type="checkbox" data-ck="m12:6"><span>Создать кнопку btnImportCsv на frm_Товары и вставить в модуль формы процедуру btnImportCsv_Click из решения</span></label></li>
+<li><label><input type="checkbox" data-ck="m12:7"><span>Положить customers_import.csv в папку базы, нажать кнопку и убедиться: в Customers_Staging появились C-0009…C-0011, ZipCodePrefix = 04578 сохранён как текст</span></label></li>
+<li><label><input type="checkbox" data-ck="m12:8"><span>Сделать модифицированную btnImportProducts_Click под products_import.csv и Products_Staging, выполнить импорт 3 строк</span></label></li>
+<li><label><input type="checkbox" data-ck="m12:9"><span>Проверить обработчик ошибок: убрать CSV, нажать кнопку — MsgBox с пояснением, аварийного окна Access нет</span></label></li>
+</ul>
+
+<article class="task-card" id="task-v02" data-task="V02">
+  <div class="task-card__head">
+    <span class="chip chip--level2">Средний уровень</span>
+    <span class="chip">⏱ 45 мин</span>
+    <span class="chip chip--accent">Задание V02</span>
+  </div>
+  <h3>V02. Автоимпорт CSV одной кнопкой</h3>
+  <p><strong>Цель:</strong> научиться читать готовую VBA-процедуру по каркасу Sub…Dim…On Error…DoCmd…Exit Sub…ErrHandler, запустить её в учебной базе кнопкой на форме и модифицировать под другой файл, сохранив обработку ошибок.</p>
+  <p><strong>Исходные таблицы:</strong> Customers_Staging (приёмник импорта, создана в модуле 4), справочник Customers для сверки структуры; файл customers_import.csv в папке базы; сохранённая спецификация импорта «ИмпортКлиентов» (модуль 4); для усложнения — Products_Staging и файл products_import.csv.</p>
+  <p><strong>Используемые поля:</strong> CustomerID, CustomerName, ZipCodePrefix, City, State, Segment (структура файла customers_import.csv); для модификации — ProductID, ProductName, CategoryID, WeightG.</p>
+  <p><strong>Пошаговый план:</strong></p>
+  <ol>
+    <li>Прочитайте содержимое customers_import.csv (три строки C-0009…C-0011) и убедитесь, что спецификация «ИмпортКлиентов» открывает его мастером без ошибок типов.</li>
+    <li>Откройте frm_Товары в режиме конструктора, добавьте кнопку <strong>btnImportCsv</strong> (мастер кнопок отмените), в свойствах: вкладка «Другие» → Имя = btnImportCsv, Подпись = «Импорт клиентов (CSV)».</li>
+    <li>В свойствах кнопки: вкладка «События» → «Нажатие кнопки» → [Процедура обработки событий] → кнопка «…». VBE откроет модуль формы с заготовкой Private Sub btnImportCsv_Click().</li>
+    <li>Вставьте код из решения ниже, читая каждую строку и её комментарий; сверьте аргументы TransferText: acImportDelim, "spec_ИмпортКлиентов", "Customers_Staging", путь, True.</li>
+    <li>Сохраните (Ctrl+S), переключитесь в Access, откройте frm_Товары в режиме формы и нажмите кнопку; проверьте Customers_Staging запросом: строки C-0009…C-0011 на месте, ZipCodePrefix = 04578 с нулём.</li>
+    <li>Модифицируйте: скопируйте процедуру, переименуйте в btnImportProducts_Click, замените спецификацию, таблицу и имя файла на products-вариант, добавьте вторую кнопку и запустите.</li>
+    <li>Проверьте обработчик: переименуйте customers_import.csv и нажмите первую кнопку — MsgBox должен назвать проблему и папку, где файл ищется.</li>
+  </ol>
+  <div class="callout callout--info"><div class="callout__title">Ожидаемый результат</div>
+  <p>Нажатие btnImportCsv добавляет в Customers_Staging три строки (C-0009 Julia Duarte, C-0010 Marcos Dias, C-0011 Tania Almeida) с сохранённым ведущим нулём ZipCodePrefix; btnImportProducts_Click загружает 3 товара в Products_Staging; при отсутствии файла Access показывает окно «Файл customers_import.csv не найден…» с путём папки, аварийного окна и закрытия базы нет.</p>
+  </div>
+  <p><strong>Критерии оценки:</strong></p>
+  <ul>
+    <li>процедура называется btnImportCsv_Click и лежит в модуле формы frm_Товары, а не в стандартном модуле;</li>
+    <li>использован DoCmd.TransferText acImportDelim с именем спецификации, таблицей Customers_Staging и True в аргументе «имеются заголовки»;</li>
+    <li>первой рабочей строкой стоит On Error GoTo ErrHandler, перед обработчиком — Exit Sub;</li>
+    <li>MsgBox об успехе и ошибках понятны пользователю (что случилось и что делать);</li>
+    <li>модифицированная процедура меняет только спецификацию, таблицу и файл — каркас ошибок сохранён;</li>
+    <li>каждая строка кода может быть объяснена устно (проверка преподавателем по любым трём строкам).</li>
+  </ul>
+  <div class="callout callout--tip"><div class="callout__title">Подсказка</div>
+  <p>Путь к файлу не запечатывайте строкой «C:\…» — берите CurrentProject.Path: тогда кнопка работает на любом компьютере, где база и CSV лежат рядом. Чтобы увидеть, куда процедура смотрит за файлом, выполните в Immediate <code>?CurrentProject.Path</code>.</p>
+  </div>
+  <details class="solution">
+    <summary>Показать эталонное решение</summary>
+    <div>
+      <p>Код кнопки btnImportCsv на форме frm_Товары. Каждая строка снабжена комментарием — сверьте его со своим пониманием, это и есть проверка «чтения»:</p>
+      <pre class="code"><code class="lang-vba">Private Sub btnImportCsv_Click()
+    ' Импортирует еженедельный файл customers_import.csv в Customers_Staging.
+    ' Требования: CSV лежит в папке базы; есть сохранённая спецификация "spec_ИмпортКлиентов".
+
+    On Error GoTo ErrHandler              ' 1. страховка: любую ошибку выполнения
+                                          '    отправляем на метку ErrHandler внизу
+
+    DoCmd.TransferText acImportDelim, "spec_ИмпортКлиентов", "Customers_Staging", _
+                       CurrentProject.Path &amp; "\customers_import.csv", True
+    ' 2. само действие импорта:
+    '    acImportDelim       — импорт текста с разделителями (CSV);
+    '    "spec_ИмпортКлиентов"    — сохранённая спецификация: разделитель, кодировка,
+    '                          ZipCodePrefix как ТЕКСТ (ведущий ноль 04578);
+    '    "Customers_Staging" — таблица-приёмник (не main-таблица Customers!);
+    '    CurrentProject.Path &amp; "\customers_import.csv"
+    '                        — полный путь: папка базы + имя файла;
+    '    True                — первая строка файла содержит имена полей.
+
+    MsgBox "Импорт завершён: customers_import.csv загружен в Customers_Staging.", _
+           vbInformation, "Импорт клиентов"
+    ' 3. сообщение об успехе — пользователь видит, что кнопка сработала.
+
+    Exit Sub                              ' 4. штатный выход: обходим обработчик,
+                                          '    иначе MsgBox «Ошибка» выскочит и на успехе
+
+ErrHandler:
+    ' 5. сюда попадаем только при ошибке. Частые номера:
+    '    3051/3027 — файл не найден или занят другой программой;
+    '    3625      — спецификация с таким именем не найдена.
+    If Err.Number = 3051 Or Err.Number = 3027 Then
+        MsgBox "Файл customers_import.csv не найден в папке базы или занят другой программой." &amp; _
+               vbCrLf &amp; "Положите файл в папку " &amp; CurrentProject.Path &amp; " и нажмите кнопку снова.", _
+               vbExclamation, "Импорт клиентов"
+    Else
+        MsgBox "Ошибка " &amp; Err.Number &amp; ": " &amp; Err.Description, vbCritical, "Импорт клиентов"
+    End If
+End Sub</code></pre>
+      <p>Запуск: положите customers_import.csv в папку базы, откройте frm_Товары в режиме формы, нажмите кнопку; запрос к Customers_Staging покажет C-0009…C-0011. Проверка обработчика: переименуйте файл и нажмите кнопку снова — окно-предупреждение с путём папки, без аварийного завершения. Пошаговый проход F8 с наблюдением Err.Number в Locals допустим, но для этого временно поставьте On Error GoTo 0 — иначе обработчик перехватит ошибку раньше отладчика.</p>
+    </div>
+  </details>
+  <p><strong>Дополнительное усложнение:</strong> перед импортом очищайте staging одной строкой — <code>CurrentDb.Execute "DELETE FROM Customers_Staging", dbFailOnError</code> — и посчитайте добавленные строки: до импорта и после выполните DCount("*", "Customers_Staging") и покажите разницу в MsgBox («Добавлено строк: 3»). Сравните этот вариант с DoCmd.RunSQL + SetWarnings False/True: сколько строк кода, какие предупреждения видит пользователь и что произойдёт, если забыть SetWarnings True.</p>
+</article>
+</section>
+
+<section class="sec" id="s-quiz" data-sec="quiz">
+<h2>Тест по модулю</h2>
+<p>Восемь вопросов на чтение кода: что сделает фрагмент, что изменится при удалении строки и где смотреть результат. Проходной балл — 80%.</p>
+<section class="quiz" data-quiz="m12">
+<script type="application/json">
+{
+  "title": "Тест: VBA на прикладном уровне",
+  "passScore": 80,
+  "questions": [
+    {
+      "q": "Что сделает вызов DoCmd.OutputTo для запроса qry_ВыручкаПоКатегориям с форматом acFormatXLSX, путём strFile и последним аргументом False?",
+      "options": ["Создаст XLSX-файл по пути strFile и не станет открывать его после экспорта", "Откроет запрос в Access и покажет MsgBox", "Создаст XLSX-файл и сразу откроет его в Excel", "Выгрузит запрос в PDF-файл"],
+      "correct": [0],
+      "explain": "Пятый аргумент OutputTo (AutoStart) со значением False означает: после экспорта файл не открывается; формат задаёт acFormatXLSX."
+    },
+    {
+      "q": "В процедуре ExportCategoryToXlsx строка Exit Sub стоит после MsgBox и перед меткой ErrHandler. Что изменится, если её удалить?",
+      "options": ["Процедура перестанет компилироваться", "При успешном выполнении будет показано и сообщение об ошибке", "Обработчик ошибок перестанет существовать", "Ничего не изменится"],
+      "correct": [1],
+      "explain": "Без Exit Sub выполнение «проваливается» с последней строки успеха прямо в обработчик: MsgBox «Ошибка…» показывается даже когда экспорт удался."
+    },
+    {
+      "q": "Какие элементы обязан содержать корректный recordset-цикл, чтобы обработать все строки и освободить ресурс?",
+      "options": [".MoveNext внутри цикла", "Do While Not rs.EOF как условие цикла", "rs.Close после выхода из цикла", "rs.Edit перед чтением каждой строки"],
+      "correct": [0, 1, 2],
+      "explain": "MoveNext переводит курсор (без него цикл вечный), EOF — признак конца набора, Close освобождает ресурс. rs.Edit нужен только перед изменением записи, на чтение он не влияет."
+    },
+    {
+      "q": "Переменная curTotal объявлена и равна 0. В окне Immediate выполнена строка Debug.Print, которая печатает слово Итог, двоеточие и значение curTotal. Что появится в окне?",
+      "options": ["Итог: 0", "Сообщение об ошибке: переменные недоступны в Immediate", "Пустая строка: Debug.Print не работает без цикла", "Ничего: Debug.Print пишет в окно Locals"],
+      "correct": [0],
+      "explain": "Debug.Print печатает в окно Immediate (Ctrl+G); выражения с вопросительным знаком и вывод процедуры попадают в одно и то же окно."
+    },
+    {
+      "q": "Чем CurrentDb.Execute «DELETE FROM Customers_Staging» отличается от DoCmd.RunSQL с той же строкой?",
+      "options": ["Execute выполняет запрос без предупреждающих окон Access, RunSQL просит подтверждение", "Execute показывает подтверждение, RunSQL выполняет молча", "Execute работает только с SELECT-запросами", "Разницы нет, это синонимы"],
+      "correct": [0],
+      "explain": "RunSQL — метод Access с предупреждающими окнами (их гасят SetWarnings), Execute — метод DAO без предупреждений; с dbFailOnError он откатывает изменение при ошибке."
+    },
+    {
+      "q": "Какие окна редактора VBE помогают читать и отлаживать чужой код?",
+      "options": ["Project Explorer — дерево форм и модулей базы", "Immediate — вопросы со знаком «?» и вывод Debug.Print", "Locals — значения переменных на паузе", "Каталог действий — список макрокоманд Access"],
+      "correct": [0, 1, 2],
+      "explain": "Каталог действий принадлежит конструктору макросов (модуль 11) и к VBE отношения не имеет; остальные три окна — стандартный набор отладчика."
+    },
+    {
+      "q": "В обработчике события BeforeUpdate нужно запретить сохранение записи с отрицательной ценой. Какая строка отменяет обновление?",
+      "options": ["Cancel = True", "DoCmd.Close acForm, Me.Name", "MsgBox «Проверьте цену»", "rs.MoveNext"],
+      "correct": [0],
+      "explain": "Параметр Cancel = True откатывает обновление и возвращает пользователя к редактированию; MsgBox только показывает текст и ничего не отменяет."
+    },
+    {
+      "q": "В процедуре стоит On Error GoTo ErrHandler, в обработчике — MsgBox с Err.Number и Err.Description. Что увидит пользователь при ошибке 3051 (файл недоступен)?",
+      "options": ["Окно MsgBox с номером 3051 и описанием, аварийного окна Access не будет", "Стандартное окно Access «Прекращена работа программы»", "Процедура начнёт выполняться сначала", "Ничего: обработчик работает только до первой ошибки"],
+      "correct": [0],
+      "explain": "On Error GoTo перенаправляет выполнение на метку ErrHandler, где код собирает сообщение из Err.Number и Err.Description; стандартное аварийное окно не появляется."
+    }
+  ]
+}
+</script>
+</section>
+</section>
+
+<section class="sec" id="s-control" data-sec="control">
+<h2>Контрольные вопросы</h2>
+<p>Ответьте письменно, своими словами; для вопросов 2, 4 и 6 опирайтесь на пройденные процедуры из vba/export-examples.bas и задания V02.</p>
+<ol>
+<li>Назовите четыре окна или клавиши VBE, без которых не обойтись при чтении чужой процедуры, и скажите, что именно каждое из них показывает или делает.</li>
+<li>Перечислите по порядку все смысловые блоки ExportCategoryToXlsx (Dim, On Error GoTo, путь, DoCmd.OutputTo, MsgBox, Exit Sub, ErrHandler) и объясните, почему блоки стоят именно в таком порядке.</li>
+<li>Что произойдёт при запуске recordset-цикла, если удалить строку .MoveNext? Как вы это заметите по поведению Access и как прервать зависший код?</li>
+<li>Зачем в каждой процедуре модуля Exit Sub стоит выше ErrHandler? Что именно сломается без него и по какому симптому вы это опознаете?</li>
+<li>В каком случае для суммирования выручки достаточно одного оператора (DSum или SQL с SUM), а когда без recordset-цикла не обойтись? Приведите по одному примеру из ShopData.</li>
+<li>Как открыть из кода отчёт rpt_Накладная только по заказу O-10003? Напишите вызов DoCmd с WhereCondition и объясните, чем WhereCondition отличается от фильтра в источнике отчёта.</li>
+</ol>
+</section>
+
+<section class="sec" id="s-criteria" data-sec="criteria">
+<h2>Критерии проверки</h2>
+<p>Преподаватель (или вы сами по этому списку) оценивает модуль по пяти критериям. Формулировки «отлично/допустимо/брак» проговариваются с примерами из вашей базы — не по памяти.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Критерий</th><th>Отлично</th><th>Допустимо</th><th>Брак</th></tr></thead>
+<tbody>
+<tr><td>Чтение кода</td><td>объясняет устно каждую строку ExportCategoryToXlsx и btnImportCsv_Click, включая роль Exit Sub и ErrHandler</td><td>объясняет основные строки, путает назначение Dim и Set или аргументы TransferText</td><td>«скопировал и работает» — ни одна строка не объяснена</td></tr>
+<tr><td>Отладка в VBE</td><td>использует F5, F8, F9, Locals и Immediate (Ctrl+G) осознанно; показывает вывод Debug.Print</td><td>запускает по F5, точку останова ставит по подсказке, Immediate не использует</td><td>VBE не открывался, код запускался только макросом</td></tr>
+<tr><td>Задание V02: импорт</td><td>кнопка btnImportCsv импортирует 3 строки, ZipCodePrefix с ведущим нулём, процедура в модуле формы</td><td>импорт работает, но процедура в стандартном модуле или без части MsgBox</td><td>импорт сделан вручную мастером, VBA не запускался</td></tr>
+<tr><td>Модификация под другой файл</td><td>btnImportProducts_Click меняет спецификацию, таблицу и файл, каркас ошибок сохранён, код прокомментирован</td><td>изменено только имя файла, спецификация и таблица старые или без проверки</td><td>второй процедуры нет, файл не менялся</td></tr>
+<tr><td>Сверка результатов</td><td>вывод SumRevenueByOrder в Immediate сверен с эталоном (11 строк, 3025,50), расхождения объяснены</td><td>сумма получена, окно Immediate не показано</td><td>сумма не сверялась, canceled-заказ посчитан</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section class="sec" id="s-solution" data-sec="solution">
+<h2>Эталонное решение</h2>
+<details class="solution">
+  <summary>Показать эталонное решение самостоятельной работы</summary>
+  <div>
+    <p><strong>Шаг 1. Чтение и отладка.</strong> Импортируйте vba/export-examples.bas (Alt+F11 → File → Import File…), запустите ExportCategoryToXlsx по F5, пройдите её по F9/F8 с окном Locals, выполните в Immediate <code>?CurrentProject.Path</code>, затем добавьте SumRevenueByOrder из раздела «Пошаговая демонстрация» и сверьте вывод: 11 строк заказов и ИТОГО: 3025,50. Эта часть решения уже приведена в демонстрации и разделе «Ожидаемый результат» — не дублируем код, проверьте свои окна по таблицам.</p>
+    <p><strong>Шаг 2. Кнопка импорта.</strong> Полный код btnImportCsv_Click (с построчными комментариями) — в карточке задания V02 выше; вставляйте его именно в модуль формы frm_Товары через построитель свойства «Нажатие кнопки». Файл customers_import.csv должен лежать в папке базы.</p>
+    <p><strong>Шаг 3. Модификация под другой файл.</strong> Копия процедуры для products_import.csv. Изменены ровно четыре места — спецификация, таблица-приёмник, имя файла и тексты сообщений; каркас On Error GoTo / Exit Sub / ErrHandler не тронут:</p>
+    <pre class="code"><code class="lang-vba">Private Sub btnImportProducts_Click()
+    ' Модификация V02: импорт products_import.csv в Products_Staging.
+    ' Требования: CSV в папке базы; сохранённая спецификация "spec_ИмпортТоваров"
+    ' (создаётся один раз ручным импортом того же файла, вариант "Создание таблиц").
+
+    On Error GoTo ErrHandler              ' страховка — как в исходной процедуре
+
+    DoCmd.TransferText acImportDelim, "spec_ИмпортТоваров", "Products_Staging", _
+                       CurrentProject.Path &amp; "\products_import.csv", True
+    ' Изменено: спецификация "spec_ИмпортТоваров", таблица Products_Staging,
+    ' файл products_import.csv; acImportDelim и True — без изменений.
+
+    MsgBox "Импорт завершён: products_import.csv загружен в Products_Staging.", _
+           vbInformation, "Импорт товаров"
+
+    Exit Sub                              ' штатный выход выше обработчика
+
+ErrHandler:
+    ' У новой спецификации своя типичная ошибка: 3625 — не найдена спецификация,
+    ' 3420/3125 — нет таблицы Products_Staging (сначала создайте её ручным импортом).
+    If Err.Number = 3051 Or Err.Number = 3027 Then
+        MsgBox "Файл products_import.csv не найден в папке базы или занят другой программой." &amp; _
+               vbCrLf &amp; "Положите файл в папку " &amp; CurrentProject.Path &amp; " и нажмите кнопку снова.", _
+               vbExclamation, "Импорт товаров"
+    Else
+        MsgBox "Ошибка " &amp; Err.Number &amp; ": " &amp; Err.Description, vbCritical, "Импорт товаров"
+    End If
+End Sub</code></pre>
+    <p>Содержимое файла products_import.csv (3 строки данных плюс строка заголовков):</p>
+    <pre class="code"><code class="lang-vba">ProductID,ProductName,CategoryID,WeightG
+P-6001,Держатель для полотенец,1,850
+P-6002,Шампунь детский,2,400
+P-6003,Кабель HDMI 2 м,3,180</code></pre>
+    <p><strong>Шаг 4. Усложнение с подсчётом строк.</strong> Вариант btnImportCsv_Click с очисткой staging и подсчётом добавленных строк — обратите внимание на Execute вместо RunSQL и на пары «до/после»:</p>
+    <pre class="code"><code class="lang-vba">Private Sub btnImportCsv_Click()
+    ' Усложнённая версия: staging очищается перед импортом,
+    ' в сообщении показано число добавленных строк.
+
+    Dim lngBefore As Long                 ' строк в staging до импорта
+    Dim lngAfter As Long                  ' строк после импорта
+
+    On Error GoTo ErrHandler
+
+    lngBefore = DCount("*", "Customers_Staging")   ' фиксируем счётчик до загрузки
+
+    CurrentDb.Execute "DELETE FROM Customers_Staging", dbFailOnError
+    ' Execute без предупреждающих окон; dbFailOnError откатит при ошибке.
+    ' Альтернатива: DoCmd.SetWarnings False : DoCmd.RunSQL "DELETE ..." :
+    ' DoCmd.SetWarnings True — длиннее и опаснее, если забыть True.
+
+    DoCmd.TransferText acImportDelim, "spec_ИмпортКлиентов", "Customers_Staging", _
+                       CurrentProject.Path &amp; "\customers_import.csv", True
+
+    lngAfter = DCount("*", "Customers_Staging")    ' счётчик после загрузки
+
+    MsgBox "Добавлено строк: " &amp; (lngAfter - lngBefore) &amp; _
+           " (было " &amp; lngBefore &amp; ", стало " &amp; lngAfter &amp; ").", _
+           vbInformation, "Импорт клиентов"
+    ' Ожидаемо: было 8, добавлено 3, стало 11 (если staging уже заполнялся в модуле 4).
+
+    Exit Sub
+
+ErrHandler:
+    MsgBox "Ошибка " &amp; Err.Number &amp; ": " &amp; Err.Description, vbCritical, "Импорт клиентов"
+End Sub</code></pre>
+    <p><strong>Шаг 5. Проверка обработчика ошибок.</strong> Три сценария выполняйте подряд: файл на месте (MsgBox об успехе), файл переименован (vbExclamation с путём папки), спецификация переименована (vbCritical, ошибка 3625). После каждого нажмите кнопку повторно — процедура должна работать и дальше, база не закрывается.</p>
+  </div>
+</details>
+</section>
+
+<section class="sec" id="s-summary" data-sec="summary">
+<h2>Краткое резюме</h2>
+<p>Вы прошли VBA так, как им пользуются аналитики: не с типов данных, а через чтение готовых процедур. Вы освоили VBE (Alt+F11): Project Explorer, Immediate (Ctrl+G) с Debug.Print и вопросами «?», Locals на паузе, запуск F5, шаг F8, остановка F9; разобрали каркас процедуры ExportCategoryToXlsx (Sub…End Sub, Dim, Set, With, DoCmd, On Error GoTo, Exit Sub, ErrHandler) и recordset-цикл с MoveNext и Close, сверив сумму 3025,50 по мини-датасету; узнали пять событий форм, рабочий набор DoCmd (OpenForm/OpenQuery/OpenReport с WhereCondition, OutputTo, TransferText/TransferSpreadsheet, RunSQL) и разницу между CurrentDb.Execute и RunSQL. В задании V02 вы запустили и модифицировали btnImportCsv_Click под второй файл. Дальше — модуль 13: импорт и экспорт как постоянный обмен данными — сохранённые экспорты, выбор между OutputTo, TransferSpreadsheet и TransferText, экспорт отчёта в PDF и импорт по расписанию; ваш VBA-опыт подскажет, где мастера заканчиваются и начинается код.</p>
+</section>
+
+</article>
+<!--CACHE-END-->
+</main>
+<script src="../js/app.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress.js"></script>
+<script src="../js/export.js"></script>
+<script src="../js/navigation.js"></script>
+<script src="../js/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 560" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+  <title>Поток данных: от CSV/Excel до отчёта</title>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5c6a7a"/>
+    </marker>
+    <style>
+      .stage { fill: #ffffff; stroke: #b9c5d2; stroke-width: 1.5; }
+      .shead { font-weight: 700; fill: #ffffff; }
+      .item { fill: #1e2630; font-size: 12.5px; }
+      .flow { stroke: #5c6a7a; stroke-width: 2; fill: none; marker-end: url(#arr); }
+      .bg { fill: #f7f9fc; }
+      .note { fill: #5c6a7a; font-size: 12px; font-style: italic; }
+      .mod { fill: #a4373a; font-weight: 700; font-size: 11px; }
+      .modb { fill: #1c6fb8; font-weight: 700; font-size: 11px; }
+      .modc { fill: #1a7f37; font-weight: 700; font-size: 11px; }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1080" height="560" rx="12"/>
+
+  <!-- 1. Источники -->
+  <g transform="translate(24,90)">
+    <rect class="stage" width="170" height="180" rx="10"/>
+    <rect x="0" y="0" width="170" height="32" rx="10" fill="#5c6a7a"/>
+    <rect x="0" y="16" width="170" height="16" fill="#5c6a7a"/>
+    <text class="shead" x="14" y="21">1. Источники</text>
+    <text class="item" x="14" y="56">olist_customers.csv</text>
+    <text class="item" x="14" y="78">olist_orders.csv</text>
+    <text class="item" x="14" y="100">olist_order_items.csv</text>
+    <text class="item" x="14" y="122">olist_products.csv</text>
+    <text class="item" x="14" y="144">category_translation.csv</text>
+    <text class="note" x="14" y="168">+ XLSX-выгрузки CRM</text>
+  </g>
+
+  <!-- 2. Импорт -->
+  <g transform="translate(242,90)">
+    <rect class="stage" width="170" height="180" rx="10"/>
+    <rect x="0" y="0" width="170" height="32" rx="10" fill="#a4373a"/>
+    <rect x="0" y="16" width="170" height="16" fill="#a4373a"/>
+    <text class="shead" x="14" y="21">2. Импорт</text>
+    <text class="item" x="14" y="56">Мастер импорта</text>
+    <text class="item" x="14" y="78">типы полей → проверить</text>
+    <text class="item" x="14" y="100">ZipCodePrefix — текст</text>
+    <text class="item" x="14" y="122">даты — Дата/время</text>
+    <text class="note" x="14" y="152">сохранённая</text>
+    <text class="note" x="14" y="168">спецификация</text>
+  </g>
+
+  <!-- 3. Staging и очистка -->
+  <g transform="translate(460,90)">
+    <rect class="stage" width="180" height="180" rx="10"/>
+    <rect x="0" y="0" width="180" height="32" rx="10" fill="#b45309"/>
+    <rect x="0" y="16" width="180" height="16" fill="#b45309"/>
+    <text class="shead" x="14" y="21">3. Staging + очистка</text>
+    <text class="item" x="14" y="56">*_Staging таблицы</text>
+    <text class="item" x="14" y="78">дедупликация</text>
+    <text class="item" x="14" y="100">пропуски · Trim</text>
+    <text class="item" x="14" y="122">диапазоны и справочники</text>
+    <text class="note" x="14" y="152">запросы на обновление</text>
+    <text class="note" x="14" y="168">и удаление</text>
+  </g>
+
+  <!-- 4. Нормализованные таблицы -->
+  <g transform="translate(688,90)">
+    <rect class="stage" width="170" height="180" rx="10"/>
+    <rect x="0" y="0" width="170" height="32" rx="10" fill="#a4373a"/>
+    <rect x="0" y="16" width="170" height="16" fill="#a4373a"/>
+    <text class="shead" x="14" y="21">4. Таблицы (3НФ)</text>
+    <text class="item" x="14" y="56">Customers · Categories</text>
+    <text class="item" x="14" y="78">Products · Employees</text>
+    <text class="item" x="14" y="100">Orders · OrderDetails</text>
+    <text class="item" x="14" y="122">Calendar</text>
+    <text class="note" x="14" y="152">связи 1:М + целостность,</text>
+    <text class="note" x="14" y="168">каскады</text>
+  </g>
+
+  <!-- 5. Запросы -->
+  <g transform="translate(906,90)">
+    <rect class="stage" width="150" height="180" rx="10"/>
+    <rect x="0" y="0" width="150" height="32" rx="10" fill="#1c6fb8"/>
+    <rect x="0" y="16" width="150" height="16" fill="#1c6fb8"/>
+    <text class="shead" x="14" y="21">5. Запросы</text>
+    <text class="item" x="14" y="56">выборки · фильтры</text>
+    <text class="item" x="14" y="78">агрегаты · HAVING</text>
+    <text class="item" x="14" y="100">параметры · crosstab</text>
+    <text class="item" x="14" y="122">action-запросы</text>
+    <text class="note" x="14" y="152">конструктор +</text>
+    <text class="note" x="14" y="168">Access SQL</text>
+  </g>
+
+  <!-- Горизонтальные стрелки -->
+  <path class="flow" d="M194,180 L242,180"/>
+  <path class="flow" d="M412,180 L460,180"/>
+  <path class="flow" d="M640,180 L688,180"/>
+  <path class="flow" d="M858,180 L906,180"/>
+
+  <!-- Нижний ряд: интерфейс и экспорт -->
+  <g transform="translate(242,360)">
+    <rect class="stage" width="180" height="140" rx="10"/>
+    <rect x="0" y="0" width="180" height="32" rx="10" fill="#1c6fb8"/>
+    <rect x="0" y="16" width="180" height="16" fill="#1c6fb8"/>
+    <text class="shead" x="14" y="21">6. Формы</text>
+    <text class="item" x="14" y="56">frm_Панель (навигация)</text>
+    <text class="item" x="14" y="78">frm_Заказы + sfrm_…</text>
+    <text class="item" x="14" y="100">кнопки · поля со списком</text>
+    <text class="note" x="14" y="130">ввод и просмотр</text>
+  </g>
+
+  <g transform="translate(470,360)">
+    <rect class="stage" width="180" height="140" rx="10"/>
+    <rect x="0" y="0" width="180" height="32" rx="10" fill="#1c6fb8"/>
+    <rect x="0" y="16" width="180" height="16" fill="#1c6fb8"/>
+    <text class="shead" x="14" y="21">7. Отчёты</text>
+    <text class="item" x="14" y="56">группировка и итоги</text>
+    <text class="item" x="14" y="78">rpt_ВыручкаПоКатегориям</text>
+    <text class="item" x="14" y="100">rpt_Топ10Товаров</text>
+    <text class="note" x="14" y="130">печатные формы</text>
+  </g>
+
+  <g transform="translate(698,360)">
+    <rect class="stage" width="180" height="140" rx="10"/>
+    <rect x="0" y="0" width="180" height="32" rx="10" fill="#1a7f37"/>
+    <rect x="0" y="16" width="180" height="16" fill="#1a7f37"/>
+    <text class="shead" x="14" y="21">8. Экспорт</text>
+    <text class="item" x="14" y="56">CSV (TransferText)</text>
+    <text class="item" x="14" y="78">XLSX (OutputTo)</text>
+    <text class="item" x="14" y="100">PDF (OutputTo отчёта)</text>
+    <text class="note" x="14" y="130">макросы и VBA</text>
+  </g>
+
+  <g transform="translate(24,360)">
+    <rect class="stage" width="170" height="140" rx="10"/>
+    <rect x="0" y="0" width="170" height="32" rx="10" fill="#5c6a7a"/>
+    <rect x="0" y="16" width="170" height="16" fill="#5c6a7a"/>
+    <text class="shead" x="14" y="21">9. Эксплуатация</text>
+    <text class="item" x="14" y="56">сжатие и бэкап</text>
+    <text class="item" x="14" y="78">разделение BE / FE</text>
+    <text class="item" x="14" y="100">индексы под запросы</text>
+    <text class="note" x="14" y="130">модули 13–14</text>
+  </g>
+
+  <!-- Стрелки вниз и между нижними -->
+  <path class="flow" d="M981,270 L981,320 L332,320 L332,360"/>
+  <path class="flow" d="M422,430 L470,430"/>
+  <path class="flow" d="M650,430 L698,430"/>
+  <path class="flow" d="M878,430 L906,430"/>
+  <path class="flow" d="M194,430 L242,430"/>
+
+  <!-- Подписи модулей -->
+  <text class="mod" x="290" y="300">модули 04–05</text>
+  <text class="mod" x="520" y="300">модули 02–03</text>
+  <text class="modb" x="740" y="300">модули 06–08</text>
+  <text class="modb" x="286" y="530">модуль 09</text>
+  <text class="modb" x="516" y="530">модуль 10</text>
+  <text class="modc" x="746" y="530">модули 11–13</text>
+  <text class="mod" x="62" y="530">модуль 14</text>
+
+  <text class="item" x="24" y="46" font-weight="700" font-size="15">Путь данных курса ShopData: один датасет — от сырых файлов до готовых выгрузок</text>
+  <text class="note" x="24" y="68">Главное отличие Access от Excel: данные и их представление разделены — одна таблица питает форму, отчёт и экспорт одновременно</text>
+</svg>

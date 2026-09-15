@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Кликабельные ссылки на датасеты Kaggle для курса Microsoft Access: Olist Brazilian E-commerce, Superstore, Online Retail. Лицензии, поля, связанные задания.">
+<title>Датасеты и ссылки Kaggle — Учебник Microsoft Access</title>
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/styles.css">
+<link rel="stylesheet" href="../css/responsive.css">
+<link rel="stylesheet" href="../css/print.css" media="print">
+</head>
+<body data-page="datasets">
+<a class="skip-link" href="#content">Перейти к содержимому</a>
+<main id="content" class="page__content">
+<!--CACHE-START-->
+<article class="module">
+
+<header class="module-header">
+  <h1 class="module-title"><span class="module-title__kicker">Материалы курса</span>Датасеты и ссылки Kaggle</h1>
+  <div class="module-header__meta">
+    <span class="chip chip--accent">Единственный источник данных для всех заданий</span>
+    <span class="chip">Проверка ссылок: 2026-09-15</span>
+  </div>
+</header>
+
+<section class="sec" id="s-howto">
+  <h2>Как пользоваться разделом</h2>
+  <p>Все практические задания, самостоятельные работы и итоговый проект курса выполняются на <strong>одном сквозном датасете ShopData</strong>, построенном на основе публичного набора <strong>Olist Brazilian E-commerce</strong>. Такой подход повторяет реальную аналитическую работу: вы живёте с одними и теми же данными от сырых CSV до готовых отчётов и видите, как каждое новое умение (связи, запросы, формы) делает те же данные понятнее.</p>
+  <p>Порядок действий такой: скачайте основной датасет по кнопке ниже (нужна бесплатная учётная запись Kaggle), распакуйте архив в папку <code>import\</code> рядом с учебной базой, затем следуйте пошаговой инструкции из файла <code>datasets/import-instructions.md</code>. Словарь всех таблиц и полей учебной модели — в <code>datasets/data-dictionary.md</code>. Если скачивание Kaggle недоступно, используйте учебный мини-датасет: SQL-операторы <code>CREATE TABLE</code> и <code>INSERT</code> в каталоге <code>sql/</code> позволяют собрать все семь таблиц вручную.</p>
+  <div class="callout callout--important">
+    <div class="callout__title">Важно о лицензиях</div>
+    <p>Учебник распространяется по лицензии MIT, но она <strong>не распространяется на сторонние датасеты</strong>. Скачивая данные с Kaggle, вы принимаете условия лицензии конкретного набора. Ссылки на датасеты могут измениться со временем — дата последней проверки указана на каждой карточке; если ссылка не открывается, поищите название набора в поиске на kaggle.com.</p>
+  </div>
+</section>
+
+<section class="sec" id="s-primary">
+  <h2>Основной датасет курса</h2>
+
+  <div class="dataset-card dataset-card--primary">
+    <div class="dataset-card__title">
+      <h3>🥇 Brazilian E-Commerce Public Dataset by Olist</h3>
+      <span class="chip chip--accent">Основной — используется во всех заданиях</span>
+    </div>
+    <dl>
+      <dt>URL</dt>
+      <dd><a href="https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce" target="_blank" rel="noopener">https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce</a></dd>
+      <dt>Кнопка</dt>
+      <dd><a class="btn btn-open-dataset" href="https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce" target="_blank" rel="noopener">Открыть датасет ↗</a></dd>
+      <dt>Краткое описание</dt>
+      <dd>Публичные данные бразильского маркетплейса Olist: 100 тысяч заказов с 2016 по 2018 год, товаров, покупателей, продавцов, отзывов и геолокаций. Идеален для обучения связям: данные сразу разложены по нормализованным файлам.</dd>
+      <dt>Формат файлов</dt>
+      <dd>9 файлов CSV с заголовками, разделитель «запятая», кодировка UTF-8</dd>
+      <dt>Примерный объём</dt>
+      <dd>Архив ≈ 50 МБ; в распакованном виде ≈ 150 МБ; основной используемый набор ≈ 55 МБ (5 файлов)</dd>
+      <dt>Используемые поля</dt>
+      <dd><code>customer_id</code>, <code>customer_zip_code_prefix</code>, <code>customer_city</code>, <code>customer_state</code>; <code>order_id</code>, <code>customer_id</code>, <code>order_status</code>, <code>order_purchase_timestamp</code>, <code>order_delivered_customer_date</code>, <code>order_estimated_delivery_date</code>; <code>order_id</code>, <code>order_item_id</code>, <code>product_id</code>, <code>price</code>, <code>freight_value</code>, <code>shipping_limit_date</code>; <code>product_id</code>, <code>product_category_name</code>, <code>product_weight_g</code>, габариты; <code>product_category_name</code>, <code>product_category_name_english</code></dd>
+      <dt>Предполагаемые таблицы</dt>
+      <dd>Customers, Orders, OrderDetails, Products, Categories (плюс Employees и Calendar — учебные, собираются из данных продавцов и генерируются; см. import-instructions.md)</dd>
+      <dt>Связанные задания</dt>
+      <dd>Все 20 заданий курса E01–V02 и итоговый проект (модули 02–15)</dd>
+      <dt>Лицензия</dt>
+      <dd>CC BY-NC-SA 4.0 (Attribution-NonCommercial-ShareAlike) — некоммерческое использование с указанием авторства</dd>
+      <dt>Дата проверки ссылки</dt>
+      <dd>2026-09-15 (проверено веб-поиском; при недоступности ищите «olistbr brazilian-ecommerce» на kaggle.com)</dd>
+    </dl>
+  </div>
+</section>
+
+<section class="sec" id="s-alternatives">
+  <h2>Альтернативные датасеты</h2>
+  <p>Если требуется меньший объём или другой регион, задания курса можно выполнить на этих наборах: структура таблиц ShopData сохраняется, меняются только инструкции импорта.</p>
+
+  <div class="dataset-card">
+    <div class="dataset-card__title">
+      <h3>🥈 Sample Superstore Dataset</h3>
+      <span class="chip">Альтернатива — один файл</span>
+    </div>
+    <dl>
+      <dt>URL</dt>
+      <dd><a href="https://www.kaggle.com/datasets/vivek468/superstore-dataset-final" target="_blank" rel="noopener">https://www.kaggle.com/datasets/vivek468/superstore-dataset-final</a></dd>
+      <dt>Кнопка</dt>
+      <dd><a class="btn btn--ghost btn-open-dataset" href="https://www.kaggle.com/datasets/vivek468/superstore-dataset-final" target="_blank" rel="noopener">Открыть датасет ↗</a></dd>
+      <dt>Краткое описание</dt>
+      <dd>Классический набор «супермаркета» для обучения BI: один файл, знакомые многим поля — удобно для быстрого старта и сравнения с упражнениями Power BI / Tableau.</dd>
+      <dt>Формат файлов</dt>
+      <dd>1 файл CSV (~10 тыс. строк), заголовки, разделитель «запятая»</dd>
+      <dt>Примерный объём</dt>
+      <dd>≈ 2,3 МБ</dd>
+      <dt>Используемые поля</dt>
+      <dd><code>Row ID</code>, <code>Order ID</code>, <code>Order Date</code>, <code>Ship Date</code>, <code>Ship Mode</code>, <code>Customer ID</code>, <code>Customer Name</code>, <code>Segment</code>, <code>City</code>, <code>State</code>, <code>Postal Code</code>, <code>Region</code>, <code>Product ID</code>, <code>Category</code>, <code>Sub-Category</code>, <code>Product Name</code>, <code>Sales</code>, <code>Quantity</code>, <code>Discount</code>, <code>Profit</code></dd>
+      <dt>Предполагаемые таблицы</dt>
+      <dd>Customers, Products, Categories, Orders, OrderDetails; Employees и Calendar — синтетические (см. import-instructions.md)</dd>
+      <dt>Связанные задания</dt>
+      <dd>E01–E05, S01–S04, I01, I02, F02 — с поправкой полей в import-instructions.md</dd>
+      <dt>Лицензия</dt>
+      <dd>Указана на странице набора (проверяйте перед использованием; набор свободно используется в учебных целях)</dd>
+      <dt>Дата проверки ссылки</dt>
+      <dd>2026-09-15 (проверено веб-поиском)</dd>
+    </dl>
+  </div>
+
+  <div class="dataset-card">
+    <div class="dataset-card__title">
+      <h3>🥉 E-Commerce Data (Online Retail, UCI)</h3>
+      <span class="chip">Альтернатива — транзакции</span>
+    </div>
+    <dl>
+      <dt>URL</dt>
+      <dd><a href="https://www.kaggle.com/datasets/carrie1/ecommerce-data" target="_blank" rel="noopener">https://www.kaggle.com/datasets/carrie1/ecommerce-data</a></dd>
+      <dt>Кнопка</dt>
+      <dd><a class="btn btn--ghost btn-open-dataset" href="https://www.kaggle.com/datasets/carrie1/ecommerce-data" target="_blank" rel="noopener">Открыть датасет ↗</a></dd>
+      <dt>Краткое описание</dt>
+      <dd>Транзакции британского интернет-магазина подарков за 2010–2011 годы (≈ 541 тыс. строк). Хорош для упражнений по очистке: в данных есть возвраты, пропуски CustomerID и дубликаты.</dd>
+      <dt>Формат файлов</dt>
+      <dd>1 файл CSV, разделитель «запятая», кодировка — требуется перекодировка в UTF-8 (см. import-instructions.md)</dd>
+      <dt>Примерный объём</dt>
+      <dd>≈ 45 МБ</dd>
+      <dt>Используемые поля</dt>
+      <dd><code>InvoiceNo</code>, <code>StockCode</code>, <code>Description</code>, <code>Quantity</code>, <code>InvoiceDate</code>, <code>UnitPrice</code>, <code>CustomerID</code>, <code>Country</code></dd>
+      <dt>Предполагаемые таблицы</dt>
+      <dd>Orders (InvoiceNo), OrderDetails, Products (StockCode), Customers; Categories и Employees — синтетические</dd>
+      <dt>Связанные задания</dt>
+      <dd>E03–E05, S01–S04, I01 — с поправкой полей в import-instructions.md</dd>
+      <dt>Лицензия</dt>
+      <dd>Указана на странице набора (источник — UCI Machine Learning Repository; проверяйте условия перед использованием)</dd>
+      <dt>Дата проверки ссылки</dt>
+      <dd>2026-09-15 (проверено веб-поиском)</dd>
+    </dl>
+  </div>
+
+  <div class="dataset-card">
+    <div class="dataset-card__title">
+      <h3>🧪 Sample Sales Data (MySQL)</h3>
+      <span class="verify-flag">TODO: VERIFY DATASET URL</span>
+    </div>
+    <dl>
+      <dt>URL</dt>
+      <dd><span class="verify-flag">TODO: VERIFY DATASET URL</span> — ссылка не проверена поиском и потому не публикуется кликабельной: найдите «Sample Sales Data kaggle» на kaggle.com сами</dd>
+      <dt>Кнопка</dt>
+      <dd><em>Будет добавлена после проверки ссылки</em></dd>
+      <dt>Краткое описание</dt>
+      <dd>Классический обучающий дамп продаж из экосистемы MySQL: ≈ 2 800 строк заказов. Подходит для быстрых упражнений по соединениям.</dd>
+      <dt>Формат файлов</dt>
+      <dd>1 файл CSV</dd>
+      <dt>Примерный объём</dt>
+      <dd>Менее 1 МБ</dd>
+      <dt>Используемые поля</dt>
+      <dd><code>ORDERNUMBER</code>, <code>ORDERDATE</code>, <code>STATUS</code>, <code>CUSTOMERNAME</code>, <code>COUNTRY</code>, <code>PRODUCTLINE</code>, <code>QUANTITYORDERED</code>, <code>PRICEEACH</code> (точные имена проверить после верификации ссылки)</dd>
+      <dt>Предполагаемые таблицы</dt>
+      <dd>Orders, OrderDetails, Customers, Products — после нормализации одного файла</dd>
+      <dt>Связанные задания</dt>
+      <dd>Резерв: S01–S04</dd>
+      <dt>Лицензия</dt>
+      <dd>Не проверена — уточнить на странице набора</dd>
+      <dt>Дата проверки ссылки</dt>
+      <dd>Не проверена. Правило курса: пока ссылка не проверена, она не публикуется кликабельной — вместо неё стоит флаг TODO: VERIFY DATASET URL</dd>
+    </dl>
+  </div>
+</section>
+
+<section class="sec" id="s-mini">
+  <h2>Учебный мини-датасет без Kaggle</h2>
+  <p>Если интернет или учётная запись Kaggle недоступны, весь курс проходится на мини-датасете ShopData Mini: 5 категорий, 8 товаров, 8 покупателей, 6 сотрудников, 12 заказов и 15 позиций заказов за 2017–2018 годы. Его данные зашиты в SQL-примерах курса и в текстах модулей, поэтому все «эталонные результаты» (выручка 3 025,50; 5 категорий; 11 контрольных точек итогового проекта) воспроизводятся точно.</p>
+  <p>Порядок сборки: создайте пустую базу ShopData.accdb, откройте файлы каталога <code>sql/</code> и выполните по одному оператору <code>CREATE TABLE</code> и <code>INSERT INTO</code> (в Access окно SQL выполняет один оператор за раз). Полные инструкции — в <code>datasets/import-instructions.md</code>.</p>
+</section>
+
+<section class="sec" id="s-verify">
+  <h2>Как проверять ссылки самостоятельно</h2>
+  <ol class="steps">
+    <li>Откройте kaggle.com и вставьте название набора из карточки в поиск.</li>
+    <li>Убедитесь, что страница принадлежит владельцу из карточки (например, <code>olistbr</code>) и описание совпадает.</li>
+    <li>Проверьте раздел <strong>License</strong> на странице набора — он должен допускать учебное использование.</li>
+    <li>Скачайте архив и сверьте состав файлов с колонкой «Формат файлов» карточки.</li>
+    <li>Обновите дату проверки в этой карточке (строка «Дата проверки ссылки») и в README.</li>
+  </ol>
+</section>
+
+</article>
+<!--CACHE-END-->
+</main>
+<script src="../js/app.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/progress.js"></script>
+<script src="../js/export.js"></script>
+<script src="../js/navigation.js"></script>
+<script src="../js/quiz.js"></script>
+</body>
+</html>
