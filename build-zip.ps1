@@ -26,6 +26,9 @@ $excludeFiles = @('Thumbs.db', '.DS_Store', 'Desktop.ini')
 $excludeExt   = @('*.tmp', '*.temp', '*.log', '*.swp', '*.bak', '*.zip', '*.accdb', '*.mdb', '*.laccdb', '*.csv', '*.xlsx')
 
 function Test-Excluded([System.IO.FileSystemInfo]$item) {
+    # Готовый календарь курса — единственный CSV, который входит в архив;
+    # пользовательские *.csv (выгрузки Olist, import/) исключаются ниже.
+    if ($item.Name -eq 'calendar.csv') { return $false }
     foreach ($d in $excludeDirs)  { if ($item.FullName -like "*\$d\*")     { return $true } }
     foreach ($f in $excludeFiles) { if ($item.Name -eq $f)                { return $true } }
     foreach ($e in $excludeExt)   { if ($item.Name -like $e)              { return $true } }
