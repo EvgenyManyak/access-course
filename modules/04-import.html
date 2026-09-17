@@ -133,6 +133,35 @@
 </table>
 </div>
 <p>Итог импорта: Customers_Staging — 6 строк без ключа; Customers не тронута. Перенос новых строк делает запрос из следующей секции.</p>
+<h3>Седьмой шаг недели — служебная таблица Calendar</h3>
+<p>Календарь — единственная таблица ShopData, которую никто не импортирует из внешних файлов: её генерирует сама база. По одной строке на каждую дату с 01.10.2016 по 31.10.2018 — границы совпадают с периодом датасета Olist, всего 761 строка (2016 — 92, 2017 — 365, 2018 — 304). Зачем она нужна: перекрёстные запросы модуля 08 подписывают столбцы месяцев через MonthName/MonthYear, а связь Calendar → Orders по CalDate = OrderDate замыкает схему данных из модуля 03. Все 12 заказов мини-датасета (2017–2018) попадают в этот диапазон.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Поле</th><th>Тип Access</th><th>Назначение</th></tr></thead>
+<tbody>
+<tr><td class="pk">CalDate</td><td>Дата/время</td><td>Дата без времени — первичный ключ, повторов нет</td></tr>
+<tr><td>CalYear, CalQuarter, CalMonth</td><td>Числовой (целое)</td><td>Год, квартал (1–4), номер месяца (1–12)</td></tr>
+<tr><td>MonthName, MonthYear</td><td>Короткий текст</td><td>Подписи «Октябрь» и «окт 2016» для перекрёстных запросов</td></tr>
+<tr><td>WeekDay</td><td>Числовой (целое)</td><td>День недели: 1 = понедельник … 7 = воскресенье</td></tr>
+<tr><td>IsWeekend</td><td>Логический</td><td>Признак выходного (суббота и воскресенье)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Таблицу создаёт один DDL-оператор — он полностью совпадает с тем, что внутри VBA-генератора:</p>
+<pre class="code"><code class="lang-sql">CREATE TABLE [Calendar] (
+  [CalDate] DATETIME CONSTRAINT PK_Calendar PRIMARY KEY,
+  [CalYear] LONG, [CalQuarter] LONG, [CalMonth] LONG,
+  [MonthName] TEXT(20), [MonthYear] TEXT(15),
+  [WeekDay] LONG, [IsWeekend] YESNO);</code></pre>
+<ol class="sql-explain">
+<li><code>CREATE TABLE [Calendar] (</code> — оператор создания таблицы; квадратные скобки страхуют имена, совпадающие со служебными словами Access.</li>
+<li><code>[CalDate] DATETIME CONSTRAINT PK_Calendar PRIMARY KEY,</code> — поле даты объявляется первичным ключом: две одинаковые даты вставить не удастся.</li>
+<li><code>[CalYear] LONG, [CalQuarter] LONG, [CalMonth] LONG,</code> — LONG в DDL Access — это «Числовой (целое)» из конструктора таблиц.</li>
+<li><code>[MonthName] TEXT(20), [MonthYear] TEXT(15),</code> — TEXT(n) — «Короткий текст» длиной до n символов; «Сентябрь» помещается в 20.</li>
+<li><code>[WeekDay] LONG, [IsWeekend] YESNO);</code> — YESNO — «Логический» (флажок Да/Нет); точка с запятой завершает оператор.</li>
+</ol>
+<p>Вручную вставлять 761 дату не нужно. В комплекте курса два готовых пути: <strong>vba/calendar-generator.bas</strong> — модуль modCalendarGenerator, процедура CreateCalendarTable: Alt+F11 → File → Import File... → курсор внутрь процедуры → F5, и через две минуты календарь заполнен; либо <strong>datasets/calendar.csv</strong> — готовый файл на 761 строку для мастера импорта текстового файла (разделитель — запятая, кодировка UTF-8, порядок дат ГМД). Обе пошаговые инструкции — в datasets/import-instructions.md, раздел «Таблица Calendar». После заполнения сверьте контрольные числа: 761 запись, выходных 218, 01.10.2016 — суббота (WeekDay = 6, IsWeekend = Истина).</p>
+<div class="callout callout--important"><div class="callout__title">Важно</div><p>Сначала заполняйте календарь, потом стройте связь Calendar → Orders в «Схеме данных». Существующая связь блокирует удаление и пересоздание таблицы: генератор завершится ошибкой 3211, пока связь не убрать. Это тот же принцип «данные → проверки → связи», что и во всём импорте модуля 04.</p></div>
 </section>
 
 <section class="sec" id="s-sql" data-sec="sql">
