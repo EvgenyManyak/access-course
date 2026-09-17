@@ -4,6 +4,31 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/)
 и [семантическом версионировании](https://semver.org/lang/ru/).
 
+## [1.0.1] — 2026-09-17
+
+### Добавлено
+
+- **Готовая таблица Calendar** (закрывает «белое пятно» установки курса):
+  `datasets/calendar.csv` — 761 дата за 01.10.2016–31.10.2018, UTF-8, разделитель
+  — запятая, поля по data-dictionary.md; VBA-генератор `vba/calendar-generator.bas`
+  (модуль `modCalendarGenerator`): `CreateCalendarTable` — создание таблицы и
+  заполнение через Recordset за один F5, `CreateCalendarByInsertLoop` — учебный
+  вариант циклом INSERT, `CheckCalendar` — контрольные числа в Immediate.
+- Раздел «Таблица Calendar — три способа создания» в datasets/import-instructions.md
+  (VBA-генератор → импорт CSV → учебный DDL+INSERT) с контрольными числами:
+  761 дата; 2016 — 92, 2017 — 365, 2018 — 304; выходных 218; 01.10.2016 — суббота.
+- Разбираемый построчно DDL-оператор CREATE TABLE Calendar в модуле 04 — там,
+  где его обещает схема данных модуля 03.
+
+### Изменено
+
+- Шаг 6 инструкции импорта («создайте через генератор… либо импортируйте готовый
+  CSV-календарь») заменён на пошаговые инструкции со ссылками на новые файлы.
+- build-zip.sh и build-zip.ps1: `datasets/calendar.csv` теперь включается в архив
+  (пользовательские `*.csv` из import/ по-прежнему исключаются).
+- Обновлены README (дерево репозитория), vba/README.md, data-dictionary.md,
+  docs/course-outline.md.
+
 ## [1.0.0] — 2026-09-15
 
 Первый публичный релиз учебника.
