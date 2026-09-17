@@ -46,6 +46,16 @@ EXCLUDES=(
 # --- 5. Создать ZIP (все файлы проекта, с папкой access-course внутри) ---
 zip -r -q "$ZIP_PATH" . -x "${EXCLUDES[@]}"
 
+# --- 5b. Готовый календарь курса — единственный CSV в архиве ---
+# datasets/calendar.csv — часть репозитория (761 дата, импортируется мастером);
+# пользовательские *.csv (выгрузки Olist, import/) по-прежнему исключены выше.
+if [ -f "datasets/calendar.csv" ]; then
+  zip -q "$ZIP_PATH" "datasets/calendar.csv"
+  echo "Добавлен datasets/calendar.csv (готовый календарь курса)"
+else
+  echo "ПРЕДУПРЕЖДЕНИЕ: datasets/calendar.csv не найден — архив собран без него." >&2
+fi
+
 # --- 6. Проверить наличие архива ---
 if [ ! -f "$ZIP_PATH" ]; then
   echo "ОШИБКА: архив не создан." >&2
@@ -62,9 +72,10 @@ COUNT=$(unzip -l "$ZIP_PATH" | awk '/files$/{print $2}')
 # --- 8. Размер архива ---
 SIZE_BYTES=$(stat -c%s "$ZIP_PATH" 2>/dev/null || stat -f%z "$ZIP_PATH")
 SIZE_KB=$((SIZE_BYTES / 1024))
-if [ "$SIZE_KB" -ge 1024 ]; then
-  SIZE_MB=$(echo "scale=2; $SIZE_BYTES/1048576" | bc)
-  echo "Размер архива   : ${SIZE_MB} МБ (${SIZE_BYTES} байт)"
+if [ "$SIZE_BYTES" -ge 1048576 ]; then
+  # сотые доли МБ без bc (чистый bash): 4500000 -> 4.29
+  SIZE_CENTI=$((SIZE_BYTES * 100 / 1048576))
+  echo "Размер архива   : $((SIZE_CENTI / 100)).$((SIZE_CENTI % 100)) МБ (${SIZE_BYTES} байт)"
 else
   echo "Размер архива   : ${SIZE_KB} КБ (${SIZE_BYTES} байт)"
 fi
