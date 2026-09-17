@@ -264,9 +264,9 @@ VBA подключается на прикладном среднем уровн
 | index.html | Титульная страница и вход в многостраничную версию |
 | standalone.html | Самодостаточная сборка (все модули и стили в одном файле, офлайн) |
 | modules/ | 15 страниц модулей m01–m15 |
-| datasets/ | Инструкции по данным: import-instructions.md, data-dictionary.md, kaggle-links.html |
+| datasets/ | Инструкции по данным: import-instructions.md (включая раздел «Таблица Calendar»), data-dictionary.md, kaggle-links.html, готовый calendar.csv |
 | sql/ | 6 файлов учебных запросов: select-examples, joins, aggregate-queries, parameter-queries, crosstab-queries, action-queries |
-| vba/ | export-examples.bas, import-examples.bas, form-events.bas и README по подключению |
+| vba/ | export-examples.bas, import-examples.bas, form-events.bas, calendar-generator.bas и README по подключению |
 | diagrams/ | 4 SVG-схемы: database-schema, data-flow, macro-flow, front-back-end |
 | js/ и css/ | Оболочка учебника: навигация, поиск, прогресс, тесты, экспорт, темы, печать |
 | docs/ | Этот документ, чек-лист студента, руководство преподавателя, гайд по тестированию |
