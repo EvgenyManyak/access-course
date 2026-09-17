@@ -147,6 +147,35 @@
 <div class="callout callout--tip"><div class="callout__title">Практический совет</div>
 <p>Значение поля «Счётчик» Access присваивает сам и не позволяет его редактировать в режиме таблицы. Не пытайтесь «исправить» нумерацию: счётчик нужен для уникальности, а не для красоты. Порядковая нумерация «1, 2, 3 без пропусков» — задача запросов и отчётов, о них пойдёт речь в блоке B.</p>
 </div>
+
+<h3>Подготовка базы к первому запросу: полный маршрут со стартовым комплектом</h3>
+<p>Выше вы создали базу и таблицу Categories вручную — это навык конструктора, он понадобится в модуле 02. Но чтобы <strong>первый SQL-запрос</strong> (ниже, в разделе «SQL-код и разбор по строкам») сразу заработал, в базе должна быть ещё и таблица Customers — вместе с остальными таблицами ShopData. Ниже — полный маршрут подготовки «от пустой папки до первого запроса». Он один-в-один повторяет страницу <a href="../getting-started.html">«Начало работы»</a>: там же интерактивный чек-лист готовности, а детальный чек-лист импорта с решениями ошибок — в файле <a href="../starter-data/import-checklist.md">starter-data/import-checklist.md</a>.</p>
+<div class="callout callout--important"><div class="callout__title">Если вы уже импортировали starter-data</div>
+<p>Тем, кто прошёл страницу «Начало работы» и импортировал шесть CSV, шаги 6–11 демонстрации выше (создание Categories вручную) выполнять не нужно — таблица уже есть с теми же пятью строками. Откройте Categories в конструкторе и сверьте поля по шагам 7–9: это тот же навык без риска дубля («Таблица с именем Categories уже существует»).</p>
+</div>
+<p><strong>1. Файлы для скачивания.</strong> Из репозитория курса — каталог <code>starter-data/</code>: <code>categories.csv</code>, <code>products.csv</code>, <code>customers.csv</code>, <code>employees.csv</code>, <code>orders.csv</code>, <code>order-details.csv</code>. Kaggle и регистрация не нужны: комплект содержит те же данные, на которых выверены все контрольные числа курса. Полный датасет Olist подключается в модуле 04, для этого маршрута он не требуется.</p>
+<p><strong>2. Рабочая папка.</strong> Создайте <code>C:\Courses\ShopData\</code> с подпапками <code>import\</code> (сюда ложатся шесть CSV), <code>base\</code>, <code>export\</code>, <code>backup\</code>. Путь — без кириллицы и пробелов, не на сетевом диске и не в OneDrive.</p>
+<p><strong>3. Новая база и её имя.</strong> Access → «Пустая база данных» → имя <strong><code>ShopData.accdb</code></strong> → папка <code>base\</code> → «Создать». Если вы уже создали базу в демонстрации выше (шаги 2–4), это тот же файл — второй раз создавать не нужно; заготовку «Таблица1» закройте без сохранения.</p>
+<p><strong>4. Доверенное расположение.</strong> Файл → Параметры → Центр управления безопасностью → Параметры центра… → Доверенные расположения → добавить <code>C:\Courses\ShopData\</code> — иначе Access заблокирует часть мастеров, а позже макросы модуля 11.</p>
+<p><strong>5. Импорт каждого файла.</strong> Внешние данные → Новый источник данных → Из файла → Текстовый файл → «Импортировать в новую таблицу». Порядок: categories → products → customers → employees → orders → order-details. Разделитель — запятая, кодировка — Юникод (UTF-8), в «Дополнительно…» порядок дат — <strong>ГМД</strong> (файлы хранят даты как 2017-03-15). Для order-details.csv исправьте предложенное имя таблицы на <strong>OrderDetails</strong>.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Файл → таблица</th><th>Строк</th><th>Ключ</th><th>Типы, за которыми следим</th></tr></thead>
+<tbody>
+<tr><td>categories.csv → Categories</td><td>5</td><td>CategoryID</td><td>имена — текст (64)</td></tr>
+<tr><td>products.csv → Products</td><td>8</td><td>ProductID</td><td>UnitPrice — Денежный; WeightG — Числовой</td></tr>
+<tr><td>customers.csv → Customers</td><td>8</td><td>CustomerID</td><td>ZipCodePrefix — <strong>текст (5)</strong>, ведущий ноль</td></tr>
+<tr><td>employees.csv → Employees</td><td>6</td><td>EmployeeID</td><td>HireDate — Дата/время; Role — текст</td></tr>
+<tr><td>orders.csv → Orders</td><td>12</td><td>OrderID</td><td>три даты — Дата/время; пустые DeliveredDate — норма</td></tr>
+<tr><td>order-details.csv → OrderDetails</td><td>15</td><td>OrderDetailID</td><td>Quantity — Числовой (целое); цены — Денежный</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>6. Какие таблицы должны получиться.</strong> Шесть таблиц с точными именами из колонки «таблица» — они появятся в области навигации. Седьмая (Calendar) будет создана в модуле 04, здесь она не нужна.</p>
+<p><strong>7. Связи.</strong> Работа с базами данных → Схема данных: перетащите поля и включите «Обеспечение целостности данных» для пяти пар — Categories→Products (CategoryID), Customers→Orders (CustomerID), Employees→Orders (ManagerID), Orders→OrderDetails (OrderID, + каскадное удаление), Products→OrderDetails (ProductID). Подробный разбор — модуль 03; здесь важно получить линии «1—М».</p>
+<p><strong>8. Проверка импорта и количество записей.</strong> Откройте каждую таблицу: счётчик записей внизу должен показать 5/8/8/6/12/15, первая строка Customers — C-0001, Ana Ribeiro, 01310, sao paulo, SP, Retail. Целостность проверьте вводом: ManagerID = 9 в Orders должен отклониться.</p>
+<p><strong>9. Типичные ошибки этого шага.</strong> Даты текстом — повторный импорт с порядком дат ГМД; ZipCodePrefix = 1310 без нуля — тип «Короткий текст (5)»; цены текстом (SUM даёт 0) — решение в import-checklist.md, ошибка № 4; «повторяющиеся значения» при ключе — файл импортирован дважды, удалите таблицу и импортируйте заново.</p>
+<p><strong>10. Сохранение и резервная копия.</strong> Access сохраняет данные сам, но файл скопируйте: закрытая база <code>base\ShopData.accdb</code> → копия в <code>backup\ShopData_ГГГГ-ММ-ДД.accdb</code>. Готово — ниже можно запускать первый запрос.</p>
 </section>
 
 <!-- ============================================================ -->

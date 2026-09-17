@@ -22,10 +22,27 @@
   <p class="lead">Интерактивный учебник для тех, кто свободно работает в Excel и знает SQL, но не имел опыта сборки законченного решения в Access: от импорта CSV до разделённой базы front-end/back-end, форм, отчётов, макросов и прикладного VBA.</p>
   <p>Курс построен на <strong>одном сквозном датасете ShopData</strong> (интернет-магазин, основа — Kaggle Olist Brazilian E-commerce): вы проживаете полный путь данных — CSV/XLSX → импорт → очистка → нормализация → связи → запросы → формы → отчёты → экспорт.</p>
   <div class="home-hero__cta">
+    <a class="btn btn--accent" data-nav="start" href="getting-started.html" style="font-size:1.15em;padding:14px 28px">🚀 Начать с настройки рабочей среды</a>
     <a class="btn" data-nav="m01" href="modules/01-access-basics.html">Начать обучение → Модуль 01</a>
     <a class="btn btn--ghost" data-nav="datasets" href="datasets/kaggle-links.html">Датасеты Kaggle</a>
     <a class="btn btn--ghost" href="https://github.com/your-username/access-course" target="_blank" rel="noopener">GitHub проекта ↗</a>
   </div>
+  <p style="margin-top:12px">Не уверены, что рабочее место готово? Кнопка выше ведёт на единое пошаговое руководство: установка, папки, доверенное расположение, импорт готового стартового комплекта данных и первый запрос — всё в одном месте, без поиска по папкам.</p>
+</section>
+
+<section class="sec" id="s-getting-started">
+  <h2>Начало работы: маршрут за 30–40 минут</h2>
+  <p>Прежде чем открывать модуль 01, один раз настройте рабочую среду — страница <a data-nav="start" href="getting-started.html"><strong>«Начало работы»</strong></a> собирает весь маршрут в одном месте:</p>
+  <ol>
+    <li>Проверить программное обеспечение: Windows 10/11 и Microsoft Access 2007–2016 (показан 2016);</li>
+    <li>Создать рабочую папку <code>C:\Courses\ShopData\</code> с подпапками import/base/export/backup;</li>
+    <li>Добавить её в доверенные расположения Access (чтобы работали макросы и импорт);</li>
+    <li>Скачать стартовый комплект данных из папки <code>starter-data/</code> — 6 CSV без Kaggle и регистрации (5 + 8 + 8 + 6 + 12 + 15 строк) и служебный календарь <code>datasets/calendar.csv</code>;</li>
+    <li>Импортировать файлы в новую базу <code>base\ShopData.accdb</code>, задать первичные ключи и пять связей;</li>
+    <li>Прогнать тестовые запросы и сверить контрольные числа (TOP 5, 12 заказов, выручка 3 025,50);</li>
+    <li>Отметить 12 пунктов интерактивного чек-листа готовности (сохраняется в браузере) и перейти к модулю 01.</li>
+  </ol>
+  <p><a class="btn" data-nav="start" href="getting-started.html">Открыть руководство «Начало работы» →</a></p>
 </section>
 
 <section class="sec" id="s-about">
@@ -186,6 +203,8 @@
 <section class="sec" id="s-docs">
   <h2>Документация</h2>
   <ul>
+    <li><a href="getting-started.html">Начало работы</a> — единственное руководство по настройке: установка, папки, доверенное расположение, импорт стартового комплекта, первый запрос, чек-лист готовности.</li>
+    <li><a href="starter-data/README.md">Стартовый комплект данных</a> — 6 готовых CSV и словарь: состав, количества, образцы, связи.</li>
     <li><a href="docs/course-outline.md">Программа курса</a> — паспорт курса, результаты обучения, карта модулей, система оценивания.</li>
     <li><a href="docs/student-checklist.md">Чек-лист студента</a> — маршрут прохождения и самопроверка перед итоговым проектом.</li>
     <li><a href="docs/instructor-guide.md">Руководство преподавателя</a> — как вести курс по учебнику: темп, проверка, типовые трудности.</li>

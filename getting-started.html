@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Начало работы с учебником Microsoft Access 2007–2016: установка, рабочая папка, доверенное расположение, импорт стартового комплекта данных, ключи, связи, первый запрос и чек-лист готовности.">
+<title>Начало работы — Учебник Microsoft Access</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body data-page="start">
+<a class="skip-link" href="#content">Перейти к содержимому</a>
+<main id="content" class="page__content">
+<!--CACHE-START-->
+<article class="module">
+
+<header class="module-header">
+  <h1 class="module-title"><span class="module-title__kicker">Перед курсом</span>Начало работы: от пустой папки до первого запроса</h1>
+  <div class="module-header__meta">
+    <span class="chip chip--accent">Единая точка входа</span>
+    <span class="chip">⏱ 30–40 минут один раз</span>
+    <span class="chip">Без Kaggle и регистрации</span>
+  </div>
+</header>
+
+<section class="sec" id="s-intro">
+<h2>Зачем эта страница</h2>
+<p>Это <strong>единственное место</strong>, где собраны все подготовительные шаги курса. Пройдите её сверху вниз — и к концу у вас будет работающая база <code>ShopData.accdb</code> с шестью таблицами, ключами, связями и проверенным первым запросом. Искать инструкции по папкам проекта не придётся: здесь есть ссылки на все нужные файлы, а спорные места разобраны в разделе ошибок. Дополнительные подробные документы — <a href="starter-data/import-checklist.md">чек-лист импорта</a>, <a href="starter-data/data-dictionary.md">словарь данных</a> и <a href="docs/getting-started.md">расширенная версия этой инструкции</a> — лишь углубляют то, что описано здесь.</p>
+<p>Курс живёт на сквозном датасете <strong>ShopData</strong> (интернет-магазин). Для старта не нужен Kaggle: в папке <code>starter-data/</code> лежат шесть готовых CSV — категории (5 строк), товары (8), покупатели (8), сотрудники (6), заказы (12), позиции заказов (15). Все контрольные числа модулей 01–15 выверены по этому комплекту: любой «Ожидаемый результат» курса сходится построчно.</p>
+<div class="callout callout--tip"><div class="callout__title">Два маршрута</div>
+<p><strong>Быстрый (рекомендуется):</strong> стартовый комплект из <code>starter-data/</code> — без загрузок со стороны, 30–40 минут на всё. <strong>Полный:</strong> большой датасет Olist с Kaggle (100 тыс. заказов) — подключается позже, в модуле 04, по инструкции <a href="datasets/import-instructions.md">datasets/import-instructions.md</a> (путь А). Мини-датасет полностью совместим с заданиями курса: когда позже импортируете большой датасет, задания курса выполняются на любой из двух баз.</p>
+</div>
+</section>
+
+<section class="sec" id="s-soft">
+<h2>Шаг 1. Программное обеспечение и версии</h2>
+<p>Курс построен на настольном Access для Windows — веб-версий и версий для Mac у этого продукта нет, поэтому начните с проверки окружения. Показанный в учебнике интерфейс — Access 2016, но отличия 2007–2013 описаны в каждом модуле, а лента и мастер импорта за десять лет менялись мало: на 2007-м и 2010-м курс проходили без изменений маршрутов.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Компонент</th><th>Требование</th><th>Как проверить</th></tr></thead>
+<tbody>
+<tr><td>Windows</td><td>Windows 10 или 11 (подойдёт и 7 SP1 / 8.1 — Access 2016 их поддерживает)</td><td>Win+R → <code>winver</code> → Enter</td></tr>
+<tr><td>Microsoft Access</td><td><strong>2007–2016</strong> (показан 2016). Подходит: Office 2016 Professional / Professional Plus, отдельный Access 2016, Microsoft 365 (десктопные приложения)</td><td>Access → Файл → Учётная запись → «О Access»</td></tr>
+<tr><td>Не подходит</td><td>Access Runtime (не умеет создавать/изменять структуру), Access Online/веб-приложения, Excel вместо Access</td><td>—</td></tr>
+<tr><td>Разрядность</td><td>32- или 64-разрядный Office — для курса без разницы; выбирайте одну на весь Office</td><td>Файл → Учётная запись → «О Access» — строка версии</td></tr>
+<tr><td>Excel</td><td>Желателен любой версии 2007+ — для просмотра CSV и упражнений модулей 04/13 с XLSX</td><td>—</td></tr>
+<tr><td>Браузер</td><td>Любой современный (Chrome, Edge, Firefox, Safari) — для чтения учебника</td><td>—</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--important"><div class="callout__title">Если Access не установлен</div>
+<p>Microsoft 365 с настольным Access доступен по пробной подписке на официальном сайте Microsoft; вечная лицензия — «Office 2016 Professional» или отдельный «Access 2016» с магазинами ПО. Runtime-версия (бесплатная) для курса <strong>не годится</strong>: она только открывает готовые базы и не позволяет создавать таблицы, запросы и формы. Дешёвая альтернатива для «пощупать» — LibreOffice Base, но синтаксис и мастер импорта там отличаются: задания курса сверяйте по Access.</p>
+</div>
+</section>
+
+<section class="sec" id="s-folders">
+<h2>Шаг 2. Рабочая папка</h2>
+<p>Создайте папку курса и четыре подпапки — такая структура используется во всех модулях, а в модуле 14 станет back-end/front-end каркасом:</p>
+<pre class="code"><code class="lang-text">C:\Courses\ShopData\
+├── import\    ← сюда копируйте CSV (стартовый комплект и позже — выгрузки Olist)
+├── base\      ← здесь будет база ShopData.accdb
+├── export\    ← сюда модули 11 и 13 пишут выгрузки XLSX/CSV/PDF
+└── backup\    ← резервные копии базы (шаг 13 этой страницы)</code></pre>
+<p>Создать можно Проводником или одной командой PowerShell (Пуск → наберите «PowerShell» → Enter):</p>
+<pre class="code"><code class="lang-text">md C:\Courses\ShopData\import, C:\Courses\ShopData\base, C:\Courses\ShopData\export, C:\Courses\ShopData\backup</code></pre>
+<p>Буква диска и путь могут быть любыми — главное, чтобы <strong>путь не содержал кириллицы и пробелов</strong>: некоторые мастера экспорта и VBA-примеры курса передают пути как строки, и «C:\Пользователи\…» периодически ломает кавычки. Папка на сетевом диске или OneDrive для учебной базы тоже нежелательна: Access чувствителен к задержкам синхронизации и может повредить файл при одновременной записи.</p>
+</section>
+
+<section class="sec" id="s-download">
+<h2>Шаг 3. Файлы для скачивания</h2>
+<p>Скачайте проект курса (на GitHub — зелёная кнопка <strong>Code → Download ZIP</strong>, распакуйте) либо пользуйтесь ссылками ниже на странице, открытой из распакованной папки. В таблице — всё, что нужно положить в <code>import\</code>:</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Файл</th><th>Куда положить</th><th>Строк</th><th>Что это</th></tr></thead>
+<tbody>
+<tr><td><a href="starter-data/categories.csv" download>starter-data/categories.csv</a></td><td>import\</td><td>5</td><td>Справочник категорий</td></tr>
+<tr><td><a href="starter-data/products.csv" download>starter-data/products.csv</a></td><td>import\</td><td>8</td><td>Товары с ценами и весом</td></tr>
+<tr><td><a href="starter-data/customers.csv" download>starter-data/customers.csv</a></td><td>import\</td><td>8</td><td>Покупатели</td></tr>
+<tr><td><a href="starter-data/employees.csv" download>starter-data/employees.csv</a></td><td>import\</td><td>6</td><td>Сотрудники-менеджеры</td></tr>
+<tr><td><a href="starter-data/orders.csv" download>starter-data/orders.csv</a></td><td>import\</td><td>12</td><td>Заказы со статусами и датами</td></tr>
+<tr><td><a href="starter-data/order-details.csv" download>starter-data/order-details.csv</a></td><td>import\</td><td>15</td><td>Позиции заказов</td></tr>
+<tr><td><a href="datasets/calendar.csv" download>datasets/calendar.csv</a></td><td>import\</td><td>761</td><td>Служебный календарь 2016–2018 — понадобится в модуле 04</td></tr>
+<tr><td><a href="vba/calendar-generator.bas" download>vba/calendar-generator.bas</a></td><td>можно не копировать</td><td>—</td><td>VBA-генератор той же таблицы Calendar — альтернатива CSV</td></tr>
+</tbody>
+</table>
+</div>
+<p>CSV-файлы курса открываются двойным щелчком в Excel — это нормально для проверки, но <strong>не пересохраняйте их</strong> из Excel: он может заменить кодировку и десятичный разделитель. Если Access вдруг не установлен, а CSV открыть нужно глазами — используйте Блокнот (Notepad).</p>
+<p>Остальные файлы репозитория вам понадобятся по ходу курса: <code>sql/</code> — готовые запросы к этой же базе, <code>vba/</code> — примеры VBA, <code>docs/</code> — программа и чек-листы. Каждая папка в начале README напоминает: если вы ещё не прошли «Начало работы», начните с этой страницы.</p>
+</section>
+
+<section class="sec" id="s-verify">
+<h2>Шаг 4. Проверка целостности и кодировки</h2>
+<p>Перед импортом убедитесь, что файлы доехали без искажений — три минуты на весь комплект. Курсы данных ломаются чаще всего на пересохранении «удобной» программой, поэтому проверка — обязательный шаг, а не перестраховка.</p>
+<ol class="steps">
+<li>Откройте в Проводнике папку с файлами и сверьте размеры: categories ≈ 0,3 КБ, products ≈ 0,6 КБ, customers ≈ 0,5 КБ, employees ≈ 0,5 КБ, orders ≈ 0,8 КБ, order-details ≈ 0,8 КБ, calendar ≈ 38 КБ. Файл нулевого размера или «битый» архив перекачайте.</li>
+<li>Откройте <code>customers.csv</code> в Блокноте: первая строка — заголовок <code>CustomerID,CustomerName,ZipCodePrefix,City,State,Segment</code>, вторая — <code>C-0001,Ana Ribeiro,01310,sao paulo,SP,Retail</code>. Кириллица должна читаться (она есть в products.csv: «Набор постельного белья 2-сп») — если вместо неё кракозябры, файл был пересохранён не в UTF-8: скачайте заново.</li>
+<li>Посчитайте строки одной командой PowerShell (подставьте имя файла): <code>(Get-Content C:\Courses\ShopData\import\customers.csv).Count</code> — ожидается <strong>9</strong> (заголовок + 8 строк). Для остальных: categories 6, products 9, employees 7, orders 13, order-details 16, calendar 762.</li>
+<li>В Excel (если установлен) откройте файл через «Данные → Из текста/CSV» и убедитесь, что даты вида 2017-03-15 и цены 189.90 отображаются как есть. Закройте Excel <strong>без сохранения</strong>.</li>
+</ol>
+<div class="callout callout--info"><div class="callout__title">Что именно проверяем</div>
+<p>Формат комплекта: UTF-8 с BOM, переводы строк CRLF, разделитель — запятая, даты ISO (ГМД), цены с точкой. Такой выбор совпадает с форматом большого датасета Olist и файлом calendar.csv: одна настройка мастера импорта работает для всех файлов курса сразу.</p>
+</div>
+</section>
+
+<section class="sec" id="s-trust">
+<h2>Шаг 5. Доверенное расположение, содержимое и системные объекты</h2>
+<p>Access намеренно блокирует «подозрительные» базы: любые макросы, VBA и часть мастеров не работают, пока файл не в доверенной папке. Мы один раз добавляем рабочую папку в доверенные — и все базы из неё открываются без предупреждений.</p>
+<ol class="steps">
+<li>Откройте Access (пустую базу можно не создавать) → <strong>Файл → Параметры → Центр управления безопасностью → Параметры центра управления безопасностью… → Доверенные расположения</strong>.</li>
+<li>Нажмите <strong>«Добавить новое расположение»</strong> → «Обзор» → выберите <code>C:\Courses\ShopData\</code> → ОК. Галочку «Разрешить расположения в сети (не рекомендуется)» не включайте.</li>
+<li>При открытии базы, если впервые увидели жёлтую полосу «ПРЕДУПРЕЖДЕНИЕ СИСТЕМЫ БЕЗОПАСНОСТИ. Включить содержимое» — нажмите <strong>«Включить содержимое»</strong>. После добавления доверенного расположения полоса появляться не должна.</li>
+<li>Проверка: положите в <code>base\</code> любую базу и откройте — полосы безопасности быть не должно, а в модуле 12 макросы и VBA запустятся без вопросов.</li>
+</ol>
+<p><strong>Системные объекты</strong> (таблицы MSys*) по умолчанию скрыты — и это хорошо: курс упоминает их только один раз, в модуле 14 при разговоре о сжатии. Включать их нужно, лишь если вы хотите увидеть служебные таблицы Access своими глазами: правый щелчок по заголовку области навигации → <strong>«Параметры навигации…»</strong> → отметить <strong>«Показывать системные объекты»</strong>. Ничего в MSys-таблицах не изменяйте — это «механизм» Access, а не ваши данные; после изучения верните галочку обратно.</p>
+<div class="callout callout--important"><div class="callout__title">Почему не стоит доверять «всему компьютеру»</div>
+<p>Добавляйте в доверенные только конкретные учебные папки. Кнопка «Включить содержимое» в файле из интернета означает «я знаю этот источник» — привычка включать всё подряд сводит защиту Access к нулю, а VBA умеет удалять файлы так же уверенно, как и строить отчёты.</p>
+</div>
+</section>
+
+<section class="sec" id="s-db">
+<h2>Шаг 6. Пустая база данных</h2>
+<ol class="steps">
+<li>Запустите Access → на стартовом экране выберите <strong>«Пустая база данных рабочего стола»</strong> (в 2016 — просто «Пустая база данных»).</li>
+<li>В поле «Имя файла» введите <code>ShopData.accdb</code>.</li>
+<li>Щёлкните значок папки рядом с именем, выберите <code>C:\Courses\ShopData\base\</code> и нажмите <strong>«Создать»</strong>.</li>
+<li>Access откроет пустую базу с заготовкой «Таблица1» в режиме таблицы. Закройте её правым щелчком по вкладке → «Закрыть», на вопрос о сохранении ответьте «Нет» — структуру таблиц мы задаём импортом и конструктором, а не пустым листом.</li>
+<li>Сверьтесь с областью навигации слева: заголовок «Все объекты Access», под ним пока пусто (или только «Таблица1»). Файл уже лежит в <code>base\</code> — это видно в заголовке окна Access.</li>
+</ol>
+<p>Имя базы принципиально только для порядка в материалах: все инструкции курса говорят «откройте ShopData.accdb». Расширение <code>.accdb</code> — формат Access 2007+; в формате 2003 (<code>.mdb</code>) не будет вычисляемых полей и части типов — если Access предложил «формат 2002–2003», смените на «База данных рабочего стола Access 2007–2016».</p>
+</section>
+
+<section class="sec" id="s-import">
+<h2>Шаг 7. Импорт шести CSV</h2>
+<p>Процедура одинакова для всех шести файлов: пройдите её первый раз по шагам ниже (показано на <code>categories.csv</code>), остальные — по компактной таблице. Порядок: <strong>categories → products → customers → employees → orders → order-details</strong> — справочники раньше фактов, тогда при проверке связей каждой ссылке будет на что смотреть.</p>
+<ol class="steps">
+<li>Вкладка <strong>«Внешние данные»</strong> → группа «Импорт и связи» → <strong>«Новый источник данных» → «Из файла» → «Текстовый файл»</strong>.</li>
+<li>Укажите <code>C:\Courses\ShopData\import\categories.csv</code>, выберите <strong>«Импортировать исходные данные в новую таблицу»</strong> → ОК.</li>
+<li>Мастер, шаг 1: «С разделителями — символы, например запятая или знаки табуляции, отделяют значения полей» → Далее.</li>
+<li>Шаг 2: разделитель — <strong>«запятая»</strong>, ограничитель текстов — <code>"</code>, «Первая строка содержит названия полей» — отмечено. Нажмите <strong>«Дополнительно…»</strong> и в поле <strong>«Порядок дат»</strong> выберите <strong>ГМД</strong> (год-месяц-день — так хранятся даты во всех файлах курса) → ОК → Далее.</li>
+<li>Шаг 3: Access предлагает поля и типы. Сверьте с таблицей ниже; здесь для categories оставьте как есть → Далее.</li>
+<li>Шаг 4: выберите <strong>«Самостоятельно задать первичный ключ»</strong> → в списке полей — <code>CategoryID</code> → Далее.</li>
+<li>Шаг 5: имя таблицы <code>Categories</code> → «Готово». Окно «Сохранить шаги импорта» можно закрыть (вернёмся к спецификациям в модуле 13).</li>
+<li>Повторите шаги 1–7 для остальных пяти файлов, сверяя поля и типы с таблицей. Ключ поля и обязательные типы — в последней колонке.</li>
+</ol>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Файл</th><th>Таблица</th><th>Ключ</th><th>Типы полей, за которыми следим</th></tr></thead>
+<tbody>
+<tr><td>categories.csv</td><td>Categories</td><td>CategoryID</td><td>оба названия — Короткий текст (64); CategoryID — Числовой</td></tr>
+<tr><td>products.csv</td><td>Products</td><td>ProductID</td><td>UnitPrice — <strong>Денежный</strong>; WeightG — Числовой (длинное целое); габариты — Числовой (целое); CategoryID — Числовой</td></tr>
+<tr><td>customers.csv</td><td>Customers</td><td>CustomerID</td><td>ZipCodePrefix — <strong>Короткий текст (5), не число</strong> (ведущий ноль 01310); Segment — текст</td></tr>
+<tr><td>employees.csv</td><td>Employees</td><td>EmployeeID</td><td>Role — текст; HireDate — <strong>Дата/время</strong>; SellerID — текст</td></tr>
+<tr><td>orders.csv</td><td>Orders</td><td>OrderID</td><td>ManagerID — Числовой; OrderDate, DeliveredDate, EstimatedDate — <strong>Дата/время</strong>; пустые даты — это нормально (NULL)</td></tr>
+<tr><td>order-details.csv</td><td>OrderDetails</td><td>OrderDetailID</td><td>Quantity — Числовой (целое); UnitPrice, FreightValue — <strong>Денежный</strong>; ShippingLimitDate — Дата/время</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--tip"><div class="callout__title">Подсказка про имена</div>
+<p>Access предложит имя таблицы из имени файла — для order-details.csv исправьте на <strong>OrderDetails</strong> (имена таблиц курса без дефисов: Categories, Products, Customers, Employees, Orders, OrderDetails). Иначе запросы из каталога sql/ не найдут таблицу.</p>
+</div>
+</section>
+
+<section class="sec" id="s-types">
+<h2>Шаг 8. Проверка типов данных после импорта</h2>
+<p>Мастер угадывает типы по первым строкам, поэтому финальная проверка — глазами, в конструкторе. Для каждой из шести таблиц: правый щелчок по таблице → <strong>«Конструктор»</strong> → сверьте колонку «Тип данных» со словарём (кратко — таблица шага 7, подробно — <a href="starter-data/data-dictionary.md">data-dictionary.md</a>). Обратите внимание на три классических места, где Access ошибается чаще всего.</p>
+<ul>
+<li><strong>ZipCodePrefix</strong> должен быть текстом (5). Если мастер выбрал числовой — у C-0001 вместо 01310 стало 1310. Лечение: переимпорт с ручным типом (самый надёжный) или через конструктор смените тип на «Короткий текст» и верните ноль запросом <code>UPDATE Customers SET ZipCodePrefix = Format([ZipCodePrefix],"00000")</code>.</li>
+<li><strong>Даты</strong> должны быть типа «Дата/время»: значение выровнено вправо, при щелчке по ячейке справа появляется значок календаря. Текстовые даты выровнены влево — вернитесь к шагу «Дополнительно… → ГМД» при переимпорте.</li>
+<li><strong>Деньги</strong> (UnitPrice, FreightValue) — тип «Денежный», в ячейках «1 899,00 р.» на русской локали. Если поле осталось текстом (значения слева), используйте решение из import-checklist.md (ошибка № 4): новое денежное поле + <code>UPDATE … SET Поле = CCur(Val([СтароеПоле]))</code> — функция Val читает точку независимо от локали.</li>
+</ul>
+<p>Зачем это раньше времени: типы, поставленные сейчас, определяют, сработают ли связи (шаг 10) и посчитаются ли контрольные суммы. Модуль 02 объяснит каждый тип системно — здесь достаточно «текст/число/дата/деньги/логический».</p>
+</section>
+
+<section class="sec" id="s-keys">
+<h2>Шаг 9. Первичные ключи</h2>
+<p>Ключ вы задавали в мастере (шаг «Самостоятельно задать первичный ключ»), но проверьте значок ключа в конструкторе каждой таблицы: Categories — CategoryID, Products — ProductID, Customers — CustomerID, Employees — EmployeeID, Orders — OrderID, OrderDetails — OrderDetailID. Если значка нет: выделите строку поля (серый квадрат слева) → вкладка «Конструктор» → <strong>«Ключевое поле»</strong> → Ctrl+S.</p>
+<p>Быстрый тест ключа: откройте Orders в режиме таблицы и попробуйте ввести новый заказ с тем же кодом <code>O-10001</code> — Access обязан отклонить запись сообщением «Изменения не были успешно внесены из-за повторяющихся значений…». Отмените ввод клавишей Esc. Это же правило — «ключ уникален и не пуст» — позволит строить связи на следующем шаге.</p>
+<p>Ключи-счётчики: в схеме курса CategoryID, EmployeeID и OrderDetailID объявлены типом «Счётчик». В импортированной таблице они числовые со значениями из файлов — на задания курса это не влияет (значения 1–5, 1–6 и 1–15 совпадают со счётчиком один в один). Переводить поле в «Счётчик» вручную не нужно: Access разрешает смену типа только на пустой таблице, а повторный импорт ради этого не стоит.</p>
+</section>
+
+<section class="sec" id="s-rel">
+<h2>Шаг 10. Связи между таблицами</h2>
+<p>Откройте <strong>«Работа с базами данных» → «Схема данных»</strong>, добавьте все шесть таблиц (Ctrl+щёлчок по списку) и растяните их так, чтобы справочники были сверху. Затем пять раз повторите одно и то же: перетащите мышью поле-ключ из одной таблицы на поле другой, в окне «Изменение связей» отметьте <strong>«Обеспечение целостности данных»</strong> и нажмите «Создать».</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Связь</th><th>Перетащить</th><th>На</th><th>Особенности</th></tr></thead>
+<tbody>
+<tr><td>Categories → Products</td><td>Categories.CategoryID</td><td>Products.CategoryID</td><td>1:М, целостность</td></tr>
+<tr><td>Customers → Orders</td><td>Customers.CustomerID</td><td>Orders.CustomerID</td><td>1:М, целостность</td></tr>
+<tr><td>Employees → Orders</td><td>Employees.EmployeeID</td><td>Orders.ManagerID</td><td>1:М, целостность</td></tr>
+<tr><td>Orders → OrderDetails</td><td>Orders.OrderID</td><td>OrderDetails.OrderID</td><td>1:М, целостность + <strong>«Каскадное удаление связанных записей»</strong></td></tr>
+<tr><td>Products → OrderDetails</td><td>Products.ProductID</td><td>OrderDetails.ProductID</td><td>1:М, целостность</td></tr>
+</tbody>
+</table>
+</div>
+<p>Шестая связь — Calendar → Orders по CalDate = OrderDate — появится в модуле 04, когда вы создадите таблицу календаря генератором или импортом calendar.csv. Модуль 03 разберёт схему данных подробно: галочки каскадов, «Объединение полей», индексы. Здесь важно получить работающий каркас — линия 1—М между таблицами на схеме.</p>
+<p>Если Access при перетаскивании пишет «Нарушение целостности данных» — в таблице-факте есть коды, которых нет в справочнике. На комплекте такого не бывает; обычно причина в перепутанных типах полей (шаг 8) или в том, что связи строятся до импорта всех файлов.</p>
+</section>
+
+<section class="sec" id="s-integrity">
+<h2>Шаг 11. Проверка ссылочной целостности</h2>
+<p>Целостность — это не галочка, а поведение базы. Проверьте его руками — одна минута:</p>
+<ol class="steps">
+<li>Откройте Orders в режиме таблицы. В строке любого заказа попробуйте вписать в ManagerID значение <strong>9</strong> — сотрудников только шестеро. Access должен показать ошибку «Введенное значение не может быть сохранено… требуется связанная запись в таблице Employees». Нажмите Esc.</li>
+<li>Попробуйте в OrderDetails ввести позицию с OrderID = <code>O-99999</code> — та же реакция: такой заказ не существует. Esc.</li>
+<li>Вернитесь в Схему данных: у каждой линии с целостностью Access показывает «1» и знак бесконечности — символы «один ко многим».</li>
+</ol>
+<p>Если база позволила ввести «мусор» — связь создана без «Обеспечения целостности данных» либо вообще не создана: вернитесь к шагу 10. Это упражнение — уменьшенная копия того, что в модуле 05 станет регулярной дисциплиной очистки данных.</p>
+</section>
+
+<section class="sec" id="s-test">
+<h2>Шаг 12. Первый тестовый запрос и контрольные числа</h2>
+<p>Время показать, что база «живая». Создание → Конструктор запросов → закройте окно «Добавление таблицы» → правый щелчок по вкладке → <strong>«Режим SQL»</strong>. Вставьте первый запрос курса и выполните кнопкой с восклицательным знаком:</p>
+<pre class="code"><code class="lang-sql">SELECT TOP 5 CustomerID, CustomerName, City, Segment
+FROM Customers
+ORDER BY CustomerID;</code></pre>
+<p>Ожидается ровно пять строк: C-0001 Ana Ribeiro (sao paulo, Retail), C-0002 Bruno Carvalho, C-0003 Carla Mendes, C-0004 Diego Silva, C-0005 Elena Costa. Сохраните запрос как <code>qry_КлиентыТоп5</code> — так курс и советует: рабочие запросы живут в базе, а не в блокноте. Полный разбор этого запроса — в модуле 01.</p>
+<p>Затем прогоните три контрольных суммы — они же будут эталонами в модулях 07–08:</p>
+<pre class="code"><code class="lang-sql">SELECT COUNT(*) AS Заказов FROM Orders;</code></pre>
+<pre class="code"><code class="lang-sql">SELECT COUNT(*) AS Позиций FROM OrderDetails;</code></pre>
+<pre class="code"><code class="lang-sql">SELECT SUM(UnitPrice) AS СуммаЦен FROM Products;</code></pre>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Проверка</th><th>Ожидается</th><th>Если не сошлось</th></tr></thead>
+<tbody>
+<tr><td>Запрос TOP 5</td><td>5 строк, C-0001 … C-0005</td><td>Импорт Customers сделан не тем файлом или с дублями — см. раздел ошибок</td></tr>
+<tr><td>Заказов</td><td>12</td><td>Файл orders.csv импортирован дважды: удалите таблицу и импортируйте заново</td></tr>
+<tr><td>Позиций</td><td>15</td><td>Аналогично для order-details.csv</td></tr>
+<tr><td>Сумма цен</td><td>1423.10</td><td>Цены импортировались текстом и просуммировались как 0 — шаг 8, решение для денег</td></tr>
+</tbody>
+</table>
+</div>
+<p>Главный интеграционный тест курса — выручка по категориям без отменённых (эталон модуля 08):</p>
+<pre class="code"><code class="lang-sql">SELECT c.CategoryNameEn,
+       ROUND(SUM(od.UnitPrice * od.Quantity), 2) AS Выручка
+FROM Categories AS c
+INNER JOIN (Products AS p
+            INNER JOIN (Orders AS o
+                        INNER JOIN OrderDetails AS od
+                        ON o.OrderID = od.OrderID)
+            ON p.ProductID = od.ProductID)
+ON c.CategoryID = p.CategoryID
+WHERE o.OrderStatus &lt;&gt; "canceled"
+GROUP BY c.CategoryNameEn
+ORDER BY SUM(od.UnitPrice * od.Quantity) DESC;</code></pre>
+<p>Ожидается 5 строк: bed_bath_table 769.50 · computers_accessories 746.50 · furniture_decor 640.00 · health_beauty 631.50 · automotivo 238.00 — итого <strong>3025.50</strong>. Если все четыре проверки сошлись — данные, типы, ключи и связи корректны: любую цифру курса вы теперь можете воспроизвести.</p>
+</section>
+<section class="sec" id="s-ready">
+<h2>Шаг 13. Как понять, что база подготовлена правильно</h2>
+<p>Итоговая таблица готовности. Если все семь строк «да» — база полностью эквивалентна учебной базе курса, и любой модуль с первой страницы до итогового проекта будет выполняться без сюрпризов. Сохраните её как чек-лист: она же продублирована интерактивно в конце страницы и в файле <a href="starter-data/import-checklist.md">starter-data/import-checklist.md</a>.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Критерий</th><th>Ожидание</th><th>Способ проверки</th></tr></thead>
+<tbody>
+<tr><td>Шесть таблиц с точными именами</td><td>Categories, Products, Customers, Employees, Orders, OrderDetails</td><td>Область навигации</td></tr>
+<tr><td>Количество строк</td><td>5 / 8 / 8 / 6 / 12 / 15</td><td>Счётчик записей внизу каждой таблицы</td></tr>
+<tr><td>Первичные ключи</td><td>Значок ключа у CategoryID, ProductID, CustomerID, EmployeeID, OrderID, OrderDetailID</td><td>Конструктор каждой таблицы</td></tr>
+<tr><td>Типы-ловушки</td><td>ZipCodePrefix — текст; даты — Дата/время; цены — Денежный</td><td>Конструктор + выравнивание значений в таблице</td></tr>
+<tr><td>Пять связей с целостностью</td><td>Линии 1—М на схеме данных, тест «ManagerID = 9» отклоняется</td><td>Схема данных + ручной ввод</td></tr>
+<tr><td>Тестовый запрос</td><td>TOP 5 → C-0001…C-0005; сумма цен 1423.10; выручка по категориям 3025.50</td><td>Шаг 12 этой страницы</td></tr>
+<tr><td>Резервная копия</td><td>backup\ShopData_ГГГГ-ММ-ДД.accdb существует</td><td>Проводник</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout--info"><div class="callout__title">Образец корректного импорта</div>
+<p>Первая строка Customers — <code>C-0001 · Ana Ribeiro · 01310 · sao paulo · SP · Retail</code>; первая строка Orders — <code>O-10001 · C-0001 · 2 · delivered · 15.03.2017 · 24.03.2017 · 28.03.2017</code> (формат даты в сетке зависит от локали, значение — 2017-03-15). Полные образцы всех шести таблиц — в <a href="starter-data/README.md">starter-data/README.md</a>.</p>
+</div>
+</section>
+
+<section class="sec" id="s-errors">
+<h2>Если что-то пошло не так: разбор типовых ошибок</h2>
+<p>Семь ситуаций, которые встречаются у девяти из десяти студентов. Симптом → причина → лечение. Более длинный список с SQL-решениями — в <a href="starter-data/import-checklist.md">import-checklist.md</a>.</p>
+<div class="table-wrap">
+<table class="data-table">
+<thead><tr><th>Симптом</th><th>Причина</th><th>Решение</th></tr></thead>
+<tbody>
+<tr><td><strong>Ошибка импорта:</strong> мастер не открывает файл или «Внешняя таблица не имеет предполагаемого формата»</td><td>Файл повреждён при скачивании или пересохранён другой программой</td><td>Скачайте файл заново из репозитория, не открывайте его в Excel перед импортом; сверьте размер (шаг 4)</td></tr>
+<tr><td><strong>Кодировка:</strong> в превью мастера кракозябры вместо «Набор постельного белья»</td><td>Выбрана не та кодовая страница</td><td>В мастере вернитесь на шаг кодировки и выберите <strong>Юникод (UTF-8)</strong>; комплект хранится в UTF-8 с BOM</td></tr>
+<tr><td><strong>Даты как текст</strong> (или «15.03.2017» превратилось в «03/15/2017» наоборот)</td><td>Порядок дат не задан; Access гадает ДМГ/МДГ</td><td>Переимпортируйте: «Дополнительно…» → порядок дат <strong>ГМД</strong>. Таблицу с ошибкой удалите перед повторным импортом</td></tr>
+<tr><td><strong>Числа/цены как текст:</strong> суммы дают 0, значения выровнены влево</td><td>На русской локали десятичный разделитель — запятая, а в CSV точка</td><td>Импортируйте поле текстом, добавьте денежное поле и выполните <code>UPDATE Products SET НовоеПоле = CCur(Val([СтароеПоле]))</code> — Val читает точку на любой локали. Либо переимпорт с ручным типом «Денежный» в мастере</td></tr>
+<tr><td><strong>Ведущий ноль потерян:</strong> ZipCodePrefix = 1310</td><td>Поле распознано как число</td><td>Переимпорт с типом «Короткий текст (5)»; либо смените тип в конструкторе и восстановите ноль: <code>UPDATE Customers SET ZipCodePrefix = Format([ZipCodePrefix],"00000")</code></td></tr>
+<tr><td><strong>Отсутствуют таблицы или поля:</strong> запрос пишет «Не удалось найти входную таблицу или запрос OrderDetails»</td><td>Таблица не импортирована, переименована (order-details) или поле названо иначе</td><td>Сверьте имена с шага 7 и словарём: таблицы — Categories/Products/Customers/Employees/Orders/OrderDetails, поля — как в <a href="starter-data/data-dictionary.md">data-dictionary.md</a>. Переименуйте таблицу правым щелчком или исправьте имя в запросе</td></tr>
+<tr><td><strong>«Нарушение целостности»</strong> при создании связи или вводе</td><td>Связываемые поля разных типов, есть коды-сироты или связь пытаются строить до импорта справочника</td><td>Сверьте типы (шаг 8), импортируйте все шесть файлов, затем повторите связь из шага 10</td></tr>
+<tr><td><strong>Макросы отключены</strong>, жёлтая полоса безопасности</td><td>База вне доверенного расположения</td><td>Шаг 5: добавьте C:\Courses\ShopData\ в доверенные или нажмите «Включить содержимое» один раз</td></tr>
+</tbody>
+</table>
+</div>
+<p>Универсальное правило: ошибка в импортированных данных почти всегда чинится переимпортом — удалите таблицу (правый щелчок → Удалить), исправьте настройки мастера и импортируйте заново. Вручную править сотни значений не нужно никогда; в маленьком комплекте это 8–15 строк, но привычка важна уже сейчас.</p>
+</section>
+
+<section class="sec" id="s-backup">
+<h2>Шаг 14. Резервное копирование</h2>
+<p>Файл Access — это один .accdb-контейнер со всем: таблицами, запросами, формами и кодом. Повредить его можно закрытым ноутбуком в момент записи, «замороженным» OneDrive или экспериментом с DELETE — поэтому копия делается до, а не после. Для учебной базы достаточно простого правила.</p>
+<ol class="steps">
+<li><strong>Перед каждым рискованным шагом</strong> (action-запросы модуля 08, разделение базы в модуле 14): закройте Access и скопируйте <code>base\ShopData.accdb</code> в <code>backup\</code>, добавив дату в имя: <code>ShopData_2026-09-17.accdb</code>.</li>
+<li><strong>Раз в неделю</strong> или после «сессии» с курсом — такая же копия независимо от планов.</li>
+<li>Штатное средство: Файл → <strong>«Сохранить как» → «Сохранить базу данных как» → «База данных Access»</strong> — Access создаст копию и предложит открыть её; для учебных целей копия Проводником проще и не меняет активную базу.</li>
+<li>Сжатие перед копированием: Файл → «Сведения» → <strong>«Сжать и восстановить»</strong> — уменьшает файл и «пересобирает» внутренние индексы. Автосжатие при закрытии включается там же: Параметры → Текущая база данных → «Сжать при закрытии».</li>
+</ol>
+<p>Модуль 14 построит из этого привычку систему: разделение back-end/front-end, копирование только таблиц-данных, журнал резервирования. Пока — одна папка backup\ и дисциплина имени с датой.</p>
+</section>
+
+<section class="sec" id="s-checklist">
+<h2>Чек-лист готовности и переход к курсу</h2>
+<p>Двенадцать пунктов — финальный барьер между подготовкой и обучением. Галочки сохраняются в вашем браузере (localStorage), можно возвращаться к странице по мере выполнения. Нажмите «Проверить готовность» — страница покажет, что осталось.</p>
+<ul class="checklist" data-checklist="gs-ready" id="gs-checklist">
+<li><label><input type="checkbox" data-ck="gs:1"><span><strong>Access установлен</strong> — Файл → Учётная запись показывает версию 2007–2016</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:2"><span><strong>Рабочая папка создана</strong> — C:\Courses\ShopData с import\base\export\backup</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:3"><span><strong>Доверенное расположение настроено</strong> — папка курса в «Доверенных расположениях»</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:4"><span><strong>Исходные файлы скачаны</strong> — 6 CSV из starter-data (+ calendar.csv) в import\</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:5"><span><strong>CSV открываются корректно</strong> — UTF-8, кириллица и ведущие нули на месте (шаг 4)</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:6"><span><strong>База создана</strong> — base\ShopData.accdb, пустая «Таблица1» закрыта</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:7"><span><strong>Таблицы импортированы</strong> — шесть таблиц с именами по словарю</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:8"><span><strong>Типы данных проверены</strong> — текст/число/дата/деньги по шагу 8</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:9"><span><strong>Первичные ключи созданы</strong> — шесть ключей, тест дубля O-10001 отклонён</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:10"><span><strong>Связи настроены</strong> — пять линий 1—М, целостность включена, каскад на Orders → OrderDetails</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:11"><span><strong>Тестовый запрос выполнен</strong> — TOP 5 и суммы шага 12 сошлись с эталоном</span></label></li>
+<li><label><input type="checkbox" data-ck="gs:12"><span><strong>Резервная копия создана</strong> — backup\ShopData_ГГГГ-ММ-ДД.accdb</span></label></li>
+</ul>
+<div class="home-hero__cta" style="margin-top:20px">
+  <button class="btn" type="button" data-action="gs-check">Проверить готовность</button>
+  <a class="btn btn--ghost" data-nav="m01" href="modules/01-access-basics.html">Перейти к модулю 1 →</a>
+</div>
+<div class="callout callout--tip"><div class="callout__title">Что дальше</div>
+<p>Модуль 01 откроется повторением этого маршрута глазами новичка и первым разбором SQL-запроса — если чек-лист закрыт, первые два его раздела можно пролистать как повторение. Ссылки на эту страницу продублированы в README каждой папки проекта и на главной странице курса.</p>
+</div>
+</section>
+</article>
+<!--CACHE-END-->
+</main>
+<script src="js/app.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/progress.js"></script>
+<script src="js/export.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/quiz.js"></script>
+<script>
+/* getting-started: кнопка «Проверить готовность» — считывает чек-лист gs-ready
+   (состояние пунктов хранит progress.js в localStorage по ключам data-ck="gs:N"). */
+(function () {
+  'use strict';
+  var ITEMS = [
+    'Access установлен',
+    'Рабочая папка создана',
+    'Доверенное расположение настроено',
+    'Исходные файлы скачаны',
+    'CSV открываются корректно',
+    'База создана',
+    'Таблицы импортированы',
+    'Типы данных проверены',
+    'Первичные ключи созданы',
+    'Связи настроены',
+    'Тестовый запрос выполнен',
+    'Резервная копия создана'
+  ];
+
+  function itemsState() {
+    var done = 0, missing = [];
+    for (var i = 1; i <= ITEMS.length; i++) {
+      var input = document.querySelector('input[data-ck="gs:' + i + '"]');
+      if (input && input.checked) done++;
+      else missing.push(i + '. ' + ITEMS[i - 1]);
+    }
+    return { done: done, missing: missing, total: ITEMS.length };
+  }
+
+  AC.registerAction('gs-check', function () {
+    var st = itemsState();
+    if (st.done === st.total) {
+      AC.toast('Готово: ' + st.total + ' из ' + st.total + ' — можно начинать курс ✓', 4000);
+      var btn = document.querySelector('a[data-nav="m01"]');
+      if (btn) btn.classList.add('btn--accent');
+    } else {
+      var firstMissing = parseInt(st.missing[0], 10) || 1;
+      var target = document.querySelector('input[data-ck="gs:' + firstMissing + '"]');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      AC.toast('Готово ' + st.done + ' из ' + st.total + '. Осталось: ' + st.missing.slice(0, 3).join('; ') +
+               (st.missing.length > 3 ? '…' : ''), 6000);
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -50,7 +50,7 @@ VBA подключается на прикладном среднем уровн
 | Microsoft Access | 2007 или новее, формат файлов .accdb; базовая версия всех демонстраций — 2016 |
 | Браузер для учебника | Chrome, Edge или Firefox текущих версий; сервер не требуется, учебник открывается двойным щелчком |
 | Структура папок | `import\` для исходных CSV и XLSX, `base\` для файлов .accdb, `export\` для выгрузок |
-| Данные | Один из трёх путей из [../datasets/import-instructions.md](../datasets/import-instructions.md): Olist, альтернативный датасет или мини-датасет из SQL-файлов |
+| Данные | Один из путей из [../datasets/import-instructions.md](../datasets/import-instructions.md): стартовый комплект starter-data (рекомендуемый старт, без Kaggle), Olist или альтернативный датасет; маршрут настройки — [../getting-started.html](../getting-started.html) |
 | Файлы курса | каталоги `sql/` (6 файлов SQL-запросов), `vba/` (3 файла .bas и README), `diagrams/` (4 SVG-схемы) |
 
 ## 4. Результаты обучения (21 пункт, привязка к 15 модулям)
@@ -262,9 +262,12 @@ VBA подключается на прикладном среднем уровн
 | Каталог или файл | Назначение |
 |---|---|
 | index.html | Титульная страница и вход в многостраничную версию |
+| getting-started.html | «Начало работы»: пошаговый мастер настройки рабочей среды + чек-лист готовности (localStorage) |
+| starter-data/ | Стартовый комплект: 6 готовых CSV мини-датасета (5/8/8/6/12/15 строк), README, словарь полей, чек-лист импорта |
 | standalone.html | Самодостаточная сборка (все модули и стили в одном файле, офлайн) |
 | modules/ | 15 страниц модулей m01–m15 |
 | datasets/ | Инструкции по данным: import-instructions.md (включая раздел «Таблица Calendar»), data-dictionary.md, kaggle-links.html, готовый calendar.csv |
+| docs/getting-started.md | Расширенная инструкция «Начало работы»: 12 разделов от установки до первого запроса |
 | sql/ | 6 файлов учебных запросов: select-examples, joins, aggregate-queries, parameter-queries, crosstab-queries, action-queries |
 | vba/ | export-examples.bas, import-examples.bas, form-events.bas, calendar-generator.bas и README по подключению |
 | diagrams/ | 4 SVG-схемы: database-schema, data-flow, macro-flow, front-back-end |

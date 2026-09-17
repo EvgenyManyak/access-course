@@ -1,0 +1,7 @@
+﻿EmployeeID,EmployeeName,SellerID,Role,City,State,HireDate
+1,Ana Souza,S-0001,Менеджер,sao paulo,SP,2015-03-02
+2,Pedro Santos,S-0002,Оператор,sao paulo,SP,2015-06-15
+3,Maria Oliveira,S-0003,Менеджер,rio de janeiro,RJ,2014-11-20
+4,Lucas Ferreira,S-0004,Оператор,curitiba,PR,2016-02-01
+5,Julia Pereira,S-0005,Аналитик,belo horizonte,MG,2016-05-16
+6,Rafael Lima,S-0006,Оператор,salvador,BA,2016-09-05

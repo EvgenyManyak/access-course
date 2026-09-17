@@ -46,15 +46,18 @@ EXCLUDES=(
 # --- 5. Создать ZIP (все файлы проекта, с папкой access-course внутри) ---
 zip -r -q "$ZIP_PATH" . -x "${EXCLUDES[@]}"
 
-# --- 5b. Готовый календарь курса — единственный CSV в архиве ---
-# datasets/calendar.csv — часть репозитория (761 дата, импортируется мастером);
-# пользовательские *.csv (выгрузки Olist, import/) по-прежнему исключены выше.
-if [ -f "datasets/calendar.csv" ]; then
-  zip -q "$ZIP_PATH" "datasets/calendar.csv"
-  echo "Добавлен datasets/calendar.csv (готовый календарь курса)"
-else
-  echo "ПРЕДУПРЕЖДЕНИЕ: datasets/calendar.csv не найден — архив собран без него." >&2
-fi
+# --- 5b. CSV репозитория — часть учебника, возвращаются в архив ---
+# datasets/calendar.csv (761 дата) и starter-data/*.csv (стартовый комплект, 6 файлов)
+# являются частью курса; пользовательские *.csv (выгрузки Olist, import/) исключены выше.
+REPO_CSVS=( "datasets/calendar.csv" "starter-data/categories.csv" "starter-data/products.csv" "starter-data/customers.csv" "starter-data/employees.csv" "starter-data/orders.csv" "starter-data/order-details.csv" )
+for f in "${REPO_CSVS[@]}"; do
+  if [ -f "$f" ]; then
+    zip -q "$ZIP_PATH" "$f"
+    echo "Добавлен $f"
+  else
+    echo "ПРЕДУПРЕЖДЕНИЕ: $f не найден — архив собран без него." >&2
+  fi
+done
 
 # --- 6. Проверить наличие архива ---
 if [ ! -f "$ZIP_PATH" ]; then

@@ -18,6 +18,9 @@
     { id: 'index',    file: 'index.html', num: '',    icon: '🏠', group: 'Обзор',
       title: 'Главная', short: 'Обзор курса' },
 
+    { id: 'start', file: 'getting-started.html', num: '', icon: '🚀', group: 'Обзор',
+      title: 'Начало работы', short: 'Настройка рабочей среды' },
+
     { id: 'm01', file: 'modules/01-access-basics.html', num: '01', icon: '🧭', group: 'Модули курса',
       title: 'Access для аналитика: отличие от Excel и SQL',
       desc: 'Интерфейс Access, объекты базы данных, когда выбирать Access вместо Excel или SQL' },
