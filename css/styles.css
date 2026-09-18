@@ -287,7 +287,8 @@ mark { background: var(--mark); color: inherit; padding: 0 2px; border-radius: 3
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
-.topbar__burger { display: none; }
+/* Специфичность (0,2,0) — чтобы правило пережило .icon-btn { display:inline-flex } ниже */
+.topbar .topbar__burger { display: none; }
 .topbar__title {
   flex: 1;
   min-width: 0;
