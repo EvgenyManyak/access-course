@@ -51,7 +51,7 @@
     nav.addEventListener('click', function (ev) {
       var a = ev.target.closest ? ev.target.closest('[data-nav]') : null;
       if (!a) return;
-      document.body.classList.remove('nav-open');
+      closeMenu();
       if (window.IS_STANDALONE) {
         ev.preventDefault();
         window.location.hash = '#/' + a.getAttribute('data-nav');
@@ -289,6 +289,101 @@
     }
   }
 
+  /* ================= 5а. Мобильное меню (бургер) =================
+     Единая машина состояний для бургера и off-canvas сайдбара.
+     Состояние: .is-open на меню + .is-active на кнопке + body.nav-open
+     (хук существующего CSS для фона и блокировки прокрутки) + ARIA. */
+
+  var MOBILE_NAV_BREAKPOINT = 1024;  /* тот же порог, что в responsive.css */
+
+  function menuElements() {
+    return {
+      toggle: document.getElementById('menuToggle'),
+      menu: document.getElementById('courseMenu')
+    };
+  }
+
+  function syncMenuAria(toggle, menu, isOpen) {
+    var desktop = window.innerWidth > MOBILE_NAV_BREAKPOINT;
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    toggle.setAttribute('aria-label', isOpen ? 'Закрыть меню' : 'Открыть меню');
+    /* На десктопе сайдбар виден всегда — скрывать его от скринридеров нельзя */
+    menu.setAttribute('aria-hidden', (isOpen || desktop) ? 'false' : 'true');
+  }
+
+  function closeMenu() {
+    var els = menuElements();
+    if (!els.toggle || !els.menu) return;
+    els.menu.classList.remove('is-open');
+    els.toggle.classList.remove('is-active');
+    document.body.classList.remove('nav-open');
+    syncMenuAria(els.toggle, els.menu, false);
+  }
+
+  function openMenu() {
+    var els = menuElements();
+    if (!els.toggle || !els.menu) return;
+    els.menu.classList.add('is-open');
+    els.toggle.classList.add('is-active');
+    document.body.classList.add('nav-open');
+    syncMenuAria(els.toggle, els.menu, true);
+  }
+
+  function toggleMenu() {
+    var els = menuElements();
+    if (!els.toggle || !els.menu) return;
+    if (els.menu.classList.contains('is-open')) closeMenu(); else openMenu();
+  }
+
+  function setupMobileMenu() {
+    var els = menuElements();
+    if (!els.toggle || !els.menu) {
+      console.error('Не найдены menuToggle или courseMenu — мобильное меню не работает');
+      return;
+    }
+
+    /* Начальное ARIA-состояние с учётом текущей ширины экрана */
+    syncMenuAria(els.toggle, els.menu, false);
+
+    /* Прямой обработчик на кнопке (не полагаемся только на делегирование):
+       stopPropagation исключает двойное срабатывание вместе с делегированным toggle-nav */
+    els.toggle.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      toggleMenu();
+    });
+
+    /* Клик вне меню и вне кнопки — закрыть */
+    document.addEventListener('click', function (ev) {
+      if (!els.menu.classList.contains('is-open')) return;
+      var t = ev.target;
+      if (els.menu.contains(t) || els.toggle.contains(t)) return;
+      closeMenu();
+    });
+
+    /* Escape — закрыть и вернуть фокус на кнопку (доступность с клавиатуры) */
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Escape') return;
+      if (!els.menu.classList.contains('is-open')) return;
+      closeMenu();
+      els.toggle.focus();
+    });
+
+    /* Выбор пункта меню на мобильном — закрыть (в т.ч. якоря оглавления) */
+    AC.$$('a', els.menu).forEach(function (link) {
+      link.addEventListener('click', function () { closeMenu(); });
+    });
+
+    /* Переход к широкой версии — сброс мобильного состояния; обратно — синхронизация ARIA */
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > MOBILE_NAV_BREAKPOINT) {
+        closeMenu();
+        els.menu.setAttribute('aria-hidden', 'false');
+      } else if (!els.menu.classList.contains('is-open')) {
+        els.menu.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
   /* ================= 5. Клавиатура ================= */
 
   function setupKeyboard() {
@@ -454,8 +549,10 @@
 
       AC.registerAction('open-search', openSearch);
       AC.registerAction('close-search', closeSearch);
-      AC.registerAction('toggle-nav', function () { document.body.classList.toggle('nav-open'); });
-      AC.registerAction('close-nav', function () { document.body.classList.remove('nav-open'); });
+      AC.registerAction('toggle-nav', function () { toggleMenu(); });
+      AC.registerAction('close-nav', function () { closeMenu(); });
+
+      setupMobileMenu();
 
       /* Клик по якорным ссылкам внутри страницы — плавная прокрутка */
       document.addEventListener('click', function (ev) {
