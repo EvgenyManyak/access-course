@@ -5,17 +5,63 @@
 
 /* --- Планшеты и ниже: сайдбар уходит в off-canvas --- */
 @media (max-width: 1024px) {
+  /* Слои: фон 90 < топбар 95 < сайдбар 100 < бургер 1100.
+     Топбар выше фона — бургер остаётся доступным для повторного
+     нажатия при открытом меню, не перекрывается .sidebar-backdrop */
+  .topbar { z-index: 95; }
+
+  /* (0,2,0) — перекрывает .topbar .topbar__burger { display:none } из styles.css */
+  .topbar .topbar__burger {
+    display: inline-flex;
+    position: relative;
+    z-index: 1100;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;            /* без задержки и зума по двойному тапу */
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .sidebar {
+    position: fixed;
+    top: var(--topbar-h);                /* меню раскрывается ПОД шапкой — как в эталоне (top:100%),
+                                            бургер остаётся виден и доступен для повторного нажатия */
     transform: translateX(-102%);
-    transition: transform .25s ease;
+    visibility: hidden;                    /* скрытое меню недоступно для фокуса и тапов */
+    transition: transform .25s ease, visibility 0s linear .25s;
     box-shadow: var(--shadow-lg);
   }
-  body.nav-open .sidebar { transform: translateX(0); }
-  body.nav-open .sidebar-backdrop { display: block; }
+  body.nav-open .sidebar,
+  .sidebar.is-open {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform .25s ease, visibility 0s;
+  }
+
+  /* Фон: плавное появление вместо мгновенного display */
+  .sidebar-backdrop {
+    display: block;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  body.nav-open .sidebar-backdrop,
+  .sidebar-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   body.nav-open { overflow: hidden; }
 
+  /* Видимое состояние кнопки при открытом меню */
+  .topbar__burger.is-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
   .app__main { margin-left: 0; }
-  .topbar__burger { display: inline-flex; }
   .topbar .btn-text { display: none; }
 }
 
