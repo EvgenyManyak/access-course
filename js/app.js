@@ -271,7 +271,7 @@
     /* Сайдбар */
     var sidebar = document.createElement('aside');
     sidebar.className = 'sidebar';
-    sidebar.id = 'sidebar';
+    sidebar.id = 'courseMenu';   /* эталонный id мобильного меню (см. menuToggle) */
     sidebar.innerHTML =
       '<div class="sidebar__brand">' +
       '  <div class="sidebar__brand-icon">📗</div>' +
@@ -298,6 +298,7 @@
     var backdrop = document.createElement('div');
     backdrop.className = 'sidebar-backdrop';
     backdrop.setAttribute('data-action', 'close-nav');
+    backdrop.setAttribute('aria-hidden', 'true');
 
     var main = document.createElement('div');
     main.className = 'app__main';
@@ -306,7 +307,7 @@
     var topbar = document.createElement('header');
     topbar.className = 'topbar';
     topbar.innerHTML =
-      '<button type="button" class="icon-btn topbar__burger" data-action="toggle-nav" aria-label="Меню" title="Меню">☰</button>' +
+      '<button type="button" id="menuToggle" class="icon-btn topbar__burger" data-action="toggle-nav" aria-label="Открыть меню" aria-expanded="false" aria-controls="courseMenu" title="Меню">☰</button>' +
       '<div class="topbar__title" id="topbar-title"></div>' +
       '<div class="topbar__actions">' +
       '  <button type="button" class="icon-btn" data-action="open-search" aria-label="Поиск по учебнику" title="Поиск ( / )">🔍<span class="btn-text">Поиск</span></button>' +
