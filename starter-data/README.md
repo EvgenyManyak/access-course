@@ -9,6 +9,7 @@
 | `categories.csv` | Categories | 5 | CategoryID | Справочник категорий товаров (португальское и английское имя) |
 | `products.csv` | Products | 8 | ProductID | Товары: название, категория, цена, вес, габариты |
 | `customers.csv` | Customers | 8 | CustomerID | Покупатели: имя, почтовый префикс, город, штат, сегмент |
+| `customers_archive.csv` | Customers | 11 | CustomerID | Покупатели: имя, почтовый префикс, город, штат, сегмент. Содержит дубликаты записей |
 | `employees.csv` | Employees | 6 | EmployeeID | Сотрудники — менеджеры заказов: роль, город, дата найма |
 | `orders.csv` | Orders | 12 | OrderID | Заказы: покупатель, менеджер, статус, три даты |
 | `order-details.csv` | OrderDetails | 15 | OrderDetailID | Позиции заказов: товар, количество, цена, стоимость доставки |
