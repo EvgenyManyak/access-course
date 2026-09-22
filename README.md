@@ -33,11 +33,11 @@
 
 Единая точка входа для новичка — страница **[getting-started.html](getting-started.html)** (в боковом меню «Начало работы») и её расширенная версия **[docs/getting-started.md](docs/getting-started.md)**. Ниже — краткая выжимка полного маршрута «от установки до первого SQL-запроса»; все инструкции собраны в одном месте, искать по папкам не нужно.
 
-**1. Быстрый старт (30–40 минут).** Установите Access → создайте папки → скопируйте 6 CSV из [starter-data/](starter-data/) → создайте `base\ShopData.accdb` → импортируйте файлы по чек-листу [starter-data/import-checklist.md](starter-data/import-checklist.md) → задайте ключи и 5 связей → выполните `SELECT TOP 5` и сверьте эталон → отметьте 12 пунктов чек-листа на getting-started.html → откройте [модуль 01](modules/01-access-basics.html).
+**1. Быстрый старт (30–40 минут).** Установите Access → создайте папки → скопируйте 6 базовых CSV из [starter-data/](starter-data/) (седьмой файл каталога, customers_archive.csv, понадобится в модуле 05) → создайте `base\ShopData.accdb` → импортируйте файлы по чек-листу [starter-data/import-checklist.md](starter-data/import-checklist.md) → задайте ключи и 5 связей → выполните `SELECT TOP 5` и сверьте эталон → отметьте 12 пунктов чек-листа на getting-started.html → откройте [модуль 01](modules/01-access-basics.html).
 
 **2. Полная установка.** Windows 7 SP1–11; Microsoft Access 2007–2016 (показан 2016; подходит Microsoft 365 desktop; не подходит Access Runtime); Excel желателен; браузер для чтения учебника. Проверка версии: Файл → Учётная запись → «О Access». Подробнее — [docs/getting-started.md, раздел 2](docs/getting-started.md).
 
-**3. Подготовка данных.** Скачайте репозиторий (Code → Download ZIP) и скопируйте в `import\` шесть файлов стартового комплекта: categories.csv (5 строк), products.csv (8), customers.csv (8), employees.csv (6), orders.csv (12), order-details.csv (15) — плюс datasets/calendar.csv (761 дата, понадобится в модуле 04). Формат: UTF-8 с BOM, разделитель — запятая, даты ГМД, цены с точкой. Состав, образцы и ожидаемые количества — [starter-data/README.md](starter-data/README.md); словарь полей — [starter-data/data-dictionary.md](starter-data/data-dictionary.md).
+**3. Подготовка данных.** Скачайте репозиторий (Code → Download ZIP) и скопируйте в `import\` шесть файлов стартового комплекта: categories.csv (5 строк), products.csv (8), customers.csv (8), employees.csv (6), orders.csv (12), order-details.csv (15) — плюс datasets/calendar.csv (761 дата, понадобится в модуле 04) и customers_archive.csv (11 строк — архивная выгрузка с дублями, понадобится в модуле 05). Формат: UTF-8 с BOM, разделитель — запятая, даты ГМД, цены с точкой. Состав, образцы и ожидаемые количества — [starter-data/README.md](starter-data/README.md); словарь полей — [starter-data/data-dictionary.md](starter-data/data-dictionary.md).
 
 **4. Импорт в Access.** Внешние данные → Новый источник данных → Из файла → Текстовый файл; «С разделителями», запятая, UTF-8, «Дополнительно…» → порядок дат ГМД; ключ и типы по таблицам чек-листа; порядок импорта: categories → products → customers → employees → orders → order-details.
 
@@ -131,7 +131,7 @@ access-course/
 │   ├── progress.js         # прогресс, отметки модулей, чек-листы (localStorage)
 │   └── theme.js            # светлая/тёмная тема
 ├── modules/                # 15 страниц модулей (единая структура из 17 секций)
-├── starter-data/           # стартовый комплект: 6 CSV + README + словарь + чек-лист импорта
+├── starter-data/           # стартовый комплект: 7 CSV (6 базовых + архив для модуля 05) + README + словарь + чек-лист импорта
 │   ├── categories.csv      # 5 категорий
 │   ├── products.csv        # 8 товаров
 │   ├── customers.csv       # 8 покупателей
