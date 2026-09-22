@@ -47,9 +47,9 @@ EXCLUDES=(
 zip -r -q "$ZIP_PATH" . -x "${EXCLUDES[@]}"
 
 # --- 5b. CSV репозитория — часть учебника, возвращаются в архив ---
-# datasets/calendar.csv (761 дата) и starter-data/*.csv (стартовый комплект, 6 файлов)
+# datasets/calendar.csv (761 дата) и starter-data/*.csv (стартовый комплект, 7 файлов)
 # являются частью курса; пользовательские *.csv (выгрузки Olist, import/) исключены выше.
-REPO_CSVS=( "datasets/calendar.csv" "starter-data/categories.csv" "starter-data/products.csv" "starter-data/customers.csv" "starter-data/employees.csv" "starter-data/orders.csv" "starter-data/order-details.csv" )
+REPO_CSVS=( "datasets/calendar.csv" "starter-data/categories.csv" "starter-data/products.csv" "starter-data/customers.csv" "starter-data/employees.csv" "starter-data/orders.csv" "starter-data/order-details.csv" "starter-data/customers_archive.csv" )
 for f in "${REPO_CSVS[@]}"; do
   if [ -f "$f" ]; then
     zip -q "$ZIP_PATH" "$f"
