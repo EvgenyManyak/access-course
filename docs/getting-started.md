@@ -25,7 +25,7 @@
 
 1. Убедитесь, что стоит **Microsoft Access 2007–2016** на Windows (проверка: Файл → Учётная запись → «О Access»).
 2. Создайте папки `C:\Courses\ShopData\` с подпапками `import\`, `base\`, `export\`, `backup\`.
-3. Скопируйте в `import\` шесть CSV из каталога [`starter-data/`](../starter-data/) репозитория: categories, products, customers, employees, orders, order-details.
+3. Скопируйте в `import\` шесть базовых CSV из каталога [`starter-data/`](../starter-data/) репозитория: categories, products, customers, employees, orders, order-details (седьмой файл каталога, customers_archive.csv, понадобится позже — в модуле 05).
 4. Откройте Access → «Пустая база данных» → имя `ShopData.accdb` → сохраните в `base\`.
 5. Импортируйте шесть файлов (порядок: categories → products → customers → employees → orders → order-details) — процедура и таблица типов в [разделе 6](#6-импорт).
 6. Задайте первичные ключи (если не задали в мастере) и пять связей — [раздел 7](#7-типы-ключи-связи).
@@ -80,7 +80,7 @@ md C:\Courses\ShopData\import, C:\Courses\ShopData\base, C:\Courses\ShopData\exp
 
 ### 3.2 Стартовый комплект данных
 
-Каталог [`starter-data/`](../starter-data/) — шесть файлов эталонного мини-датасета ShopData:
+Каталог [`starter-data/`](../starter-data/) — шесть файлов эталонного мини-датасета ShopData плюс `customers_archive.csv` (архивная выгрузка с дублями и грязью, исходник модуля 05):
 
 | Файл | Таблица | Строк | Ключ | Назначение |
 |---|---|---|---|---|
@@ -90,8 +90,9 @@ md C:\Courses\ShopData\import, C:\Courses\ShopData\base, C:\Courses\ShopData\exp
 | employees.csv | Employees | 6 | EmployeeID | Менеджеры заказов: роль, город, дата найма |
 | orders.csv | Orders | 12 | OrderID | Заказы: покупатель, менеджер, статус, даты |
 | order-details.csv | OrderDetails | 15 | OrderDetailID | Позиции заказов: товар, количество, цена, доставка |
+| customers_archive.csv | Customers_Staging | 11 | нет (дубли) | Архивная выгрузка с 3 дублями — исходник модуля 05; в базовый импорт не входит |
 
-Седьмая таблица курса — служебный календарь Calendar (761 дата) — создаётся в модуле 04 VBA-генератором [`vba/calendar-generator.bas`](../vba/calendar-generator.bas) или импортом [`datasets/calendar.csv`](../datasets/calendar.csv).
+Отдельная служебная таблица-календарь Calendar (761 дата) создаётся в модуле 04 VBA-генератором [`vba/calendar-generator.bas`](../vba/calendar-generator.bas) или импортом [`datasets/calendar.csv`](../datasets/calendar.csv).
 
 Формат всех файлов: UTF-8 с BOM, CRLF, разделитель — запятая, даты ISO (ГМД: `2017-03-15`), цены с точкой (`189.90`). Формат совпадает с большим датасетом Olist, поэтому одна настройка мастера подходит всем файлам.
 
