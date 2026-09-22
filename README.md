@@ -135,7 +135,7 @@ access-course/
 │   ├── categories.csv      # 5 категорий
 │   ├── products.csv        # 8 товаров
 │   ├── customers.csv       # 8 покупателей
-│   ├── customers_archive.csv # 8 покупателей + 3 покупателей (дубликаты записей)
+│   ├── customers_archive.csv # 8 покупателей + 3 покупателя (дубликаты записей)
 │   ├── employees.csv       # 6 сотрудников
 │   ├── orders.csv          # 12 заказов
 │   ├── order-details.csv   # 15 позиций заказов
