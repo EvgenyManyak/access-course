@@ -1,0 +1,12 @@
+﻿CustomerID,CustomerName,ZipCodePrefix,City,State,Segment
+C-0001,Ana Ribeiro,01310,sao paulo,SP,Retail
+C-0002,Bruno Carvalho,20040,rio de janeiro,RJ,VIP
+C-0002,Bruno Carvalho,20040,rio de janeiro,RJ,VIP
+C-0003,Carla Mendes,30120,belo horizonte,MG,Wholesale
+C-0003,Carla Mendes,30120,belo horizonte,MG,Wholesale
+C-0005,Elena Costa,50050,recife,PE,Retail
+C-0007,Gabriela Lima,40020,salvador,BA,VIP
+C-0007,Gabriela Lima,40020,salvador,BA,VIP
+C-0009,Lucas Almeida,04570," sao paulo ",SP,Retail
+C-0010,Marina Duarte,51020,recife,PE,Wholesale
+C-0011,Tatiana Rocha,13010,campinas,sp,retail
