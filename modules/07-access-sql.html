@@ -123,14 +123,14 @@
 <ol>
 <li>Строим <code>qry_Заказы1кв2018</code>: три таблицы, две пары псевдонимов, Between по датам — и сверяем, что вернулись 3 строки (O-10007, O-10008, O-10009).</li>
 <li>Строим <code>qry_НезаказанныеТовары</code>: LEFT JOIN Products к OrderDetails и отбор по <code>od.OrderDetailID IS NULL</code> — на расширенном ассортименте возвращается товар P-5002.</li>
-<li>Строим <code>qry_КтоКомуПодчиняется</code>: SELF-JOIN Employees по ManagerID — шесть строк, у менеджеров руководитель пустой.</li>
+<li>Строим <code>qry_КтоКомуПодчиняется</code>: SELF-JOIN Employees по ManagerID (поле создаём и заполняем в подготовительном шаге секции SQL) — шесть строк, у Ana Souza и Maria Oliveira руководитель пустой.</li>
 <li>Каждый результат показываем директору со счётчиком строк, потому что именно число строк — главный индикатор того, что соединение написано верно.</li>
 </ol>
 </section>
 
 <section class="sec" id="s-data" data-sec="data">
 <h2>Исходные таблицы и поля</h2>
-<p>В модуле работают пять таблиц ShopData. Для SELF-JOIN мы добавляем в Employees поле <code>ManagerID</code> (Длинное целое, ссылка на Employees.EmployeeID) — это разрешённое расширение учебной базы: начальники отдела (Ana Souza и Maria Oliveira) не имеют руководителя, остальные подчиняются по городу. Для анти-join добавляем товар <code>P-5002 «Компрессор автомобильный»</code> (категория 5), который ещё не встречался в продажах — без него список «незаказанных» был бы пуст. Ниже — строки, используемые в примерах; полные справочники смотрите в спецификации датасета.</p>
+<p>В модуле работают пять таблиц ShopData. Важно: в стартовом комплекте (employees.csv из модуля 04) у таблицы Employees <em>нет</em> поля <code>ManagerID</code> — там семь колонок: EmployeeID, EmployeeName, SellerID, Role, City, State, HireDate. Если выполнить Запрос 5 сразу, Access покажет окно «Введите значение параметра» с именем ManagerID: так программа реагирует на неизвестное поле, которого в таблице нет. Поэтому для SELF-JOIN выполняется подготовительный шаг в секции SQL (блок перед Запросом 5): добавляем в Employees поле <code>ManagerID</code> (Длинное целое, ссылка на Employees.EmployeeID) и заполняем его табельными номерами руководителей — это разрешённое расширение учебной базы. Иерархия отдела: вершина — Ana Souza и Maria Oliveira, их ManagerID остаётся пустым (NULL); Pedro Santos и Lucas Ferreira подчиняются Ana Souza; Julia Pereira и Rafael Lima — Maria Oliveira. Для анти-join добавляем товар <code>P-5002 «Компрессор автомобильный»</code> (категория 5), который ещё не встречался в продажах — без него список «незаказанных» был бы пуст. Ниже — строки, используемые в примерах (Employees показана уже после подготовительного шага); полные справочники смотрите в спецификации датасета.</p>
 <div class="table-wrap">
 <table class="data-table">
 <thead><tr><th>OrderID</th><th>CustomerID</th><th>ManagerID</th><th>OrderStatus</th><th>OrderDate</th></tr></thead>
@@ -170,7 +170,7 @@
 </tbody>
 </table>
 </div>
-<p>Таблица Employees: 6 строк; прочерк означает NULL в поле ManagerID.</p>
+<p>Таблица Employees: 6 строк; колонка ManagerID показана уже после подготовительного шага — в стартовом employees.csv её нет. Прочерк означает NULL: у руководителей верхнего уровня (Ana Souza и Maria Oliveira) начальника нет.</p>
 <div class="table-wrap">
 <table class="data-table">
 <thead><tr><th>ProductID</th><th>ProductName</th><th>CategoryID</th></tr></thead>
@@ -187,7 +187,7 @@
 
 <section class="sec" id="s-sql" data-sec="sql">
 <h2>SQL-код и разбор по строкам</h2>
-<p>Разберём семь запросов — от разогрева до UNION. Для каждого приводится полный текст и пояснение каждой значимой строки; результаты сверены с мини-датасетом.</p>
+<p>Разберём семь запросов — от разогрева до UNION. Для каждого приводится полный текст и пояснение каждой значимой строки; результаты сверены с мини-датасетом. Перед Запросом 5 выполните короткий подготовительный шаг — без него SELF-JOIN на стартовом комплекте не заработает.</p>
 <p><strong>Запрос 0. Разогрев: псевдонимы столбцов и конкатенация.</strong></p>
 <pre class="code"><code class="lang-sql">SELECT c.CustomerName,
        c.City &amp; ", " &amp; c.State AS CityState
@@ -273,21 +273,45 @@ FROM OrderDetails AS od
 <li><code>RIGHT JOIN Products AS p ON od.ProductID = p.ProductID;</code> — правое соединение сохраняет все строки правой таблицы: к 15 совпавшим парам добавляется P-5002 с NULL в OrderID — итого 16 строк.</li>
 </ol>
 <p>Любой RIGHT JOIN переписывается в LEFT JOIN переменой мест таблиц; конструктор Access показывает оба варианта в окне «Параметры объединения».</p>
+<p><strong>Подготовка: создаём и заполняем поле ManagerID (выполнить до Запроса 5).</strong></p>
+<p>В стартовом employees.csv поля ManagerID нет, поэтому Запрос 5 на свежем комплекте не выполнится: Access покажет окно «Введите значение параметра ManagerID» — это не вопрос курса, а сигнал, что поля в таблице нет (или оно написано с опечаткой). Исправляется один раз тремя короткими запросами. Путь для каждого одинаков: <strong>Создание → Конструктор запросов</strong>, закройте окно таблиц, переключитесь в <strong>Режим SQL</strong>, вставьте текст и нажмите <strong>Выполнить</strong>.</p>
+<p><strong>Шаг 1. Создаём поле.</strong></p>
+<pre class="code"><code class="lang-sql">ALTER TABLE Employees ADD COLUMN ManagerID LONG;</code></pre>
+<ol class="sql-explain">
+<li><code>ALTER TABLE Employees</code> — меняем структуру таблицы, а не её данные; после выполнения в Employees появится пустое поле ManagerID.</li>
+<li><code>ADD COLUMN ManagerID LONG</code> — тип LONG соответствует «Длинному целому»: здесь будут храниться табельные номера руководителей, то есть значения из EmployeeID.</li>
+</ol>
+<p>Если DDL смущает — сделайте мышью: откройте Employees в <strong>Конструкторе</strong>, добавьте поле <code>ManagerID</code> с типом <strong>Числовой</strong> (размер — «Длинное целое») и сохраните таблицу. Результат тот же.</p>
+<p><strong>Шаг 2. Заполняем подчинение.</strong></p>
+<pre class="code"><code class="lang-sql">UPDATE Employees SET ManagerID = 1 WHERE EmployeeID In (2, 4);
+UPDATE Employees SET ManagerID = 3 WHERE EmployeeID In (5, 6);</code></pre>
+<ol class="sql-explain">
+<li>Первый запрос записывает Pedro Santos (EmployeeID 2) и Lucas Ferreira (4) в подчинение к Ana Souza — её табельный номер 1.</li>
+<li>Второй — Julia Pereira (5) и Rafael Lima (6) к Maria Oliveira, табельный номер 3.</li>
+<li>Ana Souza (1) и Maria Oliveira (3) остаются без значения: пустое поле — это NULL, так помечены руководители верхнего уровня. Access дважды спросит подтверждение на изменение данных — отвечайте «Да».</li>
+</ol>
+<p>Заполнять можно и руками: откройте таблицу в режиме таблицы и проставьте значения по схеме 2 → 1, 4 → 1, 5 → 3, 6 → 3, оставив строки 1 и 3 пустыми. SQL-путь предпочтительнее: он повторяем и приучает формулировать изменение данных текстом.</p>
+<p><strong>Шаг 3. Контроль перед Запросом 5.</strong></p>
+<pre class="code"><code class="lang-sql">SELECT EmployeeID, EmployeeName, ManagerID
+FROM Employees
+ORDER BY EmployeeID;</code></pre>
+<p>Эталон: 6 строк; у Ana Souza и Maria Oliveira поле ManagerID пустое, у Pedro Santos и Lucas Ferreira — 1, у Julia Pereira и Rafael Lima — 3. Совпало — база готова.</p>
 <p><strong>Запрос 5. SELF-JOIN: кто кому подчиняется.</strong></p>
-<pre class="code"><code class="lang-sql">SELECT e1.EmployeeName AS Сотрудник,
-       e2.EmployeeName AS Руководитель
+<pre class="code"><code class="lang-sql">SELECT
+    e1.EmployeeName AS Сотрудник,
+    e2.EmployeeName AS Руководитель
 FROM Employees AS e1
-     LEFT JOIN Employees AS e2
-         ON e1.ManagerID = e2.EmployeeID
+LEFT JOIN Employees AS e2
+    ON e1.ManagerID = e2.EmployeeID
 ORDER BY e1.EmployeeID;</code></pre>
 <ol class="sql-explain">
-<li><code>SELECT e1.EmployeeName AS Сотрудник,</code> — левая копия таблицы играет роль сотрудника.</li>
+<li><code>e1.EmployeeName AS Сотрудник</code> — левая копия таблицы играет роль сотрудника.</li>
 <li><code>e2.EmployeeName AS Руководитель</code> — правая копия играет роль руководителя; без псевдонимов различить две копии Employees было бы невозможно.</li>
 <li><code>FROM Employees AS e1</code> — первая копия: все 6 сотрудников.</li>
-<li><code>LEFT JOIN Employees AS e2 ON e1.ManagerID = e2.EmployeeID</code> — таблица соединяется сама с собой: ключ сотрудника ищется в ключах руководителей; LEFT сохраняет менеджеров, у которых ManagerID пуст.</li>
+<li><code>LEFT JOIN Employees AS e2 ON e1.ManagerID = e2.EmployeeID</code> — таблица соединяется сама с собой: табельный номер руководителя из левой копии ищется среди EmployeeID правой. LEFT обязателен: у Ana и Maria ManagerID равен NULL, а NULL не совпадает ни с каким EmployeeID — INNER JOIN молча выкинул бы обе строки, и в результате осталось бы 4 сотрудника из 6.</li>
 <li><code>ORDER BY e1.EmployeeID;</code> — сортировка по табельному номеру, чтобы список читался по структуре отдела.</li>
 </ol>
-<p>Результат — 6 строк: у Ana Souza и Maria Oliveira руководитель пустой (NULL), Pedro Santos и Lucas Ferreira подчиняются Ana Souza, Julia Pereira и Rafael Lima — Maria Oliveira.</p>
+<p>Результат — 6 строк: у Ana Souza и Maria Oliveira руководитель пустой (NULL), Pedro Santos и Lucas Ferreira подчиняются Ana Souza, Julia Pereira и Rafael Lima — Maria Oliveira. Если подготовительный шаг был пропущен, вместо этой таблицы вы увидите окно «Введите значение параметра ManagerID» — вернитесь на три запроса выше и выполните его.</p>
 <p><strong>Запрос 6. Декартово произведение: сначала ошибка, потом лечение.</strong></p>
 <pre class="code"><code class="lang-sql">SELECT od.OrderDetailID, c.CustomerName
 FROM OrderDetails AS od, Customers AS c;</code></pre>
@@ -402,7 +426,7 @@ ORDER BY ВсегоЧеловек DESC, City;</code></pre>
 <section class="sec" id="s-homework" data-sec="homework">
 <h2>Самостоятельная работа</h2>
 <p>Выполните четыре SQL-задания S01–S04 на базе ShopData. Работа идёт в режиме SQL: текст каждого запроса пишется руками (или дописывается за конструктором), результат сверяется с эталоном по счётчику строк и по конкретным значениям мини-датасета. Все четыре карточки ниже содержат полный эталонный SQL — сначала попробуйте сами, решение раскрывайте только для сверки.</p>
-<p>После выполнения запросов отметьте пункты чек-листа — он фиксирует и технику (режим SQL, скобки, псевдонимы), и дисциплину сверки результатов. Ход работы по каждому заданию описан в пошаговом плане карточки; расширения датасета (P-5002 и поле ManagerID) должны быть добавлены до старта.</p>
+<p>После выполнения запросов отметьте пункты чек-листа — он фиксирует и технику (режим SQL, скобки, псевдонимы), и дисциплину сверки результатов. Ход работы по каждому заданию описан в пошаговом плане карточки. Расширения датасета выполняются по ходу модуля: товар P-5002 — перед анти-join, поле ManagerID — в подготовительном шаге перед Запросом 5 (секция SQL).</p>
 <ul class="checklist" data-checklist="m07-self">
 <li><label><input type="checkbox" data-ck="m07:1"><span>Создать qry_ЗаказыМарт2018 в режиме SQL: три таблицы, даты в решётках (S01)</span></label></li>
 <li><label><input type="checkbox" data-ck="m07:2"><span>Сверить S01 с эталоном: 1 строка O-10009, менеджер Ana Souza</span></label></li>
@@ -410,6 +434,7 @@ ORDER BY ВсегоЧеловек DESC, City;</code></pre>
 <li><label><input type="checkbox" data-ck="m07:4"><span>Проверить S03: отобраны cama_mesa_banho (159.90) и informatica_acessorios (104.45)</span></label></li>
 <li><label><input type="checkbox" data-ck="m07:5"><span>Собрать UNION и подсчёт городов: 8 городов, sao paulo — 3 (S04)</span></label></li>
 <li><label><input type="checkbox" data-ck="m07:6"><span>Воспроизвести декартово произведение 120 строк и вылечить его условием ON</span></label></li>
+<li><label><input type="checkbox" data-ck="m07:7"><span>Выполнить подготовку ManagerID: ALTER TABLE, два UPDATE, контроль — 6 строк, Ana и Maria с пустым полем (Запрос 5)</span></label></li>
 </ul>
 <article class="task-card" id="task-s01" data-task="S01">
   <div class="task-card__head">
@@ -592,6 +617,12 @@ ORDER BY ВсегоЧеловек DESC, City;</code></pre>
       "options": ["Чтобы различить две копии таблицы в одном запросе", "Чтобы запрос выполнялся быстрее", "Чтобы обращаться как e1.ManagerID и e2.EmployeeName без путаницы", "Они вообще не нужны: Access различит копии сам"],
       "correct": [0, 2],
       "explain": "Одна таблица выступает в двух ролях: сотрудник и руководитель. Без псевдонимов поля двух копий было бы не различить; скорость здесь ни при чём."
+    },
+    {
+      "q": "При выполнении SELF-JOIN Access показывает окно «Введите значение параметра» с именем ManagerID. О чём это говорит?",
+      "options": ["Поля ManagerID нет в таблице — или оно написано с опечаткой", "Запрос нужно обязательно сохранить перед выполнением", "ManagerID — зарезервированное слово Access", "В таблице Employees слишком мало строк"],
+      "correct": [0],
+      "explain": "Неизвестное имя Access трактует как параметр запроса. Самая частая причина — опечатка или отсутствующее поле: здесь сигнал, что подготовительный шаг (ALTER TABLE … ADD COLUMN ManagerID) ещё не выполнен."
     },
     {
       "q": "Почему условие по полю правой таблицы в WHERE может разрушить анти-join?",
