@@ -376,3 +376,41 @@ PY
 ## 🔄 Развитие
 
 История изменений — [CHANGELOG.md](CHANGELOG.md). Приветствуются issues и PR: сообщайте страницу, браузер, шаги воспроизведения, ожидаемое и фактическое поведение (шаблон — в [тестинг-гайде](docs/testing-guide.md)).
+=======
+# Исправленные файлы v1.1.3 (модуль 07 — SELF-JOIN / ManagerID)
+
+Скопируйте файлы в корень локального клона репозитория access-course
+(с сохранением подпапок), затем закоммитьте и запушьте —
+
+проще всего готовым скриптом из этого же пакета:
+- git-push-commands.sh   — bash (macOS / Linux / Git Bash в Windows)
+- git-push-commands.ps1  — PowerShell (Windows)
+
+## Куда положить каждый файл (относительно корня репозитория)
+
+| Файл из пакета              | Куда                                  | Что это |
+|-----------------------------|---------------------------------------|---------|
+| modules/07-access-sql.html  | modules/07-access-sql.html            | Само исправление: явное указание проблемы, подготовительный шаг (ALTER TABLE + 2 UPDATE + контроль, NULL у вершины), рабочий SELF-JOIN |
+| js/export.js                | js/export.js                          | Кэш курса для экспорта (пересобран) |
+| standalone.html             | standalone.html                       | Автономная версия учебника (пересобрана) |
+| CHANGELOG.md                | CHANGELOG.md                          | Журнал изменений, версия 1.1.3 |
+
+## Что изменилось в модуле 07
+
+- Явно указано: в стартовом starter-data/employees.csv нет поля ManagerID —
+  Запрос 5 падает в окно «Введите значение параметра ManagerID».
+- Добавлен подготовительный шаг перед Запросом 5:
+  1. ALTER TABLE Employees ADD COLUMN ManagerID LONG;  (или поле через Конструктор)
+  2. UPDATE Employees SET ManagerID = 1 WHERE EmployeeID In (2, 4);
+     UPDATE Employees SET ManagerID = 3 WHERE EmployeeID In (5, 6);
+     Ana Souza (1) и Maria Oliveira (3) остаются с NULL — руководители верхнего уровня.
+  3. Контрольный SELECT: 6 строк, эталонные значения.
+- Запрос 5 приведён к рабочему виду:
+  SELECT e1.EmployeeName AS Сотрудник, e2.EmployeeName AS Руководитель
+  FROM Employees AS e1
+  LEFT JOIN Employees AS e2 ON e1.ManagerID = e2.EmployeeID
+  ORDER BY e1.EmployeeID;
+- Чек-лист: новый пункт m07:7; викторина: вопрос о диагностике окна параметра.
+
+Другие файлы и модули не менялись; starter-data остался прежним
+(поле ManagerID студент создаёт по инструкции модуля).
