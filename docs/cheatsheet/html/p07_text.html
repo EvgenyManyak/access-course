@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 7 — Работа с текстом</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a6">
+
+  <div class="phead">
+    <div class="pnum">7</div>
+    <div class="tt">
+      <h1>Работа с текстом</h1>
+      <div class="psub">&amp; · Left · Right · Mid · Len · UCase / LCase · Trim · InStr · Replace — как меняется строка</div>
+    </div>
+    <div class="pchip">Текстовые значения всегда в двойных кавычках: <b>"Стол"</b></div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a6">
+      <h4><span class="op">&amp;</span> объединение строк</h4>
+      <div class="why">Склеивает текст, числа и поля в одну строку; пробелы между частями нужно ставить самому.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>[Brand] &amp; " " &amp; [ProductName]</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="16" y="8" width="130" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="81" y="32" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">"Logitech"</text>
+        <text x="156" y="32" font-size="13" font-weight="700" fill="#BE185D">&amp;</text>
+        <rect x="168" y="8" width="60" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="198" y="32" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">" "</text>
+        <text x="238" y="32" font-size="13" font-weight="700" fill="#BE185D">&amp;</text>
+        <rect x="250" y="8" width="140" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="320" y="32" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">"Мышь MX"</text>
+        <path d="M400,27 H432" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M432,23.5 L439,27 L432,30.5 Z" fill="#64748B"/>
+        <rect x="447" y="8" width="100" height="38" rx="6" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="497" y="32" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10.5" fill="#9D174D">Logitech</text>
+        <text x="497" y="20" text-anchor="middle" font-size="9.5" fill="#9D174D">Мышь MX</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"Logitech Мышь MX"</span>. Если хоть одно поле Null — вся строка станет Null: оберните поля в <b>Nz</b> (блок 6).</div>
+    </div>
+
+    <div class="card a6">
+      <h4><span class="op">Left</span> первые символы</h4>
+      <div class="why">Отрезает заданное количество символов слева — коды, префиксы артикулов.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Left([ProductName]; 5)</pre>
+      <svg viewBox="0 0 560 56" font-family="DejaVu Sans Mono, monospace">
+        <g font-size="12.5" fill="#101828" text-anchor="middle">
+          <rect x="60" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="73" y="28">К</text>
+          <rect x="88" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="101" y="28">о</text>
+          <rect x="116" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="129" y="28">м</text>
+          <rect x="144" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="157" y="28">п</text>
+          <rect x="172" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="185" y="28">ь</text>
+          <rect x="200" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="213" y="28">ю</text>
+          <rect x="228" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="241" y="28">т</text>
+          <rect x="256" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="269" y="28">е</text>
+          <rect x="284" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="297" y="28">р</text>
+        </g>
+        <path d="M352,23 H386" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M386,19.5 L393,23 L386,26.5 Z" fill="#64748B"/>
+        <rect x="402" y="10" width="112" height="26" rx="5" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="458" y="28" text-anchor="middle" font-size="12" font-weight="700" fill="#9D174D">"Компь"</text>
+        <text x="73" y="52" text-anchor="middle" font-size="9.5" fill="#6B7684" font-family="Carlito, sans-serif">позиции 1–5 взяты, остальное отброшено</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"Компь"</span> из строки <span class="r">"Компьютерный стол"</span>.</div>
+    </div>
+
+    <div class="card a6">
+      <h4><span class="op">Right</span> последние символы</h4>
+      <div class="why">Отрезает символы справа — год из кода документа, расширение файла, суффикс.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Right([КодДокумента]; 4)</pre>
+      <svg viewBox="0 0 560 56" font-family="DejaVu Sans Mono, monospace">
+        <g font-size="12.5" fill="#101828" text-anchor="middle">
+          <rect x="150" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="163" y="28">О</text>
+          <rect x="178" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="191" y="28">т</text>
+          <rect x="206" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="219" y="28">ч</text>
+          <rect x="234" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="247" y="28">ё</text>
+          <rect x="262" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="275" y="28">т</text>
+          <rect x="290" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="303" y="28">2</text>
+          <rect x="318" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="331" y="28">0</text>
+          <rect x="346" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="359" y="28">2</text>
+          <rect x="374" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="387" y="28">4</text>
+        </g>
+        <path d="M440,23 H474" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M474,19.5 L481,23 L474,26.5 Z" fill="#64748B"/>
+        <rect x="30" y="10" width="104" height="26" rx="5" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="82" y="28" text-anchor="middle" font-size="12" font-weight="700" fill="#9D174D">"2024"</text>
+        <text x="337" y="52" text-anchor="middle" font-size="9.5" fill="#6B7684" font-family="Carlito, sans-serif">"Отчёт-2024" → последние 4 символа</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"2024"</span> — год выделяется из кода без разбора строки вручную.</div>
+    </div>
+
+    <div class="card a6">
+      <h4><span class="op">Mid</span> подстрока с позиции</h4>
+      <div class="why">Берёт символы начиная с указанной позиции (нумерация с 1) и в заданном количестве.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Mid([ProductName]; 2; 3)</pre>
+      <svg viewBox="0 0 560 56" font-family="DejaVu Sans Mono, monospace">
+        <g font-size="12.5" fill="#101828" text-anchor="middle">
+          <rect x="180" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="193" y="28">С</text>
+          <rect x="208" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="221" y="28">т</text>
+          <rect x="236" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="249" y="28">о</text>
+          <rect x="264" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/><text x="277" y="28">л</text>
+          <rect x="292" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="305" y="28">и</text>
+          <rect x="320" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="333" y="28">к</text>
+        </g>
+        <g font-size="9" fill="#94A3B8" text-anchor="middle" font-family="Carlito, sans-serif">
+          <text x="193" y="49">1</text><text x="221" y="49">2</text><text x="249" y="49">3</text>
+          <text x="277" y="49">4</text><text x="305" y="49">5</text><text x="333" y="49">6</text>
+        </g>
+        <path d="M392,23 H426" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M426,19.5 L433,23 L426,26.5 Z" fill="#64748B"/>
+        <rect x="442" y="10" width="94" height="26" rx="5" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="489" y="28" text-anchor="middle" font-size="12" font-weight="700" fill="#9D174D">"тол"</text>
+        <text x="130" y="28" text-anchor="middle" font-size="10" fill="#6B7684" font-family="Carlito, sans-serif">со 2-й позиции</text>
+        <text x="130" y="41" text-anchor="middle" font-size="10" fill="#6B7684" font-family="Carlito, sans-serif">3 символа</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"тол"</span> из строки <span class="r">"Столик"</span> — позиции 2, 3, 4.</div>
+    </div>
+
+    <div class="card a6">
+      <h4><span class="op">Len</span> длина строки</h4>
+      <div class="why">Считает символы в строке — контроль заполнения полей перед загрузкой в поле фиксированного размера.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Len([ProductName])</pre>
+      <svg viewBox="0 0 560 56" font-family="DejaVu Sans Mono, monospace">
+        <g font-size="12.5" fill="#101828" text-anchor="middle">
+          <rect x="120" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="133" y="28">С</text>
+          <rect x="148" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="161" y="28">т</text>
+          <rect x="176" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="189" y="28">о</text>
+          <rect x="204" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="217" y="28">л</text>
+        </g>
+        <g font-size="9" fill="#94A3B8" text-anchor="middle" font-family="Carlito, sans-serif">
+          <text x="133" y="49">1</text><text x="161" y="49">2</text><text x="189" y="49">3</text><text x="217" y="49">4</text>
+        </g>
+        <path d="M262,23 H296" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M296,19.5 L303,23 L296,26.5 Z" fill="#64748B"/>
+        <rect x="312" y="10" width="80" height="26" rx="5" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="352" y="28" text-anchor="middle" font-size="12.5" font-weight="700" fill="#9D174D">4</text>
+        <text x="420" y="28" font-size="10.5" fill="#41505F" font-family="Carlito, sans-serif">проверка: Len(...) &gt; 40</text>
+        <text x="420" y="42" font-size="10.5" fill="#41505F" font-family="Carlito, sans-serif">не влезет в TEXT(40)</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"Стол" → 4</span>; пробелы внутри тоже считаются.</div>
+    </div>
+
+    <div class="card a6">
+      <h4><span class="op">UCase · LCase</span> регистр</h4>
+      <div class="why">UCase поднимает строку в верхний регистр, LCase опускает в нижний — унификация справочников.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>UCase([Category])    LCase([Category])</pre>
+      <svg viewBox="0 0 560 56" font-family="DejaVu Sans Mono, monospace">
+        <rect x="30" y="8" width="150" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="105" y="32" text-anchor="middle" font-size="12" fill="#101828">"Авто"</text>
+        <path d="M190,20 H222" stroke="#64748B" stroke-width="1.5"/>
+        <path d="M222,16.5 L229,20 L222,23.5 Z" fill="#64748B"/>
+        <text x="207" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#BE185D">UCase</text>
+        <rect x="238" y="8" width="130" height="38" rx="6" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="303" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#9D174D">"АВТО"</text>
+        <path d="M190,42 H222" stroke="#64748B" stroke-width="1.5"/>
+        <path d="M222,38.5 L229,42 L222,45.5 Z" fill="#64748B"/>
+        <text x="207" y="55" text-anchor="middle" font-size="10" font-weight="700" fill="#BE185D">LCase</text>
+        <rect x="238" y="42" width="130" height="14" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="303" y="53" text-anchor="middle" font-size="10.5" font-weight="700" fill="#9D174D">"авто"</text>
+        <text x="400" y="22" font-size="10.5" fill="#41505F" font-family="Carlito, sans-serif">перед группировкой приведите</text>
+        <text x="400" y="36" font-size="10.5" fill="#41505F" font-family="Carlito, sans-serif">регистр — иначе «Авто» и «АВТО»</text>
+        <text x="400" y="50" font-size="10.5" fill="#41505F" font-family="Carlito, sans-serif">станут разными группами</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"Авто" → "АВТО"</span> или <span class="r">"авто"</span> — единый регистр для GROUP BY.</div>
+    </div>
+
+    <div class="card a6">
+      <h4><span class="op">Trim</span> пробелы по краям</h4>
+      <div class="why">Срезает начальные и конечные пробелы; внутренние пробелы не трогает.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Trim([ProductName])</pre>
+      <svg viewBox="0 0 560 56" font-family="DejaVu Sans Mono, monospace">
+        <rect x="30" y="8" width="210" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="135" y="32" text-anchor="middle" font-size="12" fill="#101828">"␣␣Стол␣␣"</text>
+        <path d="M250,27 H282" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M282,23.5 L289,27 L282,30.5 Z" fill="#64748B"/>
+        <text x="267" y="18" text-anchor="middle" font-size="10.5" font-weight="700" fill="#BE185D">Trim</text>
+        <rect x="298" y="8" width="130" height="38" rx="6" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="363" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#9D174D">"Стол"</text>
+        <text x="452" y="22" font-size="10.5" fill="#41505F" font-family="Carlito, sans-serif">␣ — видимый пробел;</text>
+        <text x="452" y="36" font-size="10.5" fill="#41505F" font-family="Carlito, sans-serif">"Стол" и "Стол␣" —</text>
+        <text x="452" y="50" font-size="10.5" fill="#41505F" font-family="Carlito, sans-serif">разные значения</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"␣␣Стол␣␣" → "Стол"</span> — чистые значения для сравнений и группировок.</div>
+    </div>
+
+    <div class="card a6">
+      <h4><span class="op">InStr</span> позиция подстроки</h4>
+      <div class="why">Возвращает номер позиции, с которой начинается подстрока; 0 — если не найдена.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>InStr([ProductName]; "телефон")</pre>
+      <svg viewBox="0 0 560 62" font-family="DejaVu Sans Mono, monospace">
+        <g font-size="12.5" fill="#101828" text-anchor="middle">
+          <rect x="60" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="73" y="28">С</text>
+          <rect x="88" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="101" y="28">т</text>
+          <rect x="116" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="129" y="28">о</text>
+          <rect x="144" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="157" y="28">л</text>
+          <rect x="172" y="10" width="26" height="26" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="185" y="28">␣</text>
+          <rect x="200" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.3"/><text x="213" y="28">т</text>
+          <rect x="228" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.3"/><text x="241" y="28">е</text>
+          <rect x="256" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.3"/><text x="269" y="28">л</text>
+          <rect x="284" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.3"/><text x="297" y="28">е</text>
+          <rect x="312" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.3"/><text x="325" y="28">ф</text>
+          <rect x="340" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.3"/><text x="353" y="28">о</text>
+          <rect x="368" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.3"/><text x="381" y="28">н</text>
+        </g>
+        <path d="M213,40 V50 H420" fill="none" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="440" y="28" font-size="12.5" font-weight="700" fill="#9D174D">→ 6</text>
+        <text x="440" y="46" font-size="9.5" fill="#6B7684" font-family="Carlito, sans-serif">0 = не найдено</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"Стол телефонный" → 6</span> — подстрока начинается с 6-й позиции.</div>
+    </div>
+
+    <div class="card a6">
+      <h4><span class="op">Replace</span> замена в строке</h4>
+      <div class="why">Меняет все вхождения подстроки — нормализация разделителей и дефисов перед загрузкой данных.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Replace([ProductName]; "-"; " ")</pre>
+      <svg viewBox="0 0 560 56" font-family="DejaVu Sans Mono, monospace">
+        <g font-size="12.5" text-anchor="middle">
+          <rect x="30" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="43" y="28" fill="#101828">С</text>
+          <rect x="58" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="71" y="28" fill="#101828">т</text>
+          <rect x="86" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="99" y="28" fill="#101828">о</text>
+          <rect x="114" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="127" y="28" fill="#101828">л</text>
+          <rect x="142" y="10" width="26" height="26" rx="4" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.3"/><text x="155" y="28" fill="#7F1D1D">-</text>
+          <rect x="170" y="10" width="26" height="26" rx="4" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/><text x="183" y="28" fill="#101828">к</text>
+        </g>
+        <text x="216" y="28" font-size="11" fill="#41505F" font-family="Carlito, sans-serif">дефис заменён</text>
+        <path d="M330,23 H364" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M364,19.5 L371,23 L364,26.5 Z" fill="#64748B"/>
+        <rect x="380" y="10" width="160" height="26" rx="5" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="460" y="28" text-anchor="middle" font-size="11.5" font-weight="700" fill="#9D174D">"Стол компьютерный"</text>
+        <text x="155" y="50" text-anchor="middle" font-size="9.5" fill="#6B7684" font-family="Carlito, sans-serif">каждый "-" станет пробелом</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"Стол-компьютерный" → "Стол компьютерный"</span>; схема преобразования типов — в блоке 6.</div>
+    </div>
+
+    <div class="card a6">
+      <h4>Практика: артикул из частей</h4>
+      <div class="why">Строковые функции сочетаются в одном выражении: код, разделитель и метка даты собираются в артикул.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Left([Код]; 3) &amp; "-" &amp; Format(Date(); "mm.yy")</pre>
+      <svg viewBox="0 0 560 56" font-family="DejaVu Sans Mono, monospace">
+        <rect x="40" y="10" width="90" height="24" rx="5" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/>
+        <text x="85" y="26" text-anchor="middle" font-size="10.5" fill="#9D174D">ABC</text>
+        <text x="142" y="27" font-size="12" font-weight="700" fill="#BE185D">&amp;</text>
+        <rect x="156" y="10" width="54" height="24" rx="5" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/>
+        <text x="183" y="26" text-anchor="middle" font-size="10.5" fill="#9D174D">"-"</text>
+        <text x="222" y="27" font-size="12" font-weight="700" fill="#BE185D">&amp;</text>
+        <rect x="236" y="10" width="100" height="24" rx="5" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/>
+        <text x="286" y="26" text-anchor="middle" font-size="10.5" fill="#9D174D">09.26</text>
+        <path d="M348,22 H376" stroke="#64748B" stroke-width="1.5"/>
+        <path d="M376,18.5 L383,22 L376,25.5 Z" fill="#64748B"/>
+        <rect x="392" y="10" width="130" height="24" rx="5" fill="#FFFFFF" stroke="#BE185D" stroke-width="1.2"/>
+        <text x="457" y="26" text-anchor="middle" font-size="10.5" font-weight="700" fill="#9D174D">ABC-09.26</text>
+        <text x="40" y="50" font-family="Carlito, sans-serif" font-size="9.5" fill="#6B7684">Код "ABC123" → первые 3 символа; Date() даёт месяц и год сборки артикула</text>
+      </svg>
+      <div class="res">Результат: <span class="r">"ABC-09.26"</span> — артикул собирается заново при каждом запуске запроса.</div>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 7 из 12</div>
+    <div class="r">Access 2007–2016 · текст</div>
+  </div>
+
+</div>
+</body>
+</html>

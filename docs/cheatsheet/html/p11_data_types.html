@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 11 — Типы данных Access</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a10">
+
+  <div class="phead">
+    <div class="pnum">11</div>
+    <div class="tt">
+      <h1>Типы данных Access</h1>
+      <div class="psub">Короткий текст · Длинный текст · Числовой · Денежный · Дата и время · Счётчик · Да/Нет · Вложение</div>
+    </div>
+    <div class="pchip">Название в Конструкторе ↔ SQL-тип в CREATE TABLE</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a10">
+      <h4><svg width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="#F1F5F9" stroke="#334155" stroke-width="1.4"/><line x1="6" y1="9" x2="18" y2="9" stroke="#334155" stroke-width="1.3"/><line x1="6" y1="13" x2="15" y2="13" stroke="#334155" stroke-width="1.3"/><line x1="6" y1="17" x2="12" y2="17" stroke="#334155" stroke-width="1.3"/></svg>Короткий текст</h4>
+      <div class="why">До 255 символов: названия, артикулы, категории. Размер задаётся свойством поля.</div>
+<pre>ProductName TEXT(100)
+-- пример значения: "Стол"</pre>
+      <svg viewBox="0 0 560 80" font-family="Carlito, sans-serif">
+        <rect x="40" y="10" width="480" height="24" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <rect x="40" y="10" width="56" height="24" rx="6" fill="#DBEAFE" stroke="#1D4ED8" stroke-width="1.1"/>
+        <text x="68" y="26" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#1E40AF">Стол</text>
+        <text x="108" y="26" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#94A3B8">4 символа из 40 доступных</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="9.5" text-anchor="middle">
+          <rect x="40" y="44" width="22" height="20" rx="3" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1"/><text x="51" y="58" fill="#1E40AF">С</text>
+          <rect x="64" y="44" width="22" height="20" rx="3" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1"/><text x="75" y="58" fill="#1E40AF">т</text>
+          <rect x="88" y="44" width="22" height="20" rx="3" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1"/><text x="99" y="58" fill="#1E40AF">о</text>
+          <rect x="112" y="44" width="22" height="20" rx="3" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1"/><text x="123" y="58" fill="#1E40AF">л</text>
+          <rect x="136" y="44" width="22" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="0.8" stroke-dasharray="3 2"/>
+        </g>
+        <text x="180" y="58" font-size="10" fill="#41505F">каждый символ на своём месте;</text>
+        <text x="180" y="72" font-size="10" fill="#64748B">лишние ячейки остаются пустыми</text>
+      </svg>
+      <div class="res">Пример поля: <span class="r">ProductName TEXT(100)</span> — см. блок 10 про размер и проверку.</div>
+    </div>
+
+    <div class="card a10">
+      <h4><svg width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" fill="#F1F5F9" stroke="#334155" stroke-width="1.4"/><path d="M8,3 V21 M4,7 H8" stroke="#334155" stroke-width="1.2" fill="none"/><line x1="11" y1="8" x2="17" y2="8" stroke="#334155" stroke-width="1.2"/><line x1="11" y1="12" x2="17" y2="12" stroke="#334155" stroke-width="1.2"/><line x1="11" y1="16" x2="15" y2="16" stroke="#334155" stroke-width="1.2"/></svg>Длинный текст</h4>
+      <div class="why">Текст без ограничения длины (Memo): описания, комментарии, примечания.</div>
+<pre>Description LONGTEXT
+-- пример: описание товара
+-- на несколько абзацев</pre>
+      <svg viewBox="0 0 560 84" font-family="DejaVu Sans Mono, monospace">
+        <rect x="40" y="6" width="330" height="70" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <text x="54" y="22" font-size="9.5" fill="#101828">Описание: мощный компьютер для работы</text>
+        <text x="54" y="36" font-size="9.5" fill="#101828">с графикой и большими таблицами.</text>
+        <text x="54" y="50" font-size="9.5" fill="#101828">Подходит для видеомонтажа и CAD.</text>
+        <text x="54" y="68" font-size="9.5" fill="#94A3B8">текст продолжается без лимита длины…</text>
+        <text x="390" y="22" font-size="10" fill="#41505F" font-family="Carlito, sans-serif">полоса прокрутки в форме,</text>
+        <text x="390" y="38" font-size="10" fill="#41505F" font-family="Carlito, sans-serif">несколько абзацев;</text>
+        <text x="390" y="54" font-size="10" fill="#41505F" font-family="Carlito, sans-serif">в GROUP BY почти</text>
+        <text x="390" y="70" font-size="10" fill="#41505F" font-family="Carlito, sans-serif">не участвует</text>
+      </svg>
+      <div class="res">Пример поля: <span class="r">Description LONGTEXT</span>; в группировках и JOIN участвует редко.</div>
+    </div>
+
+    <div class="card a10">
+      <h4><svg width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="#F1F5F9" stroke="#334155" stroke-width="1.4"/><text x="12" y="16.5" text-anchor="middle" font-size="10" font-weight="700" fill="#334155" font-family="DejaVu Sans Mono, monospace">123</text></svg>Числовой</h4>
+      <div class="why">Размеры поля: LONG (целое), DOUBLE (дробное), INTEGER и другие — под задачу.</div>
+<pre>Quantity LONG
+UnitPriceNum DOUBLE
+-- пример значения: 25</pre>
+      <svg viewBox="0 0 560 76" font-family="Carlito, sans-serif">
+        <rect x="40" y="8" width="230" height="24" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <text x="52" y="24" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828">Quantity LONG · 25</text>
+        <rect x="286" y="8" width="234" height="24" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <text x="298" y="24" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828">UnitPriceNum DOUBLE · 25,5</text>
+        <rect x="40" y="40" width="230" height="24" rx="6" fill="#F5F3FF" stroke="#A78BFA" stroke-width="1"/>
+        <text x="52" y="56" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#6D28D9">Reserve INTEGER · −32768…32767</text>
+        <text x="286" y="52" font-size="10" fill="#41505F" font-family="Carlito, sans-serif">размер поля выбирается под диапазон</text>
+        <text x="286" y="66" font-size="10" fill="#64748B" font-family="Carlito, sans-serif">значений — лишний объём не нужен</text>
+      </svg>
+      <div class="res">Пример поля: <span class="r">Quantity LONG</span>; ключевые связи с AUTOINCREMENT — только LONG (блоки 1 и 5).</div>
+    </div>
+
+    <div class="card a10">
+      <h4><svg width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#F1F5F9" stroke="#334155" stroke-width="1.4"/><text x="12" y="15.5" text-anchor="middle" font-size="10" font-weight="700" fill="#334155" font-family="DejaVu Sans Mono, monospace">0,00</text></svg>Денежный</h4>
+      <div class="why">CURRENCY — фиксированные 4 знака после запятой: точные суммы без ошибок округления.</div>
+<pre>UnitPrice CURRENCY
+-- пример значения: 25 000,50</pre>
+      <svg viewBox="0 0 560 76" font-family="Carlito, sans-serif">
+        <circle cx="70" cy="26" r="15" fill="#FEF3C7" stroke="#B45309" stroke-width="1.3"/>
+        <circle cx="84" cy="26" r="15" fill="#FDE68A" stroke="#B45309" stroke-width="1.3"/>
+        <rect x="116" y="14" width="170" height="24" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <text x="201" y="30" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">25 000,50</text>
+        <rect x="116" y="46" width="170" height="22" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <text x="201" y="61" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10.5" fill="#101828">1 250 000,00</text>
+        <text x="306" y="22" font-size="10" fill="#41505F">4 знака после запятой — суммы</text>
+        <text x="306" y="38" font-size="10" fill="#41505F">сходятся копейка в копейку,</text>
+        <text x="306" y="54" font-size="10" fill="#41505F">ошибок округления нет даже</text>
+        <text x="306" y="70" font-size="10" fill="#41505F">на миллионных значениях</text>
+      </svg>
+      <div class="res">Пример поля: <span class="r">UnitPrice CURRENCY</span>; текст в деньги превращает CCur (блок 6).</div>
+    </div>
+
+    <div class="card a10">
+      <h4><svg width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2" fill="#F1F5F9" stroke="#334155" stroke-width="1.4"/><rect x="3" y="4" width="18" height="5" rx="2" fill="#334155"/><circle cx="12" cy="14.5" r="3" fill="none" stroke="#334155" stroke-width="1.3"/><path d="M12,14.5 L14,13" stroke="#334155" stroke-width="1.2"/></svg>Дата и время</h4>
+      <div class="why">DATETIME хранит дату и время разом; литералы в SQL — между решётками #...#.</div>
+<pre>OrderDate DATETIME
+-- пример: #2024-03-01#</pre>
+      <svg viewBox="0 0 560 84" font-family="Carlito, sans-serif">
+        <rect x="40" y="8" width="84" height="44" rx="6" fill="#ECFDFD" stroke="#0E7490" stroke-width="1.2"/>
+        <rect x="40" y="8" width="84" height="15" rx="6" fill="#0E7490"/>
+        <text x="82" y="19" text-anchor="middle" font-size="8.5" font-weight="700" fill="#FFFFFF">МАРТ</text>
+        <text x="82" y="45" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="14" font-weight="700" fill="#0E7490">01</text>
+        <circle cx="156" cy="30" r="17" fill="#ECFDFD" stroke="#0E7490" stroke-width="1.2"/>
+        <line x1="156" y1="30" x2="156" y2="19" stroke="#0E7490" stroke-width="1.7"/>
+        <line x1="156" y1="30" x2="164" y2="35" stroke="#0E7490" stroke-width="1.7"/>
+        <rect x="190" y="12" width="190" height="20" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+        <text x="285" y="26" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#101828">#03-01-2024#</text>
+        <rect x="190" y="38" width="190" height="20" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+        <text x="285" y="52" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#101828">#03-01-2024 14:30#</text>
+        <text x="398" y="20" font-size="10" fill="#41505F">дата и время хранятся разом —</text>
+        <text x="398" y="36" font-size="10" fill="#41505F">сортировка хронологии работает</text>
+        <text x="398" y="52" font-size="10" fill="#41505F">сама; без времени — ровно полночь</text>
+      </svg>
+      <div class="res">Пример поля: <span class="r">OrderDate DATETIME</span>; функции дат — блок 8.</div>
+    </div>
+
+    <div class="card a10">
+      <h4><svg width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="#F1F5F9" stroke="#334155" stroke-width="1.4"/><g stroke="#B45309" stroke-width="1.4" fill="none"><circle cx="9" cy="9" r="2.2"/><path d="M11.2,9 H15 M14,9 V11.4"/></g><text x="12" y="19" text-anchor="middle" font-size="7.5" font-weight="700" fill="#334155" font-family="DejaVu Sans Mono, monospace">1234</text></svg>Счётчик</h4>
+      <div class="why">AUTOINCREMENT: Access сам присваивает 1, 2, 3… — идеальный первичный ключ.</div>
+<pre>ID AUTOINCREMENT PRIMARY KEY
+-- значения: 1, 2, 3, ...</pre>
+      <svg viewBox="0 0 560 76" font-family="DejaVu Sans Mono, monospace">
+        <g font-size="11" text-anchor="middle">
+          <rect x="60" y="8" width="34" height="22" rx="5" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/><text x="77" y="23" fill="#166534">1</text>
+          <rect x="130" y="8" width="34" height="22" rx="5" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/><text x="147" y="23" fill="#166534">2</text>
+          <rect x="200" y="8" width="34" height="22" rx="5" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/><text x="217" y="23" fill="#166534">3</text>
+          <rect x="270" y="8" width="34" height="22" rx="5" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/><text x="287" y="23" fill="#166534">4</text>
+          <rect x="340" y="8" width="44" height="22" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1" stroke-dasharray="3 2"/><text x="362" y="23" fill="#94A3B8">5…</text>
+        </g>
+        <path d="M98,19 H124 M168,19 H194 M238,19 H264 M308,19 H334" stroke="#15803D" stroke-width="1.4"/>
+        <rect x="60" y="42" width="324" height="20" rx="5" fill="#FEF3C7" stroke="#B45309" stroke-width="1"/>
+        <text x="222" y="56" text-anchor="middle" font-size="9.5" fill="#92400E" font-family="Carlito, sans-serif">значения не повторяются — идеальный ключ</text>
+        <text x="40" y="74" font-family="Carlito, sans-serif" font-size="10" fill="#41505F">номер присваивает сам Access; удалённые номера не переиспользуются</text>
+      </svg>
+      <div class="res">Пример поля: <span class="r">ID AUTOINCREMENT PRIMARY KEY</span>; на него ссылается FK типа LONG.</div>
+    </div>
+
+    <div class="card a10">
+      <h4><svg width="24" height="24" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="4" fill="#F1F5F9" stroke="#334155" stroke-width="1.4"/><circle cx="15.5" cy="12" r="2.6" fill="#334155"/></svg>Да/Нет</h4>
+      <div class="why">Логический флажок: Да (True, −1) или Нет (False, 0) — активность, оплата, отметки.</div>
+<pre>IsActive YESNO
+-- пример: WHERE IsActive = True</pre>
+      <svg viewBox="0 0 560 76" font-family="Carlito, sans-serif">
+        <rect x="60" y="8" width="64" height="26" rx="13" fill="#F0FDF4" stroke="#15803D" stroke-width="1.3"/>
+        <circle cx="110" cy="21" r="9" fill="#15803D"/>
+        <text x="136" y="25" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#166534">True · Да · −1</text>
+        <rect x="270" y="8" width="64" height="26" rx="13" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.3"/>
+        <circle cx="74" cy="21" r="9" fill="#94A3B8"/>
+        <text x="346" y="25" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#64748B">False · Нет · 0</text>
+        <rect x="60" y="44" width="300" height="20" rx="5" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+        <text x="74" y="58" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#334155">WHERE IsActive = True</text>
+        <text x="372" y="58" font-size="9.5" fill="#41505F" font-family="Carlito, sans-serif">отбирает только активные</text>
+      </svg>
+      <div class="res">Пример поля: <span class="r">IsActive YESNO</span>; в WHERE пишут <span class="r">= True</span> или <span class="r">= False</span>.</div>
+    </div>
+
+    <div class="card a10">
+      <h4><svg width="24" height="24" viewBox="0 0 24 24"><path d="M15,4 L20,9 L10,19 L5,19 L5,14 Z" fill="#F1F5F9" stroke="#334155" stroke-width="1.4" stroke-linejoin="round"/><path d="M13,6 L18,11" stroke="#334155" stroke-width="1.2"/><path d="M20,19 L15,14" stroke="#B91C1C" stroke-width="1.6"/></svg>Вложение</h4>
+      <div class="why">Файлы (картинки, PDF) внутри записи; через SQL DDL не создаётся — только в Конструкторе.</div>
+<pre>-- в CREATE TABLE недоступен,
+-- добавляется в Конструкторе
+-- пример: скан счёта в записи</pre>
+      <svg viewBox="0 0 560 76" font-family="Carlito, sans-serif">
+        <path d="M52,42 V20 a8,8 0 0 1 16,0 V44 a14,14 0 0 1 -28,0 V22" fill="none" stroke="#334155" stroke-width="1.6"/>
+        <rect x="92" y="8" width="150" height="24" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <text x="167" y="24" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#101828">счёт_124.pdf</text>
+        <rect x="256" y="8" width="170" height="24" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <text x="341" y="24" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#101828">фото_товара.jpg</text>
+        <rect x="92" y="40" width="150" height="24" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.1"/>
+        <text x="167" y="56" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#101828">договор.docx</text>
+        <text x="256" y="52" font-size="10" fill="#41505F" font-family="Carlito, sans-serif">несколько файлов</text>
+        <text x="256" y="66" font-size="10" fill="#41505F" font-family="Carlito, sans-serif">в одной записи</text>
+      </svg>
+      <div class="res">Пример: поле <b>СканСчёта</b> с вложенным PDF; в запросах участвует как ссылка на файл.</div>
+    </div>
+
+    <div class="card a10 wide">
+      <h4>Как выбрать тип: короткая шпаргалка выбора</h4>
+      <svg viewBox="0 0 1180 60" font-family="Carlito, sans-serif">
+        <g font-size="12" font-weight="700" text-anchor="middle">
+          <rect x="16" y="10" width="270" height="38" rx="7" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.2"/>
+          <text x="151" y="33" fill="#1D4ED8">Деньги → CURRENCY, не DOUBLE</text>
+          <rect x="316" y="10" width="270" height="38" rx="7" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+          <text x="451" y="33" fill="#15803D">Ключи → AUTOINCREMENT + LONG</text>
+          <rect x="616" y="10" width="270" height="38" rx="7" fill="#FFFBEB" stroke="#B45309" stroke-width="1.2"/>
+          <text x="751" y="33" fill="#B45309">Текст до 255 симв. → TEXT(n)</text>
+          <rect x="916" y="10" width="248" height="38" rx="7" fill="#F5F3FF" stroke="#6D28D9" stroke-width="1.2"/>
+          <text x="1040" y="33" fill="#6D28D9">Момент времени → DATETIME</text>
+        </g>
+      </svg>
+      <div class="res">Результат: правильный тип с самого начала избавляет от пересоздания полей (ALTER COLUMN, блок 1) и ошибок округления.</div>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 11 из 12</div>
+    <div class="r">Access 2007–2016 · типы</div>
+  </div>
+
+</div>
+</body>
+</html>

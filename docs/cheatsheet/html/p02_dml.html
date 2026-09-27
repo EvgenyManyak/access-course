@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 2 — DML — добавление, изменение, удаление данных</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a2">
+
+  <div class="phead">
+    <div class="pnum">2</div>
+    <div class="tt">
+      <h1>DML — добавление, изменение, удаление</h1>
+      <div class="psub">INSERT INTO · UPDATE · DELETE — для каждого оператора сцена «данные до → действие → данные после»</div>
+    </div>
+    <div class="pchip">Перед UPDATE и DELETE выполните SELECT с тем же WHERE</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a2">
+      <h4><span class="op">INSERT INTO</span> одна запись</h4>
+      <div class="why">Добавляет в таблицу одну новую строку: список полей затем список значений.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>INSERT INTO таблица (поле1, поле2)
+VALUES (значение1, значение2);</pre>
+      <div class="lbl">Пример — одно значение</div>
+<pre>INSERT INTO Products (ProductName, UnitPrice)
+VALUES ("Стол", 25000);</pre>
+      <div class="ba">
+        <div class="rows">
+          <div class="rh"><span>ProductName</span><span>UnitPrice</span></div>
+          <div class="r"><span>Стул</span><span>4500</span></div>
+          <div class="r"><span>Лампа</span><span>1200</span></div>
+        </div>
+        <div class="arr">
+          <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2,11 H22" stroke="#0F766E" stroke-width="2"/><path d="M21,6.5 L28,11 L21,15.5 Z" fill="#0F766E"/></svg>
+          <div class="t">INSERT</div>
+        </div>
+        <div class="rows">
+          <div class="rh"><span>ProductName</span><span>UnitPrice</span></div>
+          <div class="r"><span>Стул</span><span>4500</span></div>
+          <div class="r"><span>Лампа</span><span>1200</span></div>
+          <div class="r hl"><span>Стол</span><span>25000</span></div>
+        </div>
+      </div>
+      <div class="res">Результат: строка <b>«Стол»</b> добавлена в конец таблицы; ID ей присвоит счётчик.</div>
+    </div>
+
+    <div class="card a2">
+      <h4><span class="op">INSERT INTO ... SELECT</span> несколько записей</h4>
+      <div class="why">Копирует в таблицу сразу набор строк, отобранных запросом SELECT.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>INSERT INTO таблица_приёмник (список полей)
+SELECT ... FROM ... [WHERE ...];</pre>
+      <div class="lbl">Пример — несколько значений (архивация)</div>
+<pre>INSERT INTO Products_Archive
+SELECT * FROM Products
+WHERE UnitPrice < 5000;</pre>
+      <div class="ba">
+        <div class="rows">
+          <div class="rh"><span>Products</span><span>цена</span></div>
+          <div class="r"><span>Стул</span><span>4500</span></div>
+          <div class="r hit"><span>Лампа</span><span>1200</span></div>
+          <div class="r"><span>Стол</span><span>25000</span></div>
+        </div>
+        <div class="arr">
+          <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2,11 H22" stroke="#0F766E" stroke-width="2"/><path d="M21,6.5 L28,11 L21,15.5 Z" fill="#0F766E"/></svg>
+          <div class="t">копия</div>
+        </div>
+        <div class="rows">
+          <div class="rh"><span>Products_Archive</span></div>
+          <div class="r hl"><span>Лампа · 1200</span></div>
+        </div>
+      </div>
+      <div class="res">Результат: все строки с ценой ниже 5000 попали в архив одной командой.</div>
+    </div>
+
+    <div class="card a2">
+      <h4><span class="op">UPDATE</span> изменить одно поле</h4>
+      <div class="why">Меняет значения полей у записей, отобранных условием WHERE. Без WHERE изменятся все строки!</div>
+      <div class="lbl">Синтаксис</div>
+<pre>UPDATE таблица SET поле = значение
+WHERE условие;</pre>
+      <div class="lbl">Пример — одно значение</div>
+<pre>UPDATE Products SET UnitPrice = 30000
+WHERE ID = 1;</pre>
+      <div class="ba">
+        <div class="rows">
+          <div class="rh"><span>ID</span><span>UnitPrice</span></div>
+          <div class="r hl"><span>1</span><span>25000</span></div>
+          <div class="r"><span>2</span><span>1200</span></div>
+        </div>
+        <div class="arr">
+          <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2,11 H22" stroke="#0F766E" stroke-width="2"/><path d="M21,6.5 L28,11 L21,15.5 Z" fill="#0F766E"/></svg>
+          <div class="t">UPDATE</div>
+        </div>
+        <div class="rows">
+          <div class="rh"><span>ID</span><span>UnitPrice</span></div>
+          <div class="r hl"><span>1</span><span>30000</span></div>
+          <div class="r"><span>2</span><span>1200</span></div>
+        </div>
+      </div>
+      <div class="res">Результат: цена записи ID = 1 изменена на 30000; остальные не тронуты.</div>
+    </div>
+
+    <div class="card a2">
+      <h4><span class="op">UPDATE</span> несколько полей и выражения</h4>
+      <div class="why">В SET через запятую можно обновить сразу несколько полей — в том числе выражениями над другими полями.</div>
+      <div class="lbl">Пример — несколько значений сразу</div>
+<pre>UPDATE Products
+SET CategoryGroup = "Электроника",
+    UnitPriceNum = CCur(Val(UnitPrice))
+WHERE Category IN ("Телефоны", "Компьютеры");</pre>
+      <div class="ba">
+        <div class="rows">
+          <div class="rh"><span>до</span><span>Group / Num</span></div>
+          <div class="r hl"><span>Телефон</span><span>Null · Null</span></div>
+          <div class="r"><span>Стол</span><span>Мебель · 25000</span></div>
+        </div>
+        <div class="arr">
+          <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2,11 H22" stroke="#0F766E" stroke-width="2"/><path d="M21,6.5 L28,11 L21,15.5 Z" fill="#0F766E"/></svg>
+          <div class="t">2 поля</div>
+        </div>
+        <div class="rows">
+          <div class="rh"><span>после</span><span>Group / Num</span></div>
+          <div class="r hl"><span>Телефон</span><span>Электр. · 12000</span></div>
+          <div class="r"><span>Стол</span><span>Мебель · 25000</span></div>
+        </div>
+      </div>
+      <div class="res">Результат: у отобранных категорий заполнены сразу два поля; текст цены превращён в число.</div>
+    </div>
+
+    <div class="card a2">
+      <h4><span class="op">DELETE</span> удаление записей</h4>
+      <div class="why">Удаляет целиком строки, отобранные условием WHERE. Без WHERE удалятся все данные таблицы!</div>
+      <div class="lbl">Синтаксис</div>
+<pre>DELETE FROM таблица WHERE условие;</pre>
+      <div class="lbl">Пример — одна или несколько записей</div>
+<pre>DELETE FROM Products WHERE ID = 1;</pre>
+      <div class="ba">
+        <div class="rows">
+          <div class="rh"><span>ID</span><span>ProductName</span></div>
+          <div class="r hl"><span>1</span><span>Стол</span></div>
+          <div class="r"><span>2</span><span>Лампа</span></div>
+        </div>
+        <div class="arr">
+          <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2,11 H22" stroke="#0F766E" stroke-width="2"/><path d="M21,6.5 L28,11 L21,15.5 Z" fill="#0F766E"/></svg>
+          <div class="t">DELETE</div>
+        </div>
+        <div class="rows">
+          <div class="rh"><span>ID</span><span>ProductName</span></div>
+          <div class="r"><span>2</span><span>Лампа</span></div>
+        </div>
+      </div>
+      <div class="res">Результат: строка ID = 1 удалена целиком; поля удалять по отдельности нельзя.</div>
+    </div>
+
+    <div class="card a2">
+      <h4>Порядок безопасного изменения</h4>
+      <div class="why">UPDATE и DELETE нельзя отменить в Access — сначала посмотрите, что попадёт под условие.</div>
+      <div class="lbl">Схема безопасной проверки</div>
+      <svg viewBox="0 0 560 86" font-family="Carlito, sans-serif">
+        <rect x="12" y="14" width="150" height="52" rx="7" fill="#F0FDF4" stroke="#15803D" stroke-width="1.3"/>
+        <text x="87" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#15803D">1 · SELECT</text>
+        <text x="87" y="53" text-anchor="middle" font-size="10.5" fill="#166534">с тем же WHERE</text>
+        <path d="M166,40 H206" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M206,36.5 L213,40 L206,43.5 Z" fill="#64748B"/>
+        <rect x="218" y="14" width="150" height="52" rx="7" fill="#FFFBEB" stroke="#B45309" stroke-width="1.3"/>
+        <text x="293" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309">2 · Проверка строк</text>
+        <text x="293" y="53" text-anchor="middle" font-size="10.5" fill="#92400E">те ли записи отобраны?</text>
+        <path d="M372,40 H412" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M412,36.5 L419,40 L412,43.5 Z" fill="#64748B"/>
+        <rect x="424" y="14" width="124" height="52" rx="7" fill="#EFFCF9" stroke="#0F766E" stroke-width="1.3"/>
+        <text x="486" y="35" text-anchor="middle" font-size="12" font-weight="700" fill="#0F766E">3 · UPDATE/DELETE</text>
+        <text x="486" y="53" text-anchor="middle" font-size="10.5" fill="#115E59">только теперь</text>
+      </svg>
+      <div class="res">Пример: для <span class="r">DELETE FROM Products WHERE ID = 1;</span> сначала выполните <span class="r">SELECT * FROM Products WHERE ID = 1;</span></div>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 2 из 12</div>
+    <div class="r">Access 2007–2016 · DML</div>
+  </div>
+
+</div>
+</body>
+</html>

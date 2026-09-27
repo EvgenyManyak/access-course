@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 9 — Итоговые функции и группировка</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a8">
+
+  <div class="phead">
+    <div class="pnum">9</div>
+    <div class="tt">
+      <h1>Итоговые функции и группировка</h1>
+      <div class="psub">Count · Sum · Avg · Min · Max · GROUP BY · HAVING — от таблицы записей к итоговой таблице</div>
+    </div>
+    <div class="pchip">Итог по строкам делает одна функция — вместо ручного подсчёта</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a8">
+      <h4><span class="op">Count</span> количество строк</h4>
+      <div class="why">Count(*) считает все строки выборки; Count(поле) — только заполненные (без Null).</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>SELECT Count(*) AS Количество
+FROM Products;</pre>
+      <div class="ba">
+        <div class="rows">
+          <div class="rh"><span>ProductName</span></div>
+          <div class="r"><span>Стол</span></div>
+          <div class="r"><span>Стул</span></div>
+          <div class="r"><span>Лампа</span></div>
+          <div class="r"><span>Мышь</span></div>
+        </div>
+        <div class="arr">
+          <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2,11 H22" stroke="#15803D" stroke-width="2"/><path d="M21,6.5 L28,11 L21,15.5 Z" fill="#15803D"/></svg>
+          <div class="t">Count</div>
+        </div>
+        <div class="rows">
+          <div class="rh"><span>Количество</span></div>
+          <div class="r hl"><span>4</span></div>
+        </div>
+      </div>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <circle cx="80" cy="16" r="8" fill="#D1FAE5" stroke="#15803D" stroke-width="1.2"/>
+        <circle cx="118" cy="16" r="8" fill="#D1FAE5" stroke="#15803D" stroke-width="1.2"/>
+        <circle cx="156" cy="16" r="8" fill="#D1FAE5" stroke="#15803D" stroke-width="1.2"/>
+        <circle cx="194" cy="16" r="8" fill="#D1FAE5" stroke="#15803D" stroke-width="1.2"/>
+        <path d="M137,28 V40" stroke="#15803D" stroke-width="1.4" stroke-dasharray="3 2"/>
+        <rect x="240" y="10" width="130" height="28" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+        <text x="305" y="29" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#166534">Count = 4</text>
+        <text x="390" y="20" font-size="10.5" font-weight="700" fill="#15803D">все строки → одно число</text>
+        <text x="390" y="38" font-size="10" fill="#41505F">Count(поле) не считает Null-строки</text>
+      </svg>
+      <div class="res">Результат: одно число — сколько записей удовлетворило запросу.</div>
+    </div>
+
+    <div class="card a8">
+      <h4><span class="op">Sum · Avg</span> сумма и среднее</h4>
+      <div class="why">Sum складывает значения столбца, Avg считает среднее. Работают только с числами и деньгами.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>SELECT Sum(UnitPrice) AS Сумма,
+       Avg(UnitPrice) AS СредняяЦена
+FROM Products;</pre>
+      <svg viewBox="0 0 560 96" font-family="Carlito, sans-serif">
+        <g>
+          <rect x="70" y="52" width="52" height="26" rx="3" fill="#F0FDF4" stroke="#15803D" stroke-width="1.1"/>
+          <rect x="140" y="30" width="52" height="48" rx="3" fill="#D1FAE5" stroke="#15803D" stroke-width="1.1"/>
+          <rect x="210" y="64" width="52" height="14" rx="3" fill="#F0FDF4" stroke="#15803D" stroke-width="1.1"/>
+        </g>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828" text-anchor="middle">
+          <text x="96" y="46">4500</text><text x="166" y="24">25000</text><text x="236" y="58">1200</text>
+        </g>
+        <line x1="60" y1="78" x2="280" y2="78" stroke="#94A3B8" stroke-width="1.2"/>
+        <line x1="60" y1="44" x2="280" y2="44" stroke="#B45309" stroke-width="1.4" stroke-dasharray="6 4"/>
+        <text x="288" y="48" font-size="10.5" font-weight="700" fill="#B45309">Avg = 10 233</text>
+        <text x="288" y="82" font-size="10.5" font-weight="700" fill="#15803D">Sum = 30 700</text>
+        <text x="60" y="94" font-size="10" fill="#64748B">цены товаров: среднее — уровень, сумма — весь столбик</text>
+      </svg>
+      <div class="res">Результат: <span class="r">Сумма 30700</span> и <span class="r">СредняяЦена 10233,33</span> — итог по всей таблице разом.</div>
+    </div>
+
+    <div class="card a8">
+      <h4><span class="op">Min · Max</span> минимум и максимум</h4>
+      <div class="why">Крайние значения столбца: самая дешёвая и дорогая позиция, первая и последняя дата.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>SELECT Min(UnitPrice) AS Минимум,
+       Max(UnitPrice) AS Максимум
+FROM Products;</pre>
+      <svg viewBox="0 0 560 84" font-family="Carlito, sans-serif">
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10.5" fill="#101828">
+          <rect x="80" y="8" width="240" height="16" rx="3" fill="#FEF2F2"/>
+          <text x="90" y="20.5">Мышь · 800</text>
+          <rect x="80" y="28" width="240" height="16" rx="3" fill="#F8FAFC"/>
+          <text x="90" y="40.5">Лампа · 1200</text>
+          <rect x="80" y="48" width="240" height="16" rx="3" fill="#F8FAFC"/>
+          <text x="90" y="60.5">Стул · 4500</text>
+          <rect x="80" y="68" width="240" height="16" rx="3" fill="#FEF2F2"/>
+          <text x="90" y="80.5">Стол · 25000</text>
+        </g>
+        <text x="340" y="22" font-size="11" font-weight="700" fill="#B91C1C">Min = 800</text>
+        <text x="340" y="80" font-size="11" font-weight="700" fill="#15803D">Max = 25000</text>
+        <text x="340" y="44" font-size="10" fill="#64748B">работают и с датами:</text>
+        <text x="340" y="59" font-size="10" fill="#64748B">Min = первая, Max = последняя</text>
+      </svg>
+      <div class="res">Результат: вилка цен <span class="r">800 … 25000</span> — сразу видно разброс ассортимента.</div>
+    </div>
+
+    <div class="card a8">
+      <h4><span class="op">GROUP BY</span> группировка</h4>
+      <div class="why">Делит строки на группы по значению поля и считает агрегат для каждой группы отдельно.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>SELECT Category, Count(*) AS Количество
+FROM Products
+GROUP BY Category;</pre>
+      <div class="ba">
+        <div class="rows">
+          <div class="rh"><span>Category</span><span>товар</span></div>
+          <div class="r"><span>Электроника</span><span>Мышь</span></div>
+          <div class="r"><span>Электроника</span><span>Лампа</span></div>
+          <div class="r"><span>Авто</span><span>Щётка</span></div>
+        </div>
+        <div class="arr">
+          <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2,11 H22" stroke="#15803D" stroke-width="2"/><path d="M21,6.5 L28,11 L21,15.5 Z" fill="#15803D"/></svg>
+          <div class="t">группы</div>
+        </div>
+        <div class="rows">
+          <div class="rh"><span>Category</span><span>Кол-во</span></div>
+          <div class="r hl"><span>Электроника</span><span>2</span></div>
+          <div class="r hl"><span>Авто</span><span>1</span></div>
+        </div>
+      </div>
+      <div class="res">Результат: каждая категория — одна строка итога; всё, что вне SELECT-агрегатов, попадает в GROUP BY.</div>
+    </div>
+
+    <div class="card a8">
+      <h4><span class="op">HAVING</span> фильтр по группам</h4>
+      <div class="why">WHERE отбирает строки до группировки, HAVING — уже готовые группы по значению агрегата.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>SELECT Category, Avg(UnitPrice) AS СредняяЦена
+FROM Products
+GROUP BY Category
+HAVING Avg(UnitPrice) > 10000;</pre>
+      <div class="rows">
+        <div class="rh"><span>группа</span><span>Avg</span><span>проходит?</span></div>
+        <div class="r hit"><span>Электроника</span><span>18500</span><span class="st ok">✓ &gt; 10000</span></div>
+        <div class="r"><span>Мебель</span><span>4500</span><span class="st bad">✗ отсеяна</span></div>
+      </div>
+      <svg viewBox="0 0 560 64" font-family="Carlito, sans-serif">
+        <rect x="90" y="16" width="60" height="34" rx="3" fill="#D1FAE5" stroke="#15803D" stroke-width="1.1"/>
+        <rect x="170" y="42" width="60" height="8" rx="3" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
+        <line x1="80" y1="50" x2="250" y2="50" stroke="#94A3B8" stroke-width="1.2"/>
+        <line x1="80" y1="24" x2="250" y2="24" stroke="#B91C1C" stroke-width="1.4" stroke-dasharray="6 4"/>
+        <text x="96" y="12" font-family="DejaVu Sans Mono, monospace" font-size="9" fill="#166534">18500</text>
+        <text x="176" y="38" font-family="DejaVu Sans Mono, monospace" font-size="9" fill="#64748B">4500</text>
+        <text x="256" y="28" font-size="9.5" font-weight="700" fill="#B91C1C">порог HAVING &gt; 10000</text>
+        <text x="256" y="46" font-size="9.5" fill="#64748B">столбики ниже пунктира</text>
+        <text x="256" y="60" font-size="9.5" fill="#64748B">отсеиваются целиком</text>
+      </svg>
+      <div class="res">Результат: остались только «дорогие» категории; агрегат в HAVING можно писать повторно.</div>
+    </div>
+
+    <div class="card a8">
+      <h4>Мини-диаграммы итогов по категориям</h4>
+      <div class="why">То, что считают Sum, Count и Avg по группам — на глаз, bar-диаграммой с подписями значений.</div>
+      <svg viewBox="0 0 560 150" font-family="Carlito, sans-serif">
+        <!-- Count -->
+        <text x="30" y="18" font-size="11" font-weight="700" fill="#15803D">Count — сколько товаров в категории</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#101828" text-anchor="middle">
+          <rect x="60" y="26" width="60" height="20" rx="3" fill="#D1FAE5" stroke="#15803D" stroke-width="1"/><text x="90" y="40">2</text>
+          <rect x="140" y="26" width="30" height="20" rx="3" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/><text x="155" y="40">1</text>
+          <rect x="190" y="26" width="60" height="20" rx="3" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/><text x="220" y="40">2</text>
+          <text x="90" y="60" fill="#41505F">Эл-ка</text><text x="155" y="60" fill="#41505F">Авто</text><text x="220" y="60" fill="#41505F">Мебель</text>
+        </g>
+        <!-- Sum -->
+        <text x="300" y="18" font-size="11" font-weight="700" fill="#15803D">Sum — выручка категории</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#101828" text-anchor="middle">
+          <rect x="330" y="26" width="46" height="20" rx="3" fill="#D1FAE5" stroke="#15803D" stroke-width="1"/><text x="353" y="40">2,0</text>
+          <rect x="396" y="26" width="120" height="20" rx="3" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/><text x="456" y="40">85,0</text>
+          <rect x="536" y="26" width="0" height="20" fill="none"/>
+          <text x="353" y="60" fill="#41505F">2,0 тыс</text><text x="456" y="60" fill="#41505F">85,0 тыс</text>
+        </g>
+        <!-- Avg -->
+        <text x="30" y="84" font-size="11" font-weight="700" fill="#15803D">Avg — средняя цена</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#101828" text-anchor="middle">
+          <rect x="60" y="94" width="90" height="20" rx="3" fill="#D1FAE5" stroke="#15803D" stroke-width="1"/><text x="105" y="108">18,5</text>
+          <rect x="170" y="94" width="120" height="20" rx="3" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/><text x="230" y="108">85,0</text>
+          <rect x="310" y="94" width="70" height="20" rx="3" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/><text x="345" y="108">14,8</text>
+          <text x="105" y="128" fill="#41505F">18,5 тыс</text><text x="230" y="128" fill="#41505F">85,0 тыс</text><text x="345" y="128" fill="#41505F">14,8 тыс</text>
+        </g>
+        <text x="420" y="104" font-size="10" fill="#64748B">штрих-сетка не нужна:</text>
+        <text x="420" y="118" font-size="10" fill="#64748B">значения подписаны</text>
+      </svg>
+      <div class="res">Результат: диаграммы строятся из того же запроса с GROUP BY — Count, Sum, Avg по каждой категории.</div>
+    </div>
+
+    <div class="card a8 wide">
+      <h4>Переход: таблица записей → группировка → итоговая таблица</h4>
+      <svg viewBox="0 0 1180 168" font-family="Carlito, sans-serif">
+        <!-- исходная таблица -->
+        <rect x="24" y="10" width="300" height="128" rx="7" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.3"/>
+        <rect x="24" y="10" width="300" height="22" rx="7" fill="#F1F5F9"/>
+        <text x="174" y="25" text-anchor="middle" font-size="11.5" font-weight="700" fill="#334155">Products — записи</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10.5" fill="#101828">
+          <text x="40" y="50">Электроника · Мышь · 800</text>
+          <text x="40" y="68">Электроника · Лампа · 1200</text>
+          <text x="40" y="86">Авто · Щётка · 350</text>
+          <text x="40" y="104">Мебель · Стол · 25000</text>
+          <text x="40" y="122">Мебель · Стул · 4500</text>
+        </g>
+        <path d="M332,74 H376" stroke="#64748B" stroke-width="1.7"/>
+        <path d="M376,70.5 L383,74 L376,77.5 Z" fill="#64748B"/>
+        <text x="354" y="62" text-anchor="middle" font-size="10.5" font-weight="700" fill="#15803D">GROUP BY</text>
+        <!-- группы -->
+        <rect x="390" y="10" width="330" height="128" rx="7" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.3"/>
+        <rect x="390" y="10" width="330" height="22" rx="7" fill="#F1F5F9"/>
+        <text x="555" y="25" text-anchor="middle" font-size="11.5" font-weight="700" fill="#334155">строки собраны в группы</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10.5">
+          <rect x="406" y="40" width="300" height="24" rx="4" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/>
+          <text x="418" y="56" fill="#101828">Электроника</text><text x="636" y="56" text-anchor="end" fill="#15803D" font-weight="700">2 шт · 2 000</text>
+          <rect x="406" y="70" width="300" height="24" rx="4" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/>
+          <text x="418" y="86" fill="#101828">Авто</text><text x="636" y="86" text-anchor="end" fill="#15803D" font-weight="700">1 шт · 350</text>
+          <rect x="406" y="100" width="300" height="24" rx="4" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/>
+          <text x="418" y="116" fill="#101828">Мебель</text><text x="636" y="116" text-anchor="end" fill="#15803D" font-weight="700">2 шт · 29 500</text>
+        </g>
+        <path d="M728,74 H772" stroke="#64748B" stroke-width="1.7"/>
+        <path d="M772,70.5 L779,74 L772,77.5 Z" fill="#64748B"/>
+        <text x="754" y="62" text-anchor="middle" font-size="10.5" font-weight="700" fill="#15803D">Count · Sum</text>
+        <!-- итоги -->
+        <rect x="786" y="10" width="370" height="128" rx="7" fill="#FFFFFF" stroke="#15803D" stroke-width="1.4"/>
+        <rect x="786" y="10" width="370" height="22" rx="7" fill="#D1FAE5"/>
+        <text x="971" y="25" text-anchor="middle" font-size="11.5" font-weight="700" fill="#166534">итоговая таблица</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10.5" fill="#101828">
+          <text x="802" y="52">Category</text><text x="940" y="52">Count(*)</text><text x="1050" y="52">Sum</text>
+          <line x1="786" x2="1156" y1="58" y2="58" stroke="#E4E8EF"/>
+          <text x="802" y="76">Электроника</text><text x="940" y="76">2</text><text x="1050" y="76">2000</text>
+          <text x="802" y="94">Авто</text><text x="940" y="94">1</text><text x="1050" y="94">350</text>
+          <text x="802" y="112">Мебель</text><text x="940" y="112">2</text><text x="1050" y="112">29500</text>
+        </g>
+        <text x="971" y="152" text-anchor="middle" font-size="10.5" fill="#41505F">SELECT Category, Count(*) AS Количество, Sum(UnitPrice) AS Сумма FROM Products GROUP BY Category;</text>
+      </svg>
+      <div class="res">Результат: пять товарных строк превратились в три итоговые — по одной на каждую группу; агрегаты считаются внутри групп.</div>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 9 из 12</div>
+    <div class="r">Access 2007–2016 · агрегаты</div>
+  </div>
+
+</div>
+</body>
+</html>

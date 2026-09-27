@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 4 — Условия отбора (WHERE)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a4">
+
+  <div class="phead">
+    <div class="pnum">4</div>
+    <div class="tt">
+      <h1>Условия отбора — WHERE</h1>
+      <div class="psub">= · IN · BETWEEN · LIKE · IS NULL / IS NOT NULL · AND · OR · NOT — каждый оператор фильтрует строки по-своему</div>
+    </div>
+    <div class="pchip">Текст — в кавычках "так"; даты — между решётками #2024-03-01#</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a4">
+      <h4><span class="op">=</span> точное равенство</h4>
+      <div class="why">Оставляет записи, у которых поле равно одному конкретному значению.</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE Category = "Электроника";</pre>
+      <div class="rows">
+        <div class="rh"><span>Category</span><span>проходит?</span></div>
+        <div class="r hit"><span>Электроника</span><span class="st ok">✓</span></div>
+        <div class="r"><span>Авто</span><span class="st bad">✗</span></div>
+      </div>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <circle cx="118" cy="9" r="5" fill="#CBD5E1"/>
+        <circle cx="140" cy="9" r="5" fill="#15803D"/>
+        <circle cx="162" cy="9" r="5" fill="#CBD5E1"/>
+        <path d="M100,17 H180 L156,33 H124 Z" fill="#FFFBEB" stroke="#B45309" stroke-width="1.3"/>
+        <text x="140" y="29" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">=</text>
+        <circle cx="140" cy="45" r="5" fill="#15803D"/>
+        <text x="152" y="49" font-size="10" font-weight="700" fill="#15803D">прошла</text>
+        <circle cx="84" cy="45" r="5" fill="#CBD5E1"/>
+        <circle cx="196" cy="45" r="5" fill="#CBD5E1"/>
+        <text x="208" y="49" font-size="10" fill="#64748B">мимо</text>
+        <text x="266" y="16" font-size="10.5" font-weight="700" fill="#B45309">фильтр-воронка</text>
+        <text x="266" y="32" font-size="10" fill="#41505F">сквозь неё проходят только записи,</text>
+        <text x="266" y="46" font-size="10" fill="#41505F">у которых поле точно равно значению</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4><span class="op">IN</span> список значений</h4>
+      <div class="why">Равенство любому из перечисленных значений — короткая замена цепочке OR.</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE Category IN ("Телефоны", "Компьютеры");</pre>
+      <div class="rows">
+        <div class="rh"><span>Category</span><span>проходит?</span></div>
+        <div class="r hit"><span>Телефоны</span><span class="st ok">✓ в списке</span></div>
+        <div class="r hit"><span>Компьютеры</span><span class="st ok">✓ в списке</span></div>
+        <div class="r"><span>Авто</span><span class="st bad">✗ нет</span></div>
+      </div>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <circle cx="150" cy="8" r="5" fill="#15803D"/>
+        <circle cx="230" cy="8" r="5" fill="#15803D"/>
+        <circle cx="300" cy="8" r="5" fill="#CBD5E1"/>
+        <path d="M307,11 L316,5" stroke="#CBD5E1" stroke-width="1.3"/>
+        <path d="M150,14 V20 M230,14 V20" stroke="#15803D" stroke-width="1.2" stroke-dasharray="2 2"/>
+        <rect x="96" y="20" width="250" height="24" rx="7" fill="#FFFBEB" stroke="#B45309" stroke-width="1.3"/>
+        <text x="221" y="36" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#92400E">In ("Телефоны"; "Компьютеры")</text>
+        <circle cx="150" cy="50" r="5" fill="#15803D"/>
+        <circle cx="230" cy="50" r="5" fill="#15803D"/>
+        <text x="360" y="16" font-size="10.5" font-weight="700" fill="#B45309">список-«ловушка»</text>
+        <text x="360" y="32" font-size="10" fill="#41505F">значение сравнивается с каждым</text>
+        <text x="360" y="46" font-size="10" fill="#41505F">элементом списка — короткая запись OR</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4><span class="op">BETWEEN</span> диапазон</h4>
+      <div class="why">Значение внутри отрезка — обе границы включаются в отбор.</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE UnitPrice BETWEEN 1000 AND 50000;</pre>
+      <div class="rows">
+        <div class="rh"><span>UnitPrice</span><span>проходит?</span></div>
+        <div class="r hit"><span>25000</span><span class="st ok">✓ внутри</span></div>
+        <div class="r"><span>750</span><span class="st bad">✗ меньше</span></div>
+      </div>
+      <svg viewBox="0 0 560 26" font-family="Carlito, sans-serif">
+        <line x1="80" y1="14" x2="440" y2="14" stroke="#CBD5E1" stroke-width="3"/>
+        <line x1="140" y1="14" x2="380" y2="14" stroke="#B45309" stroke-width="3.4"/>
+        <circle cx="140" cy="14" r="4.5" fill="#B45309"/><circle cx="380" cy="14" r="4.5" fill="#B45309"/>
+        <text x="140" y="26" text-anchor="middle" font-size="10" fill="#92400E" font-weight="700">1000</text>
+        <text x="380" y="26" text-anchor="middle" font-size="10" fill="#92400E" font-weight="700">50000</text>
+        <text x="60" y="18" text-anchor="end" font-size="10" fill="#64748B">границы входят</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4><span class="op">LIKE</span> шаблон</h4>
+      <div class="why">Сравнение по маске: <b>*</b> — любые символы в любом количестве (в Access), <b>?</b> — один символ.</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE ProductName Like "*телефон*";</pre>
+      <div class="rows">
+        <div class="rh"><span>ProductName</span><span>под маску?</span></div>
+        <div class="r hit"><span>Телефон стационарный</span><span class="st ok">✓</span></div>
+        <div class="r"><span>Стол компьютерный</span><span class="st bad">✗</span></div>
+      </div>
+      <svg viewBox="0 0 560 54" font-family="DejaVu Sans Mono, monospace">
+        <g font-size="10.5" text-anchor="middle">
+          <rect x="70" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="80" y="26" fill="#92400E" font-weight="700">*</text>
+          <rect x="92" y="12" width="20" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="102" y="26" fill="#101828">С</text>
+          <rect x="114" y="12" width="20" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="124" y="26" fill="#101828">о</text>
+          <rect x="136" y="12" width="20" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="146" y="26" fill="#101828">т</text>
+          <rect x="158" y="12" width="20" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="168" y="26" fill="#101828">о</text>
+          <rect x="180" y="12" width="20" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="190" y="26" fill="#101828">в</text>
+          <rect x="202" y="12" width="20" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="212" y="26" fill="#101828">ы</text>
+          <rect x="224" y="12" width="20" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="234" y="26" fill="#101828">й</text>
+          <rect x="246" y="12" width="20" height="20" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/><text x="256" y="26" fill="#94A3B8">␣</text>
+          <rect x="268" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="278" y="26" fill="#92400E">т</text>
+          <rect x="290" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="300" y="26" fill="#92400E">е</text>
+          <rect x="312" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="322" y="26" fill="#92400E">л</text>
+          <rect x="334" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="344" y="26" fill="#92400E">е</text>
+          <rect x="356" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="366" y="26" fill="#92400E">ф</text>
+          <rect x="378" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="388" y="26" fill="#92400E">о</text>
+          <rect x="400" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="410" y="26" fill="#92400E">н</text>
+          <rect x="422" y="12" width="20" height="20" rx="3" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/><text x="432" y="26" fill="#92400E" font-weight="700">*</text>
+        </g>
+        <text x="70" y="48" font-size="9.5" fill="#6B7684" font-family="Carlito, sans-serif">* накрывает любую часть строки — маске подходит</text>
+        <text x="340" y="48" font-size="9.5" fill="#6B7684" font-family="Carlito, sans-serif">? — ровно один символ</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4><span class="op">IS NULL</span> пустое значение</h4>
+      <div class="why">Находит записи, где поле вообще не заполнено (Null). Сравнение <b>= Null не работает</b> — только IS NULL.</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE CategoryGroup IS NULL;</pre>
+      <div class="rows">
+        <div class="rh"><span>CategoryGroup</span><span>проходит?</span></div>
+        <div class="r hit"><span>Null</span><span class="st ok">✓ пусто</span></div>
+        <div class="r"><span>"Электроника"</span><span class="st bad">✗</span></div>
+      </div>
+      <svg viewBox="0 0 560 56" font-family="Carlito, sans-serif">
+        <rect x="60" y="6" width="170" height="20" rx="5" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <text x="145" y="20" text-anchor="middle" font-size="10" font-style="italic" fill="#94A3B8">Null — не заполнено совсем</text>
+        <path d="M238,16 H266" stroke="#15803D" stroke-width="1.5"/>
+        <path d="M266,12.5 L273,16 L266,19.5 Z" fill="#15803D"/>
+        <rect x="282" y="6" width="104" height="20" rx="5" fill="#F0FDF4" stroke="#15803D" stroke-width="1.1"/>
+        <text x="334" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="#15803D">✓ IS NULL</text>
+        <rect x="60" y="32" width="170" height="20" rx="5" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.1"/>
+        <text x="145" y="46" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828">"Электроника"</text>
+        <path d="M238,42 H266" stroke="#B91C1C" stroke-width="1.5"/>
+        <path d="M266,38.5 L273,42 L266,45.5 Z" fill="#B91C1C"/>
+        <rect x="282" y="32" width="104" height="20" rx="5" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.1"/>
+        <text x="334" y="46" text-anchor="middle" font-size="10" font-weight="700" fill="#B91C1C">✗ мимо</text>
+        <text x="404" y="20" font-size="10" fill="#41505F">= Null не работает:</text>
+        <text x="404" y="36" font-size="10" fill="#41505F">сравнение с неизвестным</text>
+        <text x="404" y="50" font-size="10" fill="#41505F">всегда даёт «неизвестно»</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4><span class="op">IS NOT NULL</span> непустое значение</h4>
+      <div class="why">Обратно: отбирает только заполненные поля — полезно перед отчётами и выгрузками.</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE CategoryGroup IS NOT NULL;</pre>
+      <div class="rows">
+        <div class="rh"><span>CategoryGroup</span><span>проходит?</span></div>
+        <div class="r hit"><span>"Электроника"</span><span class="st ok">✓ заполнено</span></div>
+        <div class="r"><span>Null</span><span class="st bad">✗ пропущено</span></div>
+      </div>
+      <svg viewBox="0 0 560 56" font-family="Carlito, sans-serif">
+        <rect x="60" y="6" width="170" height="20" rx="5" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.1"/>
+        <text x="145" y="20" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828">"Электроника"</text>
+        <path d="M238,16 H266" stroke="#15803D" stroke-width="1.5"/>
+        <path d="M266,12.5 L273,16 L266,19.5 Z" fill="#15803D"/>
+        <rect x="282" y="6" width="130" height="20" rx="5" fill="#F0FDF4" stroke="#15803D" stroke-width="1.1"/>
+        <text x="347" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="#15803D">✓ IS NOT NULL</text>
+        <rect x="60" y="32" width="170" height="20" rx="5" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.1" stroke-dasharray="4 3"/>
+        <text x="145" y="46" text-anchor="middle" font-size="10" font-style="italic" fill="#94A3B8">Null</text>
+        <path d="M238,42 H266" stroke="#B91C1C" stroke-width="1.5"/>
+        <path d="M266,38.5 L273,42 L266,45.5 Z" fill="#B91C1C"/>
+        <rect x="282" y="32" width="130" height="20" rx="5" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.1"/>
+        <text x="347" y="46" text-anchor="middle" font-size="10" font-weight="700" fill="#B91C1C">✗ отфильтровано</text>
+        <text x="430" y="20" font-size="10" fill="#41505F">отчёты и выгрузки</text>
+        <text x="430" y="36" font-size="10" fill="#41505F">видят только реальные</text>
+        <text x="430" y="50" font-size="10" fill="#41505F">заполненные данные</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4><span class="op">AND</span> оба условия</h4>
+      <div class="why">Запись проходит, только если выполняются все условия одновременно.</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE Category = "Авто" AND UnitPrice < 10000;</pre>
+      <div class="rows">
+        <div class="rh"><span>запись</span><span>условия</span></div>
+        <div class="r"><span>Авто · 150000</span><span class="st bad">✗ цена</span></div>
+        <div class="r hit"><span>Авто · 8500</span><span class="st ok">✓ и то и то</span></div>
+      </div>
+      <svg viewBox="0 0 560 60" font-family="Carlito, sans-serif">
+        <circle cx="205" cy="30" r="24" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.4"/>
+        <circle cx="241" cy="30" r="24" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.4"/>
+        <path d="M223,14.1 A24,24 0 0 1 223,45.9 A24,24 0 0 1 223,14.1 Z" fill="#15803D" opacity="0.92"/>
+        <text x="183" y="34" font-size="11" font-weight="700" fill="#1D4ED8">A</text>
+        <text x="265" y="34" font-size="11" font-weight="700" fill="#1D4ED8">B</text>
+        <text x="223" y="33.5" text-anchor="middle" font-size="8.5" font-weight="700" fill="#FFFFFF">А∩B</text>
+        <text x="300" y="20" font-size="10.5" font-weight="700" fill="#B45309">пересечение кружков</text>
+        <text x="300" y="36" font-size="10" fill="#41505F">запись выживает, только если верно</text>
+        <text x="300" y="50" font-size="10" fill="#41505F">и первое, и второе условие сразу</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4><span class="op">OR</span> хотя бы одно</h4>
+      <div class="why">Запись проходит, если выполняется хотя бы одно из условий.</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE Category = "Авто" OR Category = "Дом и мебель";</pre>
+      <div class="rows">
+        <div class="rh"><span>Category</span><span>условия</span></div>
+        <div class="r hit"><span>Авто</span><span class="st ok">✓ первое</span></div>
+        <div class="r hit"><span>Дом и мебель</span><span class="st ok">✓ второе</span></div>
+        <div class="r"><span>Электроника</span><span class="st bad">✗ ни одно</span></div>
+      </div>
+      <svg viewBox="0 0 560 60" font-family="Carlito, sans-serif">
+        <circle cx="205" cy="30" r="24" fill="#15803D" opacity="0.88"/>
+        <circle cx="241" cy="30" r="24" fill="#15803D" opacity="0.88"/>
+        <text x="183" y="34" font-size="11" font-weight="700" fill="#FFFFFF">A</text>
+        <text x="265" y="34" font-size="11" font-weight="700" fill="#FFFFFF">B</text>
+        <text x="223" y="33.5" text-anchor="middle" font-size="8.5" font-weight="700" fill="#FFFFFF">A∪B</text>
+        <text x="300" y="20" font-size="10.5" font-weight="700" fill="#B45309">объединение кружков</text>
+        <text x="300" y="36" font-size="10" fill="#41505F">запись проходит, если верно хотя бы</text>
+        <text x="300" y="50" font-size="10" fill="#41505F">одно из условий — весь силуэт целиком</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4><span class="op">NOT</span> отрицание</h4>
+      <div class="why">Отбирает записи, не удовлетворяющие условию — «всё, кроме…».</div>
+      <div class="lbl">Пример</div>
+<pre>WHERE NOT Category = "Электроника";</pre>
+      <div class="rows">
+        <div class="rh"><span>Category</span><span>NOT =</span></div>
+        <div class="r"><span>Электроника</span><span class="st bad">✗ исключена</span></div>
+        <div class="r hit"><span>Авто</span><span class="st ok">✓ проходит</span></div>
+      </div>
+      <svg viewBox="0 0 560 60" font-family="Carlito, sans-serif">
+        <circle cx="205" cy="30" r="30" fill="#F0FDF4" stroke="#15803D" stroke-width="1.4"/>
+        <circle cx="205" cy="30" r="16" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.3"/>
+        <text x="205" y="34" text-anchor="middle" font-size="9.5" font-weight="700" fill="#B91C1C">A</text>
+        <text x="240" y="34" font-size="13" font-weight="700" fill="#15803D">✓</text>
+        <text x="300" y="20" font-size="10.5" font-weight="700" fill="#B45309">всё, кроме кружка A</text>
+        <text x="300" y="36" font-size="10" fill="#41505F">зелёное кольцо — записи, которые</text>
+        <text x="300" y="50" font-size="10" fill="#41505F">условие пропускает; внутри — отброшенные</text>
+      </svg>
+    </div>
+
+    <div class="card a4">
+      <h4>Приоритет: NOT → AND → OR</h4>
+      <div class="why">Сначала выполняется NOT, затем AND, затем OR. Скобки меняют порядок и делают условие читаемым.</div>
+      <div class="lbl">Пример со скобками</div>
+<pre>WHERE Category = "Авто"
+   OR (Category = "Дом и мебель" AND UnitPrice < 10000);</pre>
+      <div class="rows">
+        <div class="rh"><span>без скобок</span><span>ошибка смысла</span></div>
+        <div class="r"><span>Дом и мебель · 25000</span><span class="st bad">✗ пройдёт?</span></div>
+        <div class="r hit"><span>со скобками</span><span class="st ok">✓ отсеется</span></div>
+      </div>
+      <svg viewBox="0 0 560 58" font-family="Carlito, sans-serif">
+        <rect x="24" y="17" width="148" height="24" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.2"/>
+        <text x="98" y="33" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#1E40AF">C = "Авто"</text>
+        <text x="184" y="33" font-size="11.5" font-weight="700" fill="#B45309">OR</text>
+        <rect x="222" y="8" width="314" height="42" rx="8" fill="#FFFBEB" stroke="#B45309" stroke-width="1.2" stroke-dasharray="5 3"/>
+        <text x="234" y="20" font-size="9" font-weight="700" fill="#92400E">скобки = одна посылка</text>
+        <rect x="238" y="26" width="134" height="18" rx="5" fill="#FFFFFF" stroke="#94A3B8"/>
+        <text x="305" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="8.5" fill="#334155">C = "Дом и мебель"</text>
+        <text x="380" y="39" font-size="10" font-weight="700" fill="#B45309">AND</text>
+        <rect x="402" y="26" width="122" height="18" rx="5" fill="#FFFFFF" stroke="#94A3B8"/>
+        <text x="463" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="8.5" fill="#334155">цена &lt; 10000</text>
+      </svg>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 4 из 12</div>
+    <div class="r">Access 2007–2016 · WHERE</div>
+  </div>
+
+</div>
+</body>
+</html>

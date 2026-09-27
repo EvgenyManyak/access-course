@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 1 — DDL — создание и изменение структуры</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a1">
+
+  <div class="phead">
+    <div class="pnum">1</div>
+    <div class="tt">
+      <h1>DDL — создание и изменение структуры</h1>
+      <div class="psub">CREATE TABLE · ALTER TABLE · DROP TABLE · первичный и внешний ключи (PK → FK)</div>
+    </div>
+    <div class="pchip">В русской локали Access в выражениях часто используется <b>;</b> вместо <b>,</b></div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a1">
+      <h4><span class="op">CREATE TABLE</span> создание таблицы</h4>
+      <div class="why">Создаёт новую таблицу: перечисляются поля, их типы данных и ключ.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>CREATE TABLE таблица (
+  поле1 тип [PRIMARY KEY],
+  поле2 тип, ...);</pre>
+      <div class="lbl">Пример — одна таблица</div>
+<pre>CREATE TABLE Products (
+  ID AUTOINCREMENT PRIMARY KEY,
+  ProductName TEXT(100),
+  UnitPrice CURRENCY);</pre>
+      <div class="res">Результат: пустая таблица <b>Products</b> с ключевым полем <span class="r">ID</span>, текстовым и денежным полями.</div>
+      <svg viewBox="0 0 560 82" font-family="Carlito, sans-serif">
+        <rect x="130" y="4" width="260" height="74" rx="6" fill="#FFFFFF" stroke="#4338CA" stroke-width="1.4"/>
+        <path d="M130,10 A6,6 0 0 1 136,4 H384 A6,6 0 0 1 390,10 V20 H130 Z" fill="#EEF2FF"/>
+        <text x="260" y="16" text-anchor="middle" font-size="11.5" font-weight="700" fill="#4338CA">Products</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10.5" fill="#101828">
+          <text x="176" y="34">ID</text>
+          <text x="176" y="51">ProductName</text>
+          <text x="176" y="68">UnitPrice</text>
+        </g>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#94A3B8">
+          <text x="334" y="34">Счётчик</text>
+          <text x="334" y="51">TEXT(100)</text>
+          <text x="334" y="68">CURRENCY</text>
+        </g>
+        <g stroke="#D97706" stroke-width="1.3" fill="none">
+          <circle cx="148" cy="30" r="2.4"/><path d="M150.4,30 H158 M155,30 V33"/>
+        </g>
+        <rect x="298" y="24" width="26" height="13" rx="3" fill="#FEF3C7" stroke="#B45309" stroke-width="1"/>
+        <text x="311" y="34" text-anchor="middle" font-size="9" font-weight="700" fill="#92400E">PK</text>
+        <text x="408" y="24" font-size="11.5" font-weight="700" fill="#4338CA">поля и типы</text>
+        <text x="408" y="42" font-size="10.5" fill="#41505F">в скобках через запятую;</text>
+        <text x="408" y="59" font-size="10.5" fill="#41505F">записей пока 0 —</text>
+        <text x="408" y="76" font-size="10.5" fill="#41505F">структура готова</text>
+      </svg>
+    </div>
+
+    <div class="card a1">
+      <h4><span class="op">ALTER TABLE</span> изменение структуры</h4>
+      <div class="why">Добавляет новое поле или меняет тип существующего — без пересоздания таблицы.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>ALTER TABLE таблица ADD COLUMN имя тип;
+ALTER TABLE таблица ALTER COLUMN имя тип;</pre>
+      <div class="lbl">Пример — добавить поле</div>
+<pre>ALTER TABLE Products
+  ADD COLUMN CategoryGroup TEXT(40);</pre>
+      <div class="lbl">Пример — расширить поле до 255 символов</div>
+<pre>ALTER TABLE Products
+  ALTER COLUMN CategoryGroup TEXT(255);</pre>
+      <div class="res">Результат: у всех существующих записей новое поле равно <span class="r">Null</span>, пока его не заполнят.</div>
+      <svg viewBox="0 0 560 80" font-family="Carlito, sans-serif">
+        <rect x="50" y="4" width="230" height="66" rx="6" fill="#FFFFFF" stroke="#4338CA" stroke-width="1.4"/>
+        <path d="M50,10 A6,6 0 0 1 56,4 H274 A6,6 0 0 1 280,10 V20 H50 Z" fill="#EEF2FF"/>
+        <text x="165" y="16" text-anchor="middle" font-size="11.5" font-weight="700" fill="#4338CA">Products — было</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10.5" fill="#101828">
+          <text x="90" y="34">ID · ProductName</text>
+          <text x="90" y="51">UnitPrice</text>
+        </g>
+        <rect x="54" y="59" width="222" height="8" rx="2" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="0.8" stroke-dasharray="3 2"/>
+        <text x="165" y="66" text-anchor="middle" font-size="8" fill="#94A3B8" font-family="DejaVu Sans Mono, monospace">пусто</text>
+        <path d="M290,36 H346" stroke="#4338CA" stroke-width="1.6"/>
+        <path d="M346,32.5 L353,36 L346,39.5 Z" fill="#4338CA"/>
+        <text x="321" y="26" text-anchor="middle" font-size="10.5" font-weight="700" fill="#4338CA">ADD</text>
+        <rect x="362" y="14" width="150" height="44" rx="6" fill="#EEF2FF" stroke="#4338CA" stroke-width="1.1"/>
+        <text x="437" y="32" text-anchor="middle" font-size="11" font-weight="700" fill="#3730A3">+ CategoryGroup</text>
+        <text x="437" y="49" text-anchor="middle" font-size="10" fill="#41505F">у всех записей Null</text>
+        <text x="362" y="75" font-size="10" fill="#41505F">ALTER COLUMN меняет тип</text>
+        <text x="50" y="78" font-size="10" fill="#64748B">записи сохраняются</text>
+      </svg>
+    </div>
+
+    <div class="card a1 wide">
+      <h4><span class="op">CREATE TABLE</span> две связанные таблицы — PK → FK</h4>
+      <div class="why">Сначала создаётся таблица-справочник, затем таблица со ссылкой на её ключ: поле <b>CategoryID</b> в Products объявляется типом <b>LONG</b> и связывается ограничением FOREIGN KEY.</div>
+      <div class="lbl">Пример — справочник и таблица товаров со связью</div>
+<pre>CREATE TABLE Categories (
+  CategoryID AUTOINCREMENT PRIMARY KEY,
+  CategoryName TEXT(60) NOT NULL);
+
+CREATE TABLE Products (
+  ProductID AUTOINCREMENT PRIMARY KEY,
+  ProductName TEXT(100) NOT NULL,
+  UnitPrice CURRENCY,
+  CategoryID LONG,
+  CONSTRAINT FK_Products_Categories
+    FOREIGN KEY (CategoryID)
+    REFERENCES Categories (CategoryID));</pre>
+      <div class="res">Результат: вставить в <span class="r">Products.CategoryID</span> значение, которого нет в Categories, Access не даст — связь 1:∞ под защитой.</div>
+      <svg viewBox="0 0 1180 82" font-family="Carlito, sans-serif">
+        <!-- Categories -->
+        <rect x="30" y="2" width="300" height="66" rx="6" fill="#FFFFFF" stroke="#0F766E" stroke-width="1.4"/>
+        <path d="M30,8 A6,6 0 0 1 36,2 H324 A6,6 0 0 1 330,8 V18 H30 Z" fill="#EFFCF9"/>
+        <text x="180" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="#0F766E">Categories — справочник</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">
+          <text x="86" y="32">CategoryID</text>
+          <text x="86" y="49">CategoryName</text>
+        </g>
+        <g stroke="#D97706" stroke-width="1.3" fill="none">
+          <circle cx="50" cy="28" r="2.6"/><path d="M52.6,28 H60 M57,28 V31"/>
+        </g>
+        <rect x="240" y="22" width="28" height="13" rx="3" fill="#FEF3C7" stroke="#B45309" stroke-width="1"/>
+        <text x="254" y="32" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">PK</text>
+        <text x="196" y="49" font-size="10" font-weight="700" fill="#92400E">NOT NULL</text>
+        <text x="86" y="63" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#41505F">1 · 2 · 3 …</text>
+        <!-- Products -->
+        <rect x="850" y="2" width="300" height="74" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.4"/>
+        <path d="M850,8 A6,6 0 0 1 856,2 H1144 A6,6 0 0 1 1150,8 V18 H850 Z" fill="#EFF6FF"/>
+        <text x="1000" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8">Products — товары</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">
+          <text x="906" y="32">ProductID</text>
+          <text x="906" y="49">ProductName</text>
+          <text x="946" y="68">CategoryID</text>
+        </g>
+        <g stroke="#D97706" stroke-width="1.3" fill="none">
+          <circle cx="870" cy="28" r="2.6"/><path d="M872.6,28 H880 M877,28 V31"/>
+        </g>
+        <rect x="1080" y="22" width="28" height="13" rx="3" fill="#FEF3C7" stroke="#B45309" stroke-width="1"/>
+        <text x="1094" y="32" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">PK</text>
+        <rect x="854" y="57" width="292" height="15" rx="3" fill="#DBEAFE"/>
+        <rect x="906" y="57.5" width="30" height="14" rx="3" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.2"/>
+        <text x="921" y="68.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1E40AF">FK</text>
+        <!-- связь 1 -> ∞ -->
+        <path d="M330,26 H560 V64 H842" fill="none" stroke="#0F766E" stroke-width="1.7"/>
+        <path d="M842,60.5 L850,64 L842,67.5 Z" fill="#0F766E"/>
+        <text x="470" y="20" font-size="13" font-weight="700" fill="#0F766E">1</text>
+        <text x="700" y="58" font-size="13" font-weight="700" fill="#0F766E">∞</text>
+        <rect x="430" y="28" width="330" height="22" rx="6" fill="#F1F5F9"/>
+        <text x="595" y="43" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Типы связи совпадают: AUTOINCREMENT ↔ LONG</text>
+      </svg>
+    </div>
+
+    <div class="card a10">
+      <h4>PK и FK — роль ключей</h4>
+      <div class="rows">
+        <div class="r"><b style="flex:0 0 82px;color:#92400E;">PK</b><span style="font-family:'Carlito','Liberation Sans',sans-serif;">уникальный идентификатор записи своей таблицы</span></div>
+        <div class="r"><b style="flex:0 0 82px;color:#1E40AF;">FK</b><span style="font-family:'Carlito','Liberation Sans',sans-serif;">ссылка на запись (PK) другой таблицы</span></div>
+        <div class="r"><b style="flex:0 0 82px;">NOT NULL</b><span style="font-family:'Carlito','Liberation Sans',sans-serif;">поле обязательно для заполнения</span></div>
+        <div class="r"><b style="flex:0 0 82px;">UNIQUE</b><span style="font-family:'Carlito','Liberation Sans',sans-serif;">значения в столбце не повторяются</span></div>
+      </div>
+      <svg viewBox="0 0 560 62" font-family="Carlito, sans-serif">
+        <rect x="20" y="2" width="220" height="44" rx="6" fill="#EFFCF9" stroke="#0F766E" stroke-width="1.3"/>
+        <text x="130" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#0F766E">Categories.CategoryID</text>
+        <text x="130" y="38" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">AUTOINCREMENT · PK</text>
+        <rect x="320" y="2" width="220" height="44" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.3"/>
+        <text x="430" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#1D4ED8">Products.CategoryID</text>
+        <text x="430" y="38" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">LONG · FK</text>
+        <path d="M244,24 H316" stroke="#D97706" stroke-width="1.6"/>
+        <path d="M244,20.5 L237,24 L244,27.5 Z" fill="#D97706"/>
+        <path d="M316,20.5 L323,24 L316,27.5 Z" fill="#D97706"/>
+        <text x="280" y="14" text-anchor="middle" font-size="10" font-weight="700" fill="#92400E">совпадают</text>
+        <text x="280" y="58" text-anchor="middle" font-size="10.5" fill="#41505F">FK хранит значение PK — типы полей связи должны совпадать</text>
+      </svg>
+    </div>
+
+    <div class="card a1">
+      <h4><span class="op">DROP TABLE</span> удаление таблицы</h4>
+      <div class="why">Удаляет таблицу целиком — и структуру, и все данные. Действие необратимо.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>DROP TABLE таблица;</pre>
+      <div class="lbl">Пример</div>
+<pre>DROP TABLE Products;</pre>
+      <div class="res">Результат: таблица <b>Products</b> исчезает из схемы данных вместе со всеми записями.</div>
+      <svg viewBox="0 0 560 42" font-family="Carlito, sans-serif">
+        <rect x="160" y="2" width="180" height="36" rx="6" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.3" stroke-dasharray="5 3"/>
+        <path d="M160,8 A6,6 0 0 1 166,2 H334 A6,6 0 0 1 340,8 V16 H160 Z" fill="#FECACA"/>
+        <text x="250" y="15" text-anchor="middle" font-size="11.5" font-weight="700" fill="#7F1D1D">Products</text>
+        <text x="250" y="32" text-anchor="middle" font-size="10.5" fill="#7F1D1D">структура и данные</text>
+        <g stroke="#B91C1C" stroke-width="2.2">
+          <line x1="366" y1="10" x2="382" y2="26"/><line x1="382" y1="10" x2="366" y2="26"/>
+        </g>
+        <text x="396" y="23" font-size="11.5" font-weight="700" fill="#7F1D1D">таблица удалена</text>
+      </svg>
+      <div class="warn"><span><b>Практика:</b> если на таблицу ссылается связь FK, сначала снимите связь — и только затем выполняйте DROP TABLE.</span></div>
+    </div>
+
+    <div class="card a1">
+      <h4><span class="op">NOT NULL · UNIQUE</span> ограничения столбца</h4>
+      <div class="why">NOT NULL запрещает пустые значения, UNIQUE — повторы в столбце.</div>
+      <div class="lbl">Пример — оба ограничения</div>
+<pre>CREATE TABLE Categories (
+  CategoryID AUTOINCREMENT PRIMARY KEY,
+  CategoryName TEXT(60) NOT NULL);
+ALTER TABLE Categories
+  ADD CONSTRAINT Uq_Name UNIQUE (CategoryName);</pre>
+      <div class="res">Результат: пустое имя категории и дубликат Access отклонит при вводе.</div>
+      <div class="rows">
+        <div class="r hit"><span>"Электроника"</span><span class="st ok">✓ принято</span></div>
+        <div class="r off"><span>"Электроника" — повтор</span><span class="st bad">✗ UNIQUE</span></div>
+        <div class="r off"><span>Null — пусто</span><span class="st bad">✗ NOT NULL</span></div>
+      </div>
+    </div>
+
+    <div class="card a1">
+      <h4>Жизненный цикл таблицы</h4>
+      <div class="why">Три DDL-оператора покрывают всю жизнь таблицы: создать — доработать — удалить.</div>
+      <svg viewBox="0 0 560 66" font-family="Carlito, sans-serif">
+        <rect x="24" y="8" width="150" height="34" rx="7" fill="#F0FDF4" stroke="#15803D" stroke-width="1.3"/>
+        <text x="99" y="22" text-anchor="middle" font-size="11.5" font-weight="700" fill="#15803D">CREATE TABLE</text>
+        <text x="99" y="37" text-anchor="middle" font-size="9.5" fill="#166534">создание структуры</text>
+        <path d="M180,25 H216" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M216,21.5 L223,25 L216,28.5 Z" fill="#64748B"/>
+        <rect x="230" y="8" width="150" height="34" rx="7" fill="#FFFBEB" stroke="#B45309" stroke-width="1.3"/>
+        <text x="305" y="22" text-anchor="middle" font-size="11.5" font-weight="700" fill="#B45309">ALTER TABLE</text>
+        <text x="305" y="37" text-anchor="middle" font-size="9.5" fill="#92400E">новые поля, новый тип</text>
+        <path d="M386,25 H422" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M422,21.5 L429,25 L422,28.5 Z" fill="#64748B"/>
+        <rect x="436" y="8" width="100" height="34" rx="7" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.3" stroke-dasharray="5 3"/>
+        <text x="486" y="22" text-anchor="middle" font-size="11.5" font-weight="700" fill="#B91C1C">DROP</text>
+        <text x="486" y="37" text-anchor="middle" font-size="9.5" fill="#7F1D1D">необратимо</text>
+        <text x="24" y="59" font-size="10.5" fill="#41505F">структура развивается без пересоздания: ALTER по мере надобности, DROP — только в конце</text>
+      </svg>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 1 из 12</div>
+    <div class="r">Access 2007–2016 · DDL</div>
+  </div>
+
+</div>
+</body>
+</html>

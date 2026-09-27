@@ -1,0 +1,129 @@
+/* ============================================================
+   access_cheatsheet_v2 — расширенный набор карточек (12 блоков)
+   Дизайн-система исходной шпаргалки: те же токены, акценты, шрифты.
+   Канвас страницы: 1240 x 1754 px  (A4 портрет, 1 px = 0.1693 mm,
+   скриншот @2x -> 2480 x 3508 = 300 dpi)
+   ============================================================ */
+
+:root{
+  --bg:#F7F8FA; --card:#FFFFFF; --line:#E4E8EF;
+  --ink:#1F2937; --ink2:#41505F; --code:#101828; --codebg:#F2F5F9;
+  --ok:#15803D; --okbg:#F0FDF4; --okline:#BBF7D0;
+  --bad:#B91C1C; --badbg:#FEF2F2; --badline:#FECACA;
+  --key:#D97706; --keybg:#FEF3C7; --keyline:#B45309; --keyink:#92400E;
+  --fkb:#2563EB;  --fkbg:#DBEAFE;  --fkink:#1E40AF;
+}
+html,body{margin:0;padding:0;background:var(--bg);}
+body{font-family:'Carlito','Liberation Sans','DejaVu Sans',sans-serif;color:var(--ink);
+     -webkit-font-smoothing:antialiased;}
+*{box-sizing:border-box;}
+@media screen{
+  html{height:auto;display:flex;justify-content:center;background:var(--bg);}
+  body{transform-origin:top center;scale:min(1,calc(100vw / 1240));margin:0 auto;}
+}
+
+/* ---------- страница ---------- */
+.poster{width:1240px;height:1754px;background:var(--bg);padding:24px 26px 18px;
+        display:flex;flex-direction:column;position:relative;}
+
+/* ---------- шапка ---------- */
+.phead{display:flex;align-items:center;gap:14px;background:var(--card);
+       border:1px solid var(--line);border-radius:10px;padding:12px 16px;
+       box-shadow:0 1px 2px rgba(23,32,56,.05);}
+.pnum{flex:0 0 auto;min-width:44px;height:44px;border-radius:9px;display:flex;
+      align-items:center;justify-content:center;font-size:24px;font-weight:700;
+      background:rgba(255,255,255,.8);}
+.phead .tt{flex:1 1 auto;min-width:0;}
+.phead h1{margin:0;font-size:29px;font-weight:700;letter-spacing:.2px;line-height:1.12;}
+.phead .psub{font-size:13.5px;color:var(--ink2);margin-top:3px;line-height:1.3;}
+.pchip{flex:0 0 auto;align-self:center;background:#FFF7E6;border:1px solid #EAD199;
+       border-radius:7px;padding:6px 11px;font-size:12.5px;color:#5B4A17;
+       max-width:300px;line-height:1.35;}
+.pchip b{color:#3F330B;}
+
+/* ---------- тело: сетка карточек ---------- */
+.pbody{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:14px;
+       margin-top:13px;min-height:0;align-content:stretch;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:9px;
+      padding:0 12px 12px;box-shadow:0 1px 2px rgba(23,32,56,.05);
+      min-width:0;overflow-wrap:break-word;display:flex;flex-direction:column;
+      align-items:stretch;}
+.card > :last-child{margin-top:auto;}
+.card > svg{flex:0 0 auto;}
+.card.wide{grid-column:1 / 3;}
+.card h4{margin:0 -12px 8px;padding:6px 12px;border-radius:8px 8px 0 0;
+         font-size:17px;font-weight:700;letter-spacing:.2px;
+         display:flex;align-items:center;gap:8px;}
+.card h4 svg{width:22px;height:22px;flex:0 0 auto;}
+.card h4 .op{font-family:'DejaVu Sans Mono','Liberation Mono',monospace;
+             font-size:14.5px;background:rgba(255,255,255,.75);border-radius:5px;
+             padding:1px 7px;color:inherit;}
+.why{font-size:14.1px;line-height:1.36;color:var(--ink2);margin:0 0 6px;}
+.why b{color:var(--ink);}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.9px;color:#8A94A3;
+     text-transform:uppercase;margin:7px 0 2px;}
+pre{margin:2px 0 5px;padding:6px 10px;background:var(--codebg);border-radius:6px;
+    font-family:'DejaVu Sans Mono','Liberation Mono',monospace;
+    font-size:14.4px;line-height:1.38;color:var(--code);white-space:pre;}
+.res{font-size:13.9px;line-height:1.34;color:var(--ink2);margin:2px 0 5px;}
+.res b{color:var(--ink);}
+.res .r{font-family:'DejaVu Sans Mono','Liberation Mono',monospace;font-size:12.9px;
+        color:var(--ink);background:var(--codebg);border-radius:4px;padding:0 5px;}
+.card svg{display:block;width:100%;height:auto;margin-top:3px;}
+.note{background:#FFF7E6;border:1px solid #EAD199;border-radius:7px;
+      padding:5px 10px;font-size:12.8px;color:#5B4A17;line-height:1.35;margin-top:6px;}
+.note b{color:#3F330B;}
+.note.blue{background:#EFF6FF;border-color:#BFDBFE;color:#1E40AF;}
+.note.blue b{color:#1E3A8A;}
+
+/* строки «до/после» и проверки */
+.rows{border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-top:3px;}
+.rows .rh{display:flex;gap:8px;background:#F1F5F9;color:#334155;font-weight:700;
+          font-size:12.4px;padding:4px 10px;}
+.rows .r{display:flex;gap:8px;font-size:13px;padding:3.5px 10px;border-top:1px solid #EDF0F4;
+         font-family:'DejaVu Sans Mono','Liberation Mono',monospace;color:var(--code);}
+.rows .r.hl{background:#FEF9C3;}
+.rows .r.hit{background:var(--okbg);}
+.rows .r.off{background:var(--badbg);color:#7F1D1D;}
+.rows .r span{flex:1 1 auto;}
+.rows .r .st{flex:0 0 auto;font-family:'Carlito','Liberation Sans',sans-serif;font-weight:700;}
+.st.ok{color:var(--ok);} .st.bad{color:var(--bad);}
+
+/* сцена «данные до → действие → данные после» */
+.ba{display:flex;align-items:stretch;gap:8px;margin-top:4px;max-width:100%;}
+.ba .rows{flex:1 1 0;min-width:0;}
+.ba .rows .r,.ba .rows .rh{font-size:11.4px;padding:2.5px 8px;white-space:nowrap;overflow:hidden;}
+.ba .arr{flex:0 0 40px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+.ba .arr .t{font-size:10px;font-weight:700;color:#64748B;text-align:center;line-height:1.15;}
+.rows .rh span:last-child{text-align:right;}
+.rows .r span:last-child{text-align:right;}
+
+/* предупреждение-полоса */
+.warn{display:flex;gap:10px;align-items:flex-start;background:#FFF6F5;
+      border:1px solid #F0C9C5;border-radius:8px;padding:8px 11px;
+      font-size:13.6px;line-height:1.36;color:#4B3A38;margin-top:6px;}
+.warn b{color:#9F1D1D;}
+
+/* ---------- акценты (палитра исходной шпаргалки) ---------- */
+.a1 h4{background:#EEF2FF;color:#4338CA;} .a1 .res b,.a1 .why b{color:#4338CA;} .a1 .pnum{background:#EEF2FF;color:#4338CA;} .a1 .phead h1{color:#4338CA;}
+.a2 h4{background:#EFFCF9;color:#0F766E;} .a2 .res b,.a2 .why b{color:#0F766E;} .a2 .pnum{background:#EFFCF9;color:#0F766E;} .a2 .phead h1{color:#0F766E;}
+.a3 h4{background:#EFF6FF;color:#1D4ED8;} .a3 .res b,.a3 .why b{color:#1D4ED8;} .a3 .pnum{background:#EFF6FF;color:#1D4ED8;} .a3 .phead h1{color:#1D4ED8;}
+.a4 h4{background:#FFFBEB;color:#B45309;} .a4 .res b,.a4 .why b{color:#B45309;} .a4 .pnum{background:#FFFBEB;color:#B45309;} .a4 .phead h1{color:#B45309;}
+.a5 h4{background:#F5F3FF;color:#6D28D9;} .a5 .res b,.a5 .why b{color:#6D28D9;} .a5 .pnum{background:#F5F3FF;color:#6D28D9;} .a5 .phead h1{color:#6D28D9;}
+.a6 h4{background:#FDF2F8;color:#BE185D;} .a6 .res b,.a6 .why b{color:#BE185D;} .a6 .pnum{background:#FDF2F8;color:#BE185D;} .a6 .phead h1{color:#BE185D;}
+.a7 h4{background:#ECFDFD;color:#0E7490;} .a7 .res b,.a7 .why b{color:#0E7490;} .a7 .pnum{background:#ECFDFD;color:#0E7490;} .a7 .phead h1{color:#0E7490;}
+.a8 h4{background:#F0FDF4;color:#15803D;} .a8 .res b,.a8 .why b{color:#15803D;} .a8 .pnum{background:#F0FDF4;color:#15803D;} .a8 .phead h1{color:#15803D;}
+.a9 h4{background:#FFF7ED;color:#C2410C;} .a9 .res b,.a9 .why b{color:#C2410C;} .a9 .pnum{background:#FFF7ED;color:#C2410C;} .a9 .phead h1{color:#C2410C;}
+.a10 h4{background:#F1F5F9;color:#334155;} .a10 .res b,.a10 .why b{color:#334155;} .a10 .pnum{background:#F1F5F9;color:#334155;} .a10 .phead h1{color:#334155;}
+.er h4{background:#FEF2F2;color:#B91C1C;} .er .res b,.er .why b{color:#B91C1C;}
+.phead h1{color:var(--ink);}
+
+/* ---------- подвал ---------- */
+.pfoot{margin-top:11px;display:flex;justify-content:space-between;align-items:center;
+       border-top:2px solid #DDE3EC;padding-top:6px;font-size:12.4px;color:#6B7684;}
+.pfoot .l b{color:#41505F;}
+
+/* ============================================================
+   Комбинированный файл для PDF (добавляется сборщиком):
+   @page A4 + .page + масштабирование 1240->793.7 (print only)
+   ============================================================ */

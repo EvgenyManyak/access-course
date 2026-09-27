@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 3 — SELECT — выборка данных</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a3">
+
+  <div class="phead">
+    <div class="pnum">3</div>
+    <div class="tt">
+      <h1>SELECT — выборка данных</h1>
+      <div class="psub">выбор полей · DISTINCT · псевдонимы AS · сортировка ORDER BY · первые записи TOP</div>
+    </div>
+    <div class="pchip">Фильтр строк делает WHERE — см. блок 4</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a3">
+      <h4><span class="op">SELECT *</span> все поля</h4>
+      <div class="why">Звёздочка выбирает все столбцы таблицы — быстрый просмотр целиком.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>SELECT * FROM таблица;</pre>
+      <div class="lbl">Пример</div>
+<pre>SELECT * FROM Products;</pre>
+      <div class="res">Результат: все строки и все столбцы <b>Products</b> без фильтрации и сортировки.</div>
+      <svg viewBox="0 0 560 78" font-family="Carlito, sans-serif">
+        <rect x="120" y="6" width="240" height="68" rx="6" fill="#FFFFFF" stroke="#1D4ED8" stroke-width="1.4"/>
+        <path d="M120,12 A6,6 0 0 1 126,6 H354 A6,6 0 0 1 360,12 V24 H120 Z" fill="#DBEAFE"/>
+        <text x="240" y="19" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8">Products</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#1E40AF" font-weight="700">
+          <text x="134" y="40">ID</text><text x="170" y="40">ProductName</text><text x="280" y="40">UnitPrice</text>
+        </g>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">
+          <text x="134" y="58">1 · Стол · 25000</text>
+          <text x="134" y="71">2 · Лампа · 1200</text>
+        </g>
+        <text x="380" y="34" font-size="11.5" font-weight="700" fill="#1D4ED8">* = все столбцы</text>
+        <text x="380" y="50" font-size="10.5" fill="#41505F">все строки таблицы</text>
+      </svg>
+    </div>
+
+    <div class="card a3">
+      <h4><span class="op">SELECT</span> отдельные поля</h4>
+      <div class="why">Перечисление столбцов через запятую оставляет только нужные поля — запрос быстрее и понятнее.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>SELECT поле1, поле2 FROM таблица;</pre>
+      <div class="lbl">Пример</div>
+<pre>SELECT ProductName, UnitPrice FROM Products;</pre>
+      <div class="res">Результат: два столбца <b>ProductName</b> и <b>UnitPrice</b>; столбец ID в вывод не попадает.</div>
+      <svg viewBox="0 0 560 78" font-family="Carlito, sans-serif">
+        <rect x="90" y="6" width="250" height="66" rx="6" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.2"/>
+        <path d="M90,12 A6,6 0 0 1 96,6 H334 A6,6 0 0 1 340,12 V22 H90 Z" fill="#F1F5F9"/>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="11">
+          <text x="104" y="19" fill="#64748B">ID</text>
+          <text x="140" y="19" fill="#1D4ED8" font-weight="700">ProductName</text>
+          <text x="252" y="19" fill="#1D4ED8" font-weight="700">UnitPrice</text>
+        </g>
+        <rect x="136" y="26" width="104" height="42" rx="3" fill="#EFF6FF" opacity="0.85"/>
+        <rect x="248" y="26" width="88" height="42" rx="3" fill="#EFF6FF" opacity="0.85"/>
+        <text x="360" y="34" font-size="11.5" font-weight="700" fill="#1D4ED8">выбраны 2 столбца</text>
+        <text x="360" y="50" font-size="10.5" fill="#41505F">ID остаётся в таблице,</text>
+        <text x="360" y="63" font-size="10.5" fill="#41505F">но не выводится</text>
+      </svg>
+    </div>
+
+    <div class="card a3">
+      <h4><span class="op">DISTINCT</span> без повторов</h4>
+      <div class="why">Убирает дубликаты из результата: каждая комбинация значений выводится один раз.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>SELECT DISTINCT поле FROM таблица;</pre>
+      <div class="lbl">Пример</div>
+<pre>SELECT DISTINCT Category FROM Products;</pre>
+      <div class="ba">
+        <div class="rows">
+          <div class="rh"><span>Category</span></div>
+          <div class="r"><span>Электроника</span></div>
+          <div class="r"><span>Электроника</span></div>
+          <div class="r"><span>Авто</span></div>
+        </div>
+        <div class="arr">
+          <svg width="30" height="22" viewBox="0 0 30 22"><path d="M2,11 H22" stroke="#1D4ED8" stroke-width="2"/><path d="M21,6.5 L28,11 L21,15.5 Z" fill="#1D4ED8"/></svg>
+          <div class="t">схлопы-</div><div class="t">вание</div>
+        </div>
+        <div class="rows">
+          <div class="rh"><span>Category</span></div>
+          <div class="r hit"><span>Электроника</span></div>
+          <div class="r hit"><span>Авто</span></div>
+        </div>
+      </div>
+      <svg viewBox="0 0 560 56" font-family="Carlito, sans-serif">
+        <circle cx="90" cy="16" r="10" fill="#DBEAFE" stroke="#1D4ED8" stroke-width="1.2"/>
+        <circle cx="90" cy="40" r="10" fill="#DBEAFE" stroke="#1D4ED8" stroke-width="1.2"/>
+        <text x="108" y="20" font-size="9.5" fill="#41505F">Электроника</text>
+        <text x="108" y="44" font-size="9.5" fill="#41505F">Электроника — дубль</text>
+        <path d="M104,16 C152,16 152,28 178,28" fill="none" stroke="#1D4ED8" stroke-width="1.2"/>
+        <path d="M104,40 C152,40 152,28 178,28" fill="none" stroke="#1D4ED8" stroke-width="1.2"/>
+        <circle cx="192" cy="28" r="10" fill="#1D4ED8"/>
+        <text x="212" y="32" font-size="9.5" font-weight="700" fill="#1D4ED8">одна строка</text>
+        <circle cx="330" cy="28" r="10" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.2"/>
+        <text x="350" y="24" font-size="9.5" fill="#41505F">Авто — уникальное,</text>
+        <text x="350" y="38" font-size="9.5" fill="#41505F">проходит как есть</text>
+      </svg>
+      <div class="res">Результат: список категорий без повторов — удобно для справочников и выпадающих списков.</div>
+    </div>
+
+    <div class="card a3">
+      <h4><span class="op">AS</span> псевдоним столбца</h4>
+      <div class="why">Задаёт заголовок столбца в результате — своё имя для поля или выражения.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>SELECT поле AS псевдоним FROM таблица;</pre>
+      <div class="lbl">Пример</div>
+<pre>SELECT ProductName AS Товар FROM Products;</pre>
+      <svg viewBox="0 0 560 62" font-family="Carlito, sans-serif">
+        <rect x="70" y="6" width="170" height="48" rx="6" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.2"/>
+        <text x="155" y="26" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#64748B">ProductName</text>
+        <text x="155" y="44" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">Стол</text>
+        <path d="M250,30 H300" stroke="#1D4ED8" stroke-width="1.6"/>
+        <path d="M300,26.5 L307,30 L300,33.5 Z" fill="#1D4ED8"/>
+        <text x="278" y="20" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1D4ED8">AS</text>
+        <rect x="315" y="6" width="150" height="48" rx="6" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.3"/>
+        <text x="390" y="26" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8">Товар</text>
+        <text x="390" y="44" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">Стол</text>
+        <text x="480" y="34" font-size="10.5" fill="#41505F">заголовок в</text>
+        <text x="480" y="47" font-size="10.5" fill="#41505F">результате</text>
+      </svg>
+      <div class="res">Результат: данные те же, но столбец подписан <b>«Товар»</b> — удобно для выгрузок и отчётов.</div>
+    </div>
+
+    <div class="card a3">
+      <h4><span class="op">ORDER BY</span> сортировка</h4>
+      <div class="why">Сортирует результат: ASC — по возрастанию (по умолчанию), DESC — по убыванию.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>ORDER BY поле [ASC | DESC];</pre>
+      <div class="lbl">Пример — по убыванию цены</div>
+<pre>SELECT ProductName, UnitPrice
+FROM Products ORDER BY UnitPrice DESC;</pre>
+      <svg viewBox="0 0 560 74" font-family="Carlito, sans-serif">
+        <g font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">
+          <rect x="60" y="8" width="230" height="17" rx="3" fill="#DBEAFE"/>
+          <text x="72" y="20.5">Стол · 25000</text>
+          <rect x="60" y="29" width="230" height="17" rx="3" fill="#EFF6FF"/>
+          <text x="72" y="41.5">Стул · 4500</text>
+          <rect x="60" y="50" width="230" height="17" rx="3" fill="#F8FAFC"/>
+          <text x="72" y="62.5">Лампа · 1200</text>
+        </g>
+        <path d="M330,16 V58" stroke="#1D4ED8" stroke-width="1.8"/>
+        <path d="M325,56 L330,65 L335,56 Z" fill="#1D4ED8"/>
+        <text x="352" y="30" font-size="11.5" font-weight="700" fill="#1D4ED8">DESC — по убыванию</text>
+        <text x="352" y="48" font-size="10.5" fill="#41505F">ASC — по возрастанию (по умолчанию)</text>
+        <text x="352" y="63" font-size="10.5" fill="#41505F">сортировка выполняется после фильтра WHERE</text>
+      </svg>
+    </div>
+
+    <div class="card a3">
+      <h4><span class="op">TOP</span> первые записи</h4>
+      <div class="why">Возвращает заданное число первых строк — почти всегда вместе с ORDER BY, иначе строки непредсказуемы.</div>
+      <div class="lbl">Синтаксис</div>
+<pre>SELECT TOP N поля FROM таблица ORDER BY ...;</pre>
+      <div class="lbl">Пример — топ-2 дорогих товара</div>
+<pre>SELECT TOP 2 ProductName, UnitPrice
+FROM Products ORDER BY UnitPrice DESC;</pre>
+      <svg viewBox="0 0 560 74" font-family="Carlito, sans-serif">
+        <g font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">
+          <rect x="60" y="8" width="230" height="17" rx="3" fill="#DBEAFE"/>
+          <text x="72" y="20.5">1 · Стол · 25000</text>
+          <rect x="60" y="29" width="230" height="17" rx="3" fill="#DBEAFE"/>
+          <text x="72" y="41.5">2 · Стул · 4500</text>
+          <rect x="60" y="50" width="230" height="17" rx="3" fill="#F8FAFC" stroke="#CBD5E1" stroke-dasharray="4 3"/>
+          <text x="72" y="62.5" fill="#94A3B8">3 · Лампа · 1200</text>
+        </g>
+        <line x1="40" y1="47.5" x2="300" y2="47.5" stroke="#1D4ED8" stroke-width="1.4" stroke-dasharray="6 4"/>
+        <text x="352" y="26" font-size="11.5" font-weight="700" fill="#1D4ED8">TOP 2 — отрезает</text>
+        <text x="352" y="42" font-size="11.5" font-weight="700" fill="#1D4ED8">первые 2 строки</text>
+        <text x="352" y="60" font-size="10.5" fill="#41505F">порядок задаёт ORDER BY</text>
+      </svg>
+    </div>
+
+    <div class="card a3 wide">
+      <h4>Порядок частей запроса SELECT</h4>
+      <svg viewBox="0 0 1180 64" font-family="Carlito, sans-serif">
+        <g font-size="12.5" font-weight="700" text-anchor="middle">
+          <rect x="16" y="12" width="150" height="38" rx="7" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.3"/>
+          <text x="91" y="35" fill="#1D4ED8">SELECT поля</text>
+          <rect x="216" y="12" width="150" height="38" rx="7" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.1"/>
+          <text x="291" y="35" fill="#334155">FROM таблица</text>
+          <rect x="416" y="12" width="150" height="38" rx="7" fill="#FFFBEB" stroke="#B45309" stroke-width="1.1"/>
+          <text x="491" y="35" fill="#B45309">WHERE фильтр</text>
+          <rect x="616" y="12" width="170" height="38" rx="7" fill="#F0FDF4" stroke="#15803D" stroke-width="1.1"/>
+          <text x="701" y="35" fill="#15803D">GROUP BY группы</text>
+          <rect x="836" y="12" width="150" height="38" rx="7" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.1"/>
+          <text x="911" y="35" fill="#BE185D">HAVING фильтр</text>
+          <rect x="1036" y="12" width="128" height="38" rx="7" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.1"/>
+          <text x="1100" y="35" fill="#C2410C">ORDER BY</text>
+        </g>
+        <g stroke="#64748B" stroke-width="1.4">
+          <path d="M166,31 H210"/><path d="M366,31 H410"/><path d="M566,31 H610"/>
+          <path d="M786,31 H830"/><path d="M986,31 H1030"/>
+        </g>
+        <g fill="#64748B">
+          <path d="M210,27.5 L217,31 L210,34.5 Z"/><path d="M410,27.5 L417,31 L410,34.5 Z"/>
+          <path d="M610,27.5 L617,31 L610,34.5 Z"/><path d="M830,27.5 L837,31 L830,34.5 Z"/>
+          <path d="M1030,27.5 L1037,31 L1030,34.5 Z"/>
+        </g>
+      </svg>
+      <div class="res">Access выполняет части запроса именно в этом порядке: FROM находит таблицу → WHERE отбирает строки → GROUP BY группирует → HAVING фильтрует группы → ORDER BY сортирует → SELECT возвращает поля.</div>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 3 из 12</div>
+    <div class="r">Access 2007–2016 · SELECT</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 6 — Преобразование типов и вычисления</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a5">
+
+  <div class="phead">
+    <div class="pnum">6</div>
+    <div class="tt">
+      <h1>Преобразование типов и вычисления</h1>
+      <div class="psub">Nz · IsNull · Val · CCur · CInt / CLng · CDate · Replace · IIf — схема «исходное значение → функция → результат»</div>
+    </div>
+    <div class="pchip">В русской локали Access аргументы разделяются <b>;</b></div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a5">
+      <h4><span class="op">Nz</span> замена Null значением</h4>
+      <div class="why">Возвращает поле, а если оно Null — подставляет запасное значение. Спасает суммы и конкатенации.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Nz([UnitPrice]; 0)</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="20" y="8" width="200" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="120" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">исходное</text>
+        <text x="120" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">UnitPrice = Null</text>
+        <path d="M230,27 H262" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M262,23.5 L269,27 L262,30.5 Z" fill="#64748B"/>
+        <text x="247" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">Nz(;0)</text>
+        <rect x="279" y="8" width="200" height="38" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+        <text x="379" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">результат</text>
+        <text x="379" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">0</text>
+        <text x="494" y="24" font-size="10.5" fill="#41505F">можно считать,</text>
+        <text x="494" y="38" font-size="10.5" fill="#41505F">Null не «заразит»</text>
+      </svg>
+      <div class="res">Результат: <span class="r">Nz([UnitPrice];0)*1.2</span> посчитается даже там, где цена не заполнена.</div>
+    </div>
+
+    <div class="card a5">
+      <h4><span class="op">IsNull</span> проверка на Null</h4>
+      <div class="why">Возвращает Да/True, если поле пустое. В отличие от <b>= Null</b> работает всегда.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>IsNull([CategoryGroup])</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="20" y="8" width="200" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="120" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">исходное</text>
+        <text x="120" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">CategoryGroup = Null</text>
+        <path d="M230,27 H262" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M262,23.5 L269,27 L262,30.5 Z" fill="#64748B"/>
+        <text x="246" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">IsNull</text>
+        <rect x="279" y="8" width="200" height="38" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+        <text x="379" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">результат</text>
+        <text x="379" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">Да (True)</text>
+        <text x="494" y="24" font-size="10.5" fill="#41505F">в WHERE и</text>
+        <text x="494" y="38" font-size="10.5" fill="#41505F">в IIf</text>
+      </svg>
+      <div class="res">Результат: <span class="r">WHERE IsNull([CategoryGroup])</span> — то же, что <span class="r">WHERE CategoryGroup IS NULL</span>.</div>
+    </div>
+
+    <div class="card a5">
+      <h4><span class="op">Val</span> извлечение числа из текста</h4>
+      <div class="why">Читает число из начала текстовой строки; запятую заранее меняют на точку через Replace.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Val(Replace([UnitPrice]; ","; "."))</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="20" y="8" width="200" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="120" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">текст</text>
+        <text x="120" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">"25 000,50"</text>
+        <path d="M230,27 H262" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M262,23.5 L269,27 L262,30.5 Z" fill="#64748B"/>
+        <text x="246" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">Val</text>
+        <rect x="279" y="8" width="200" height="38" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+        <text x="379" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">число</text>
+        <text x="379" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">25000.5</text>
+        <text x="494" y="24" font-size="10.5" fill="#41505F">нечисловые</text>
+        <text x="494" y="38" font-size="10.5" fill="#41505F">символы отброшены</text>
+      </svg>
+      <div class="res">Результат: текстовая цена стала числом — с ней работают сравнения и Sum/Avg.</div>
+    </div>
+
+    <div class="card a5">
+      <h4><span class="op">CCur</span> приведение к денежному типу</h4>
+      <div class="why">Превращает число или текст в денежное значение — убирает ошибки округления при расчётах.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>CCur(Val([UnitPrice]))</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="20" y="8" width="200" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="120" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">число</text>
+        <text x="120" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">25000.5</text>
+        <path d="M230,27 H262" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M262,23.5 L269,27 L262,30.5 Z" fill="#64748B"/>
+        <text x="246" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">CCur</text>
+        <rect x="279" y="8" width="200" height="38" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+        <text x="379" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">деньги</text>
+        <text x="379" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">25 000,50</text>
+        <text x="494" y="24" font-size="10.5" fill="#41505F">формат валюты</text>
+        <text x="494" y="38" font-size="10.5" fill="#41505F">из настроек</text>
+      </svg>
+      <div class="res">Результат: значение готово для денежного поля и точных сумм в отчётах.</div>
+    </div>
+
+    <div class="card a5">
+      <h4><span class="op">CInt · CLng</span> целые числа</h4>
+      <div class="why">CInt — целое в диапазоне Integer, CLng — длинное целое для больших значений и ключей.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>CInt([Quantity])    CLng([ID])</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="20" y="8" width="200" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="120" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">дробное</text>
+        <text x="120" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">12.7</text>
+        <path d="M230,27 H262" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M262,23.5 L269,27 L262,30.5 Z" fill="#64748B"/>
+        <text x="246" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">CInt</text>
+        <rect x="279" y="8" width="200" height="38" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+        <text x="379" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">целое</text>
+        <text x="379" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">13</text>
+        <text x="494" y="24" font-size="10.5" fill="#41505F">CLng — то же,</text>
+        <text x="494" y="38" font-size="10.5" fill="#41505F">но до ±2 млрд</text>
+      </svg>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="40" y="8" width="130" height="19" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+        <text x="105" y="21" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828">12.7 → 13</text>
+        <rect x="40" y="32" width="130" height="19" rx="5" fill="#F5F3FF" stroke="#A78BFA" stroke-width="1"/>
+        <text x="105" y="45" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#6D28D9">12.5 → 12</text>
+        <text x="190" y="21" font-size="10" fill="#41505F">обычное правило: 0.5 и выше — вверх</text>
+        <text x="190" y="45" font-size="10" font-weight="700" fill="#6D28D9">ровно 0.5 — к чётной стороне (банкирское)</text>
+      </svg>
+      <div class="res">Результат: <span class="r">12.7 → 13</span> (округление к чётному банкирское: <span class="r">12.5 → 12</span>).</div>
+    </div>
+
+    <div class="card a5">
+      <h4><span class="op">CDate</span> приведение к дате</h4>
+      <div class="why">Превращает текст или число в настоящую дату — после этого работают Year, DateAdd, DateDiff.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>CDate("01.03.2024")</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="20" y="8" width="200" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="120" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">текст</text>
+        <text x="120" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">"01.03.2024"</text>
+        <path d="M230,27 H262" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M262,23.5 L269,27 L262,30.5 Z" fill="#64748B"/>
+        <text x="246" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">CDate</text>
+        <rect x="279" y="8" width="200" height="38" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+        <text x="379" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">дата</text>
+        <text x="379" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">#01.03.2024#</text>
+        <text x="494" y="24" font-size="10.5" fill="#41505F">теперь можно</text>
+        <text x="494" y="38" font-size="10.5" fill="#41505F">сравнивать даты</text>
+      </svg>
+      <div class="res">Результат: строка стала датой; в SQL литералы дат записываются между <b>#</b>.</div>
+    </div>
+
+    <div class="card a5">
+      <h4><span class="op">Replace</span> замена символов</h4>
+      <div class="why">Заменяет в строке все вхождения одной подстроки другой — чистка дефисов, разделителей, кавычек.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>Replace([ProductName]; "-"; " ")</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="20" y="8" width="230" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="135" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">исходное</text>
+        <text x="135" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">"Стол-компьютерный"</text>
+        <path d="M260,27 H292" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M292,23.5 L299,27 L292,30.5 Z" fill="#64748B"/>
+        <text x="279" y="18" text-anchor="middle" font-size="10.5" font-weight="700" fill="#6D28D9">"-";" "</text>
+        <rect x="309" y="8" width="230" height="38" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1.2"/>
+        <text x="424" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">результат</text>
+        <text x="424" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#101828">"Стол компьютерный"</text>
+      </svg>
+      <svg viewBox="0 0 560 54" font-family="DejaVu Sans Mono, monospace">
+        <rect x="40" y="8" width="215" height="38" rx="6" fill="#F8FAFC" stroke="#C7D0DC" stroke-width="1"/>
+        <text x="54" y="26" font-size="10" fill="#101828">"Стол-компьютерный-2"</text>
+        <text x="54" y="40" font-size="9" fill="#B91C1C" font-family="Carlito, sans-serif">2 вхождения дефиса</text>
+        <path d="M265,27 H293" stroke="#64748B" stroke-width="1.5"/>
+        <path d="M293,23.5 L300,27 L293,30.5 Z" fill="#64748B"/>
+        <rect x="308" y="8" width="215" height="38" rx="6" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/>
+        <text x="322" y="26" font-size="10" fill="#101828">"Стол компьютерный 2"</text>
+        <text x="322" y="40" font-size="9" fill="#15803D" font-family="Carlito, sans-serif">заменены все вхождения</text>
+      </svg>
+      <div class="res">Результат: каждое вхождение «-» заменено пробелом; поиска и замены по таблице это не меняет.</div>
+    </div>
+
+    <div class="card a5">
+      <h4><span class="op">IIf</span> условное значение</h4>
+      <div class="why">Мгновенное «если… то… иначе» прямо в выражении: условие; значение если Да; значение если Нет.</div>
+      <div class="lbl">Синтаксис и пример</div>
+<pre>IIf([UnitPrice] > 10000; "Дорого"; "Недорого")</pre>
+      <svg viewBox="0 0 560 54" font-family="Carlito, sans-serif">
+        <rect x="20" y="8" width="150" height="38" rx="6" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.1"/>
+        <text x="95" y="24" text-anchor="middle" font-size="10.5" fill="#41505F">UnitPrice = 25000</text>
+        <text x="95" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11" fill="#101828">25000 &gt; 10000</text>
+        <path d="M180,27 H212" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M212,23.5 L219,27 L212,30.5 Z" fill="#64748B"/>
+        <text x="199" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#6D28D9">IIf</text>
+        <rect x="229" y="8" width="145" height="38" rx="6" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1.2"/>
+        <text x="301" y="24" text-anchor="middle" font-size="10.5" fill="#7F1D1D">Да →</text>
+        <text x="301" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#7F1D1D">"Дорого"</text>
+        <rect x="386" y="8" width="155" height="38" rx="6" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1" stroke-dasharray="4 3"/>
+        <text x="463" y="24" text-anchor="middle" font-size="10.5" fill="#475569">Нет → (не берётся)</text>
+        <text x="463" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="11.5" fill="#475569">"Недорого"</text>
+      </svg>
+      <div class="res">Результат: для цены 25000 выражение вернёт <span class="r">Дорого</span>; для 1200 — <span class="r">Недорого</span>.</div>
+    </div>
+
+    <div class="card a5 wide">
+      <h4>Цепочка очистки денежного значения — текст → Val → CCur → денежное поле</h4>
+      <svg viewBox="0 0 1180 92" font-family="Carlito, sans-serif">
+        <rect x="24" y="14" width="250" height="56" rx="7" fill="#F2F5F9" stroke="#C7D0DC" stroke-width="1.2"/>
+        <text x="149" y="36" text-anchor="middle" font-size="11" fill="#41505F">Текст из выгрузки</text>
+        <text x="149" y="58" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#101828">"25 000,50"</text>
+        <path d="M282,42 H330" stroke="#64748B" stroke-width="1.8"/>
+        <path d="M330,38 L337,42 L330,46 Z" fill="#64748B"/>
+        <text x="306" y="30" text-anchor="middle" font-size="11.5" font-weight="700" fill="#6D28D9">Val</text>
+        <rect x="345" y="14" width="220" height="56" rx="7" fill="#F5F3FF" stroke="#A78BFA" stroke-width="1.2"/>
+        <text x="455" y="36" text-anchor="middle" font-size="11" fill="#41505F">Число (Double)</text>
+        <text x="455" y="58" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#101828">25000.5</text>
+        <path d="M573,42 H621" stroke="#64748B" stroke-width="1.8"/>
+        <path d="M621,38 L628,42 L621,46 Z" fill="#64748B"/>
+        <text x="597" y="30" text-anchor="middle" font-size="11.5" font-weight="700" fill="#6D28D9">CCur</text>
+        <rect x="636" y="14" width="230" height="56" rx="7" fill="#F0FDF4" stroke="#15803D" stroke-width="1.3"/>
+        <text x="751" y="36" text-anchor="middle" font-size="11" fill="#41505F">Денежное поле (CURRENCY)</text>
+        <text x="751" y="58" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="12.5" fill="#101828">25 000,50</text>
+        <path d="M874,42 H922" stroke="#64748B" stroke-width="1.8"/>
+        <path d="M922,38 L929,42 L922,46 Z" fill="#64748B"/>
+        <rect x="937" y="14" width="220" height="56" rx="7" fill="#FFFFFF" stroke="#E4E8EF" stroke-width="1.2"/>
+        <text x="1047" y="36" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Готово к расчётам</text>
+        <text x="1047" y="54" text-anchor="middle" font-size="10.5" fill="#41505F">Sum · Avg · отчёты · сравнения цен</text>
+        <text x="590" y="86" text-anchor="middle" font-size="11" fill="#6B7684">Полный пример: <tspan font-family="DejaVu Sans Mono, monospace" fill="#101828">UPDATE Products SET UnitPriceNum = CCur(Val(UnitPrice))</tspan> — см. блок 2</text>
+      </svg>
+      <div class="res">Каждый шаг превращает «грязное» значение из выгрузки в тип, с которым Access умеет работать: сначала число, затем деньги.</div>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 6 из 12</div>
+    <div class="r">Access 2007–2016 · выражения</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 10 — Проверка значений поля</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a10">
+
+  <div class="phead">
+    <div class="pnum">10</div>
+    <div class="tt">
+      <h1>Проверка значений поля</h1>
+      <div class="psub">Конструктор таблиц · тип «Короткий текст» · размер 40 · условие In (...) — допустимые значения проходят, «Прочее» отклоняется</div>
+    </div>
+    <div class="pchip">Проверка срабатывает при вводе — в форме и прямо в таблице</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a10 wide">
+      <h4>Свойства поля в Конструкторе таблиц</h4>
+      <div class="why">Для поля Category задаётся тип «Короткий текст», ограничение длины и список разрешённых значений через условие <b>In (...)</b>; значения внутри условия разделяются точкой с запятой.</div>
+      <div class="rows">
+        <div class="rh"><span>свойство</span><span>значение</span></div>
+        <div class="r"><span style="flex:0 0 190px;font-family:'Carlito','Liberation Sans',sans-serif;font-weight:700;color:#334155;">Тип данных</span><span style="text-align:left;">Короткий текст</span></div>
+        <div class="r"><span style="flex:0 0 190px;font-family:'Carlito','Liberation Sans',sans-serif;font-weight:700;color:#334155;">Размер поля</span><span style="text-align:left;">40</span></div>
+        <div class="r"><span style="flex:0 0 190px;font-family:'Carlito','Liberation Sans',sans-serif;font-weight:700;color:#334155;">Условие на значение</span><span style="text-align:left;">In ("Дом и мебель"; "Красота и здоровье"; "Электроника"; "Авто")</span></div>
+        <div class="r"><span style="flex:0 0 190px;font-family:'Carlito','Liberation Sans',sans-serif;font-weight:700;color:#334155;">Сообщение об ошибке</span><span style="text-align:left;">"Выберите категорию из списка"</span></div>
+      </div>
+      <div class="res">Результат: Access проверяет каждое введённое значение ещё до сохранения записи — мусор в справочник не попадёт.</div>
+    </div>
+
+    <div class="card a10">
+      <h4>Как проходит проверка</h4>
+      <div class="why">Значение из списка — запись сохраняется; любое иное, включая <b>«Прочее»</b>, Access отклонит и покажет сообщение.</div>
+      <div class="rows">
+        <div class="rh"><span>вводимое значение</span><span>проверка In (...)</span></div>
+        <div class="r hit"><span>"Дом и мебель"</span><span class="st ok">✓ принято</span></div>
+        <div class="r hit"><span>"Красота и здоровье"</span><span class="st ok">✓ принято</span></div>
+        <div class="r hit"><span>"Электроника"</span><span class="st ok">✓ принято</span></div>
+        <div class="r hit"><span>"Авто"</span><span class="st ok">✓ принято</span></div>
+        <div class="r off"><span>"Прочее"</span><span class="st bad">✗ отклонено</span></div>
+      </div>
+      <svg viewBox="0 0 560 62" font-family="Carlito, sans-serif">
+        <rect x="110" y="6" width="300" height="48" rx="7" fill="#FFFFFF" stroke="#B91C1C" stroke-width="1.3"/>
+        <rect x="110" y="6" width="300" height="20" rx="7" fill="#FEF2F2"/>
+        <text x="125" y="20" font-size="10.5" font-weight="700" fill="#7F1D1D">Microsoft Access</text>
+        <text x="260" y="38" text-anchor="middle" font-size="11.5" fill="#7F1D1D">Выберите категорию из списка</text>
+        <g stroke="#B91C1C" stroke-width="1.4">
+          <line x1="382" y1="12" x2="396" y2="26"/><line x1="396" y1="12" x2="382" y2="26"/>
+        </g>
+        <text x="110" y="74" font-size="0"> </text>
+      </svg>
+      <svg viewBox="0 0 560 58" font-family="Carlito, sans-serif">
+        <rect x="30" y="10" width="120" height="36" rx="7" fill="#FFF7E6" stroke="#EAD199" stroke-width="1.2"/>
+        <text x="90" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="#92400E">шлюз</text>
+        <text x="90" y="40" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="9.5" fill="#5B4A17">In (...)</text>
+        <circle cx="195" cy="20" r="5" fill="#15803D"/>
+        <circle cx="195" cy="40" r="5" fill="#15803D"/>
+        <circle cx="225" cy="20" r="5" fill="#15803D"/>
+        <circle cx="225" cy="40" r="5" fill="#15803D"/>
+        <circle cx="255" cy="20" r="5" fill="#15803D"/>
+        <circle cx="255" cy="40" r="5" fill="#15803D"/>
+        <circle cx="285" cy="20" r="5" fill="#15803D"/>
+        <circle cx="285" cy="40" r="5" fill="#15803D"/>
+        <circle cx="330" cy="30" r="5" fill="#B91C1C"/>
+        <path d="M336,26 L344,20" stroke="#B91C1C" stroke-width="1.2"/>
+        <text x="360" y="24" font-size="10" fill="#41505F">4 значения из списка —</text>
+        <text x="360" y="38" font-size="10" font-weight="700" fill="#15803D">проходят насквозь</text>
+        <text x="360" y="52" font-size="10" font-weight="700" fill="#B91C1C">«Прочее» отскакивает</text>
+      </svg>
+      <div class="res">Результат: «Прочее» не входит в список In (...) — Access не даст сохранить запись, пока значение не исправят.</div>
+    </div>
+
+    <div class="card a10">
+      <h4>Проверка и SQL-ввод</h4>
+      <div class="why">Условие на значение действует и на INSERT — «запрещённую» строку запрос вставить не сможет.</div>
+      <div class="lbl">Пример — допустимое значение</div>
+<pre>INSERT INTO Products (ProductName, Category)
+VALUES ("Мышь", "Электроника");</pre>
+      <div class="lbl">Пример — отклоняемое значение</div>
+<pre>INSERT INTO Products (ProductName, Category)
+VALUES ("Чехол", "Прочее");</pre>
+      <div class="rows">
+        <div class="rh"><span>запрос</span><span>итог</span></div>
+        <div class="r hit"><span>VALUES ("Мышь", "Электроника")</span><span class="st ok">✓ добавлено</span></div>
+        <div class="r off"><span>VALUES ("Чехол", "Прочее")</span><span class="st bad">✗ нарушение</span></div>
+      </div>
+      <svg viewBox="0 0 560 54" font-family="DejaVu Sans Mono, monospace">
+        <rect x="30" y="6" width="220" height="18" rx="5" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/>
+        <text x="40" y="19" font-size="9.5" fill="#166534">VALUES ("Мышь", "Электроника")</text>
+        <rect x="30" y="30" width="220" height="18" rx="5" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1"/>
+        <text x="40" y="43" font-size="9.5" fill="#B91C1C">VALUES ("Чехол", "Прочее")</text>
+        <path d="M254,15 H282" stroke="#15803D" stroke-width="1.4"/>
+        <path d="M282,11.5 L289,15 L282,18.5 Z" fill="#15803D"/>
+        <path d="M254,39 H282" stroke="#B91C1C" stroke-width="1.4"/>
+        <path d="M282,35.5 L289,39 L282,42.5 Z" fill="#B91C1C"/>
+        <rect x="298" y="6" width="118" height="42" rx="7" fill="#FFF7E6" stroke="#EAD199" stroke-width="1.1"/>
+        <text x="357" y="24" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">условие на</text>
+        <text x="357" y="39" text-anchor="middle" font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#5B4A17">In (...)</text>
+        <text x="428" y="19" font-size="9.5" font-weight="700" fill="#15803D">✓ запись добавлена</text>
+        <text x="428" y="42" font-size="9.5" font-weight="700" fill="#B91C1C">✗ Access отклонил</text>
+      </svg>
+    </div>
+
+    <div class="card a10">
+      <h4>Зачем нужна проверка</h4>
+      <div class="why">Единый список категорий делает группировки и фильтры предсказуемыми: «Электроника» и «прочее» не размывают отчёты десятками вариантов.</div>
+      <svg viewBox="0 0 560 96" font-family="Carlito, sans-serif">
+        <rect x="24" y="10" width="220" height="76" rx="7" fill="#FFFFFF" stroke="#334155" stroke-width="1.3"/>
+        <rect x="24" y="10" width="220" height="20" rx="7" fill="#F1F5F9"/>
+        <text x="134" y="24" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">справочник категорий</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828">
+          <text x="40" y="46">Дом и мебель</text>
+          <text x="40" y="61">Красота и здоровье</text>
+          <text x="40" y="76">Электроника · Авто</text>
+        </g>
+        <path d="M252,48 H306" stroke="#334155" stroke-width="1.6"/>
+        <path d="M306,44.5 L313,48 L306,51.5 Z" fill="#334155"/>
+        <text x="282" y="38" text-anchor="middle" font-size="10" font-weight="700" fill="#334155">In (...)</text>
+        <rect x="320" y="10" width="216" height="76" rx="7" fill="#FFFFFF" stroke="#334155" stroke-width="1.3"/>
+        <rect x="320" y="10" width="216" height="20" rx="7" fill="#F1F5F9"/>
+        <text x="428" y="24" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Products.Category</text>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828">
+          <text x="336" y="46">только значения</text>
+          <text x="336" y="61">из списка — иначе</text>
+          <text x="336" y="76">ошибка ввода</text>
+        </g>
+        <text x="24" y="102" font-size="0"> </text>
+      </svg>
+      <div class="res">Результат: GROUP BY Category даёт ровно четыре группы — отчёты сходятся со справочником.</div>
+    </div>
+
+    <div class="card a10">
+      <h4>Размер поля и длинные строки</h4>
+      <div class="why">Размер 40 ограничивает длину «Короткого текста»: строка длиннее 40 символов не сохранится.</div>
+      <div class="lbl">Проверка длины выражением</div>
+<pre>WHERE Len([Category]) > 40</pre>
+      <div class="rows">
+        <div class="rh"><span>значение</span><span>длина / итог</span></div>
+        <div class="r hit"><span>"Красота и здоровье"</span><span class="st ok">19 · ✓ влезает</span></div>
+        <div class="r off"><span>41 символ и длиннее</span><span class="st bad">✗ превышение</span></div>
+      </div>
+      <svg viewBox="0 0 560 54" font-family="DejaVu Sans Mono, monospace">
+        <rect x="36" y="10" width="420" height="22" rx="4" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+        <rect x="36" y="10" width="200" height="22" rx="4" fill="#ECFDFD" stroke="#0E7490" stroke-width="1"/>
+        <text x="46" y="25" font-size="9.5" fill="#0E7490">"Красота и здоровье" · 19</text>
+        <line x1="456" y1="4" x2="456" y2="38" stroke="#B91C1C" stroke-width="1.4"/>
+        <text x="456" y="50" text-anchor="middle" font-size="9" fill="#B91C1C" font-family="Carlito, sans-serif">лимит 40</text>
+        <text x="468" y="18" font-size="9.5" fill="#41505F" font-family="Carlito, sans-serif">19 ≤ 40 — влезает;</text>
+        <text x="468" y="34" font-size="9.5" fill="#41505F" font-family="Carlito, sans-serif">41-й символ уже не сохранится</text>
+      </svg>
+      <div class="res">Результат: перед загрузкой данных длину проверяют функцией Len (блок 7), тип поля — блоком 11.</div>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 10 из 12</div>
+    <div class="r">Access 2007–2016 · проверка</div>
+  </div>
+
+</div>
+</body>
+</html>

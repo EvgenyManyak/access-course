@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Блок 5 — JOIN — объединение таблиц</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="poster a9">
+
+  <div class="phead">
+    <div class="pnum">5</div>
+    <div class="tt">
+      <h1>JOIN — объединение таблиц</h1>
+      <div class="psub">INNER · LEFT · RIGHT · CROSS · SELF · имитация FULL OUTER через UNION — с мини-схемами связей</div>
+    </div>
+    <div class="pchip">Условие соединения — ON; для читаемости задавайте псевдонимы AS</div>
+  </div>
+
+  <div class="pbody">
+
+    <div class="card a9">
+      <h4><span class="op">INNER JOIN</span> только совпадения</h4>
+      <div class="why">В результат попадают только записи, у которых нашлась пара в другой таблице.</div>
+      <div class="lbl">Пример</div>
+<pre>SELECT Products.ProductName,
+       Categories.CategoryName
+FROM Products INNER JOIN Categories
+ON Products.CategoryID = Categories.ID;</pre>
+      <div class="res">Результат: товары, у которых заполнена категория; товар без пары пропадает.</div>
+      <svg viewBox="0 0 560 100" font-family="Carlito, sans-serif">
+        <circle cx="235" cy="42" r="28" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.4"/>
+        <circle cx="283" cy="42" r="28" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.4"/>
+        <path d="M259,27.6 A28,28 0 0 1 259,56.4 A28,28 0 0 1 259,27.6 Z" fill="#2563EB" opacity="0.92"/>
+        <text x="213" y="46" font-size="12" font-weight="700" fill="#1D4ED8">A</text>
+        <text x="303" y="46" font-size="12" font-weight="700" fill="#1D4ED8">B</text>
+        <text x="259" y="46" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FFFFFF">A∩B</text>
+        <text x="360" y="36" font-size="11.5" font-weight="700" fill="#C2410C">только пересечение</text>
+        <text x="360" y="54" font-size="10.5" fill="#41505F">записи с парой с обеих сторон</text>
+        <text x="360" y="72" font-size="10.5" fill="#64748B">A — Products, B — Categories</text>
+      </svg>
+    </div>
+
+    <div class="card a9">
+      <h4><span class="op">LEFT JOIN</span> все слева + совпадения</h4>
+      <div class="why">Все записи левой таблицы; для тех, у кого нет пары, поля правой заполняются Null.</div>
+      <div class="lbl">Пример</div>
+<pre>SELECT Products.ProductName,
+       Categories.CategoryName
+FROM Products LEFT JOIN Categories
+ON Products.CategoryID = Categories.ID;</pre>
+      <div class="res">Результат: весь список товаров, даже без категории (категория = Null).</div>
+      <svg viewBox="0 0 560 84" font-family="Carlito, sans-serif">
+        <circle cx="235" cy="42" r="28" fill="#2563EB" opacity="0.92"/>
+        <circle cx="283" cy="42" r="28" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.4"/>
+        <text x="227" y="46" font-size="12" font-weight="700" fill="#FFFFFF">A</text>
+        <text x="305" y="46" font-size="12" font-weight="700" fill="#1D4ED8">B</text>
+        <text x="360" y="30" font-size="11.5" font-weight="700" fill="#C2410C">весь круг A</text>
+        <text x="360" y="46" font-size="10.5" fill="#41505F">+ совпадения из B</text>
+        <text x="360" y="62" font-size="10.5" fill="#64748B">без пары → Null</text>
+      </svg>
+    </div>
+
+    <div class="card a9">
+      <h4><span class="op">RIGHT JOIN</span> все справа + совпадения</h4>
+      <div class="why">Зеркально LEFT: все записи правой таблицы; без пары слева — Null в полях левой.</div>
+      <div class="lbl">Пример</div>
+<pre>SELECT P.ProductName, C.CategoryName
+FROM Products AS P RIGHT JOIN Categories AS C
+  ON P.CategoryID = C.ID;</pre>
+      <div class="res">Результат: все категории, даже пустые — те, где нет ни одного товара.</div>
+      <svg viewBox="0 0 560 100" font-family="Carlito, sans-serif">
+        <circle cx="235" cy="42" r="28" fill="#EFF6FF" stroke="#1D4ED8" stroke-width="1.4"/>
+        <circle cx="283" cy="42" r="28" fill="#2563EB" opacity="0.92"/>
+        <text x="213" y="46" font-size="12" font-weight="700" fill="#1D4ED8">A</text>
+        <text x="277" y="46" font-size="12" font-weight="700" fill="#FFFFFF">B</text>
+        <text x="360" y="36" font-size="11.5" font-weight="700" fill="#C2410C">весь круг B</text>
+        <text x="360" y="54" font-size="10.5" fill="#41505F">+ совпадения из A</text>
+        <text x="360" y="72" font-size="10.5" fill="#64748B">удобно искать пустые справочники</text>
+      </svg>
+    </div>
+
+    <div class="card a9">
+      <h4><span class="op">CROSS JOIN</span> каждая с каждой</h4>
+      <div class="why">Декартово произведение: каждая строка левой таблицы сочетается с каждой строкой правой. В Access — запятая вместо ключевого слова.</div>
+      <div class="lbl">Пример</div>
+<pre>SELECT Count(*) FROM Products, Categories;</pre>
+      <div class="res">Результат: количество строк = <b>строки Products × строки Categories</b> (3 × 2 = 6).</div>
+      <svg viewBox="0 0 560 104" font-family="Carlito, sans-serif">
+        <circle cx="110" cy="30" r="20" fill="#2563EB" opacity="0.92"/>
+        <text x="110" y="35" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">A</text>
+        <text x="137" y="36" font-size="14" font-weight="700" fill="#C2410C">×</text>
+        <circle cx="166" cy="30" r="20" fill="#2563EB" opacity="0.92"/>
+        <text x="166" y="35" text-anchor="middle" font-size="10.5" font-weight="700" fill="#FFFFFF">B</text>
+        <text x="60" y="66" font-size="9.5" fill="#41505F">A — 3 строки, B — 2 строки</text>
+        <text x="60" y="82" font-size="9.5" fill="#41505F">пересечение не нужно:</text>
+        <text x="60" y="96" font-size="9.5" fill="#41505F">берутся все комбинации</text>
+        <path d="M208,30 H246" stroke="#C2410C" stroke-width="1.6"/>
+        <path d="M246,26.5 L253,30 L246,33.5 Z" fill="#C2410C"/>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="9" fill="#101828">
+          <rect x="266" y="10" width="132" height="17" rx="4" fill="#FFF7ED" stroke="#FDBA74" stroke-width="1"/><text x="276" y="22">Стол · Электроника</text>
+          <rect x="266" y="33" width="132" height="17" rx="4" fill="#FFF7ED" stroke="#FDBA74" stroke-width="1"/><text x="276" y="45">Стул · Электроника</text>
+          <rect x="266" y="56" width="132" height="17" rx="4" fill="#FFF7ED" stroke="#FDBA74" stroke-width="1"/><text x="276" y="68">Лампа · Электроника</text>
+          <rect x="406" y="10" width="118" height="17" rx="4" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1"/><text x="416" y="22">Стол · Авто</text>
+          <rect x="406" y="33" width="118" height="17" rx="4" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1"/><text x="416" y="45">Стул · Авто</text>
+          <rect x="406" y="56" width="118" height="17" rx="4" fill="#EFF6FF" stroke="#93C5FD" stroke-width="1"/><text x="416" y="68">Лампа · Авто</text>
+        </g>
+        <text x="266" y="94" font-size="10.5" font-weight="700" fill="#C2410C">3 × 2 = 6 пар — все сочетания</text>
+      </svg>
+    </div>
+
+    <div class="card a9">
+      <h4><span class="op">SELF JOIN</span> таблица с самой собой</h4>
+      <div class="why">Таблица соединяется с собой через два псевдонима — например, сотрудники и их руководители по полю ManagerID.</div>
+      <div class="lbl">Пример — кто кому подчиняется</div>
+<pre>SELECT e1.EmployeeName AS Сотрудник,
+       e2.EmployeeName AS Руководитель
+FROM Employees AS e1 LEFT JOIN Employees AS e2
+  ON e1.ManagerID = e2.EmployeeID;</pre>
+      <svg viewBox="0 0 560 96" font-family="Carlito, sans-serif">
+        <rect x="165" y="8" width="150" height="30" rx="7" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.3"/>
+        <text x="240" y="27" text-anchor="middle" font-size="12" font-weight="700" fill="#C2410C">Иван · e2</text>
+        <rect x="120" y="11" width="38" height="14" rx="3" fill="#FEF2F2" stroke="#B91C1C" stroke-width="1"/>
+        <text x="139" y="22" text-anchor="middle" font-size="8.5" font-weight="700" fill="#B91C1C">NULL</text>
+        <path d="M240,38 V46 M130,46 H330 M130,46 V54 M330,46 V54" fill="none" stroke="#9A3412" stroke-width="1.3"/>
+        <rect x="55" y="54" width="150" height="30" rx="7" fill="#FFFFFF" stroke="#C2410C" stroke-width="1.2"/>
+        <text x="130" y="73" text-anchor="middle" font-size="12" fill="#7C2D12">Ольга · e1</text>
+        <rect x="255" y="54" width="150" height="30" rx="7" fill="#FFFFFF" stroke="#C2410C" stroke-width="1.2"/>
+        <text x="330" y="73" text-anchor="middle" font-size="12" fill="#7C2D12">Пётр · e1</text>
+        <text x="430" y="30" font-size="11" font-weight="700" fill="#C2410C">e1.ManagerID = e2.EmployeeID</text>
+        <text x="430" y="50" font-size="10.5" fill="#41505F">LEFT JOIN обязателен: у Ивана</text>
+        <text x="430" y="66" font-size="10.5" fill="#41505F">руководителя нет (ManagerID = Null)</text>
+        <text x="430" y="84" font-size="10.5" fill="#64748B">одна таблица — две роли через AS</text>
+      </svg>
+    </div>
+
+    <div class="card a9">
+      <h4>Псевдонимы и связь по нескольким полям</h4>
+      <div class="why">Псевдонимы сокращают запись; если таблицы связываются по составному ключу — условия перечисляются через AND.</div>
+      <div class="lbl">Соединение по одному полю (через псевдонимы)</div>
+<pre>FROM Products AS P INNER JOIN Categories AS C
+ON P.CategoryID = C.ID</pre>
+      <div class="lbl">Соединение по нескольким полям — условия через AND</div>
+<pre>FROM T1 AS a INNER JOIN T2 AS b
+ON a.Key1 = b.Key1 AND a.Key2 = b.Key2</pre>
+      <div class="res">Результат: обе части пары ключей должны совпасть одновременно — так соединяются таблицы со сложным ключом.</div>
+    </div>
+
+    <div class="card a9 wide">
+      <h4><span class="op">FULL OUTER JOIN</span> в Access не поддерживается — имитация через UNION</h4>
+      <div class="why">Полное внешнее соединение (все записи обеих таблиц) напрямую недоступно. Его собирают из двух запросов: LEFT JOIN плюс RIGHT JOIN с условием IS NULL по ключу левой таблицы, объединёнными оператором UNION.</div>
+      <div class="lbl">Схема имитации</div>
+<pre>SELECT P.ProductName, C.CategoryName
+FROM Products AS P LEFT JOIN Categories AS C ON P.CategoryID = C.ID
+UNION
+SELECT P.ProductName, C.CategoryName
+FROM Products AS P RIGHT JOIN Categories AS C ON P.CategoryID = C.ID
+WHERE P.CategoryID IS NULL;</pre>
+      <svg viewBox="0 0 1180 86" font-family="Carlito, sans-serif">
+        <rect x="20" y="14" width="280" height="52" rx="7" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.3"/>
+        <text x="160" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#C2410C">Запрос 1: LEFT JOIN</text>
+        <text x="160" y="54" text-anchor="middle" font-size="10.5" fill="#9A3412">все товары + совпадения</text>
+        <rect x="380" y="14" width="150" height="52" rx="7" fill="#FFFFFF" stroke="#F0C9C5" stroke-width="1.2"/>
+        <text x="455" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#B91C1C">UNION</text>
+        <text x="455" y="54" text-anchor="middle" font-size="10.5" fill="#7F1D1D">без повторов</text>
+        <rect x="610" y="14" width="280" height="52" rx="7" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.3"/>
+        <text x="750" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#C2410C">Запрос 2: RIGHT JOIN</text>
+        <text x="750" y="54" text-anchor="middle" font-size="10.5" fill="#9A3412">+ WHERE P.CategoryID IS NULL</text>
+        <path d="M300,40 H372" stroke="#64748B" stroke-width="1.5"/>
+        <path d="M372,36.5 L379,40 L372,43.5 Z" fill="#64748B"/>
+        <path d="M530,40 H602" stroke="#64748B" stroke-width="1.5"/>
+        <path d="M602,36.5 L609,40 L602,43.5 Z" fill="#64748B"/>
+        <path d="M890,40 H940" stroke="#64748B" stroke-width="1.5"/>
+        <path d="M940,36.5 L947,40 L940,43.5 Z" fill="#64748B"/>
+        <rect x="952" y="14" width="212" height="52" rx="7" fill="#F0FDF4" stroke="#15803D" stroke-width="1.3"/>
+        <text x="1058" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#15803D">= FULL OUTER</text>
+        <text x="1058" y="54" text-anchor="middle" font-size="10.5" fill="#166534">все записи обеих таблиц</text>
+      </svg>
+      <svg viewBox="0 0 1180 92" font-family="Carlito, sans-serif">
+        <circle cx="110" cy="40" r="26" fill="#2563EB" opacity="0.9"/>
+        <circle cx="150" cy="40" r="26" fill="#2563EB" opacity="0.9"/>
+        <text x="101" y="45" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">A</text>
+        <text x="159" y="45" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">B</text>
+        <text x="36" y="88" font-size="10.5" fill="#41505F">A ∪ B — всё из обеих таблиц</text>
+        <path d="M196,40 H234" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M234,36.5 L241,40 L234,43.5 Z" fill="#64748B"/>
+        <g font-family="DejaVu Sans Mono, monospace" font-size="10" fill="#101828">
+          <rect x="252" y="10" width="344" height="22" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+          <text x="266" y="25">товар без категории — C.CategoryName = Null</text>
+          <rect x="252" y="38" width="344" height="22" rx="5" fill="#F0FDF4" stroke="#15803D" stroke-width="1"/>
+          <text x="266" y="53">товар с категорией — обычная пара</text>
+          <rect x="252" y="66" width="344" height="22" rx="5" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+          <text x="266" y="81">категория без товаров — P.ProductName = Null</text>
+        </g>
+        <path d="M608,49 H646" stroke="#64748B" stroke-width="1.6"/>
+        <path d="M646,45.5 L653,49 L646,52.5 Z" fill="#64748B"/>
+        <rect x="666" y="23" width="230" height="52" rx="7" fill="#F0FDF4" stroke="#15803D" stroke-width="1.3"/>
+        <text x="781" y="45" text-anchor="middle" font-size="13" font-weight="700" fill="#15803D">= FULL OUTER JOIN</text>
+        <text x="781" y="63" text-anchor="middle" font-size="10.5" fill="#166534">все записи обеих таблиц</text>
+        <text x="920" y="34" font-size="10.5" fill="#41505F">UNION убирает повторы: общая часть</text>
+        <text x="920" y="50" font-size="10.5" fill="#41505F">попадает в оба запроса, но в итоге</text>
+        <text x="920" y="66" font-size="10.5" fill="#41505F">останется ровно один раз</text>
+      </svg>
+    </div>
+
+  </div>
+
+  <div class="pfoot">
+    <div class="l"><b>Microsoft Access — SQL и функции</b> · расширенный набор карточек · блок 5 из 12</div>
+    <div class="r">Access 2007–2016 · JOIN</div>
+  </div>
+
+</div>
+</body>
+</html>
