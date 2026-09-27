@@ -51,7 +51,7 @@
 
 **9. Резервное копирование.** Перед action-запросами и экспериментами: закрыть Access и скопировать базу в `backup\ShopData_ГГГГ-ММ-ДД.accdb`. Сжатие: Файл → Сведения → «Сжать и восстановить». Системно — модуль 14.
 
-**10. Ссылки на подробные документы.** [getting-started.html](getting-started.html) — интерактивный мастер + чек-лист (localStorage) · [docs/getting-started.md](docs/getting-started.md) — расширенная инструкция (12 разделов) · [starter-data/import-checklist.md](starter-data/import-checklist.md) — чек-лист импорта с решениями ошибок · [starter-data/data-dictionary.md](starter-data/data-dictionary.md) — поля, типы, ключи, связи · [datasets/import-instructions.md](datasets/import-instructions.md) — три пути получения данных + Calendar · [docs/student-checklist.md](docs/student-checklist.md) — маршрут по модулям.
+**10. Ссылки на подробные документы.** [getting-started.html](getting-started.html) — интерактивный мастер + чек-лист (localStorage) · [docs/getting-started.md](docs/getting-started.md) — расширенная инструкция (12 разделов) · [starter-data/import-checklist.md](starter-data/import-checklist.md) — чек-лист импорта с решениями ошибок · [starter-data/data-dictionary.md](starter-data/data-dictionary.md) — поля, типы, ключи, связи · [datasets/import-instructions.md](datasets/import-instructions.md) — три пути получения данных + Calendar · [docs/student-checklist.md](docs/student-checklist.md) — маршрут по модулям · [docs/access-sql-cheatsheet.png](docs/access-sql-cheatsheet.png) — печатная шпаргалка «Access — SQL и функции» (A4 альбомная, 300 dpi; скачать: клик по ссылке → «Сохранить как…») · [docs/cheatsheet/](docs/cheatsheet/) — расширенный набор из 12 карточек «Access — SQL и функции»: отдельная страница A4 (портрет, 300 dpi) на каждый блок + все страницы одним PDF + исходники HTML/CSS.
 
 ## 📖 Описание
 
@@ -135,7 +135,6 @@ access-course/
 │   ├── categories.csv      # 5 категорий
 │   ├── products.csv        # 8 товаров
 │   ├── customers.csv       # 8 покупателей
-│   ├── customers_archive.csv # 8 покупателей + 3 покупателя (дубликаты записей)
 │   ├── employees.csv       # 6 сотрудников
 │   ├── orders.csv          # 12 заказов
 │   ├── order-details.csv   # 15 позиций заказов
@@ -156,6 +155,12 @@ access-course/
 │   ├── course-outline.md   # программа курса
 │   ├── student-checklist.md# чек-лист студента
 │   ├── instructor-guide.md # руководство преподавателя
+│   ├── access-sql-cheatsheet.png # шпаргалка «SQL и функции» (PNG, A4 300 dpi)
+│   ├── cheatsheet/         # расширенный набор «SQL и функции»: 12 карточек + PDF
+│   │   ├── 01_DDL.png … 12_ERRORS.png # карточки-страницы (A4 портрет, 300 dpi)
+│   │   ├── access-sql-cheatsheet-v2.pdf # 12 страниц одним векторным PDF
+│   │   ├── README.txt      # состав набора и порядок работы
+│   │   └── html/           # исходники страниц HTML/CSS для правок и пересборки
 │   └── testing-guide.md    # гайд по тестированию (18 пунктов)
 └── assets/
     ├── favicon.svg         # иконка
@@ -376,41 +381,3 @@ PY
 ## 🔄 Развитие
 
 История изменений — [CHANGELOG.md](CHANGELOG.md). Приветствуются issues и PR: сообщайте страницу, браузер, шаги воспроизведения, ожидаемое и фактическое поведение (шаблон — в [тестинг-гайде](docs/testing-guide.md)).
-=======
-# Исправленные файлы v1.1.3 (модуль 07 — SELF-JOIN / ManagerID)
-
-Скопируйте файлы в корень локального клона репозитория access-course
-(с сохранением подпапок), затем закоммитьте и запушьте —
-
-проще всего готовым скриптом из этого же пакета:
-- git-push-commands.sh   — bash (macOS / Linux / Git Bash в Windows)
-- git-push-commands.ps1  — PowerShell (Windows)
-
-## Куда положить каждый файл (относительно корня репозитория)
-
-| Файл из пакета              | Куда                                  | Что это |
-|-----------------------------|---------------------------------------|---------|
-| modules/07-access-sql.html  | modules/07-access-sql.html            | Само исправление: явное указание проблемы, подготовительный шаг (ALTER TABLE + 2 UPDATE + контроль, NULL у вершины), рабочий SELF-JOIN |
-| js/export.js                | js/export.js                          | Кэш курса для экспорта (пересобран) |
-| standalone.html             | standalone.html                       | Автономная версия учебника (пересобрана) |
-| CHANGELOG.md                | CHANGELOG.md                          | Журнал изменений, версия 1.1.3 |
-
-## Что изменилось в модуле 07
-
-- Явно указано: в стартовом starter-data/employees.csv нет поля ManagerID —
-  Запрос 5 падает в окно «Введите значение параметра ManagerID».
-- Добавлен подготовительный шаг перед Запросом 5:
-  1. ALTER TABLE Employees ADD COLUMN ManagerID LONG;  (или поле через Конструктор)
-  2. UPDATE Employees SET ManagerID = 1 WHERE EmployeeID In (2, 4);
-     UPDATE Employees SET ManagerID = 3 WHERE EmployeeID In (5, 6);
-     Ana Souza (1) и Maria Oliveira (3) остаются с NULL — руководители верхнего уровня.
-  3. Контрольный SELECT: 6 строк, эталонные значения.
-- Запрос 5 приведён к рабочему виду:
-  SELECT e1.EmployeeName AS Сотрудник, e2.EmployeeName AS Руководитель
-  FROM Employees AS e1
-  LEFT JOIN Employees AS e2 ON e1.ManagerID = e2.EmployeeID
-  ORDER BY e1.EmployeeID;
-- Чек-лист: новый пункт m07:7; викторина: вопрос о диагностике окна параметра.
-
-Другие файлы и модули не менялись; starter-data остался прежним
-(поле ManagerID студент создаёт по инструкции модуля).
