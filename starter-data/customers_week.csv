@@ -1,0 +1,7 @@
+﻿"CustomerID","CustomerName","ZipCodePrefix","City","State","Segment"
+"C-0002","Bruno Carvalho","20040","rio de janeiro","RJ","VIP"
+"C-0005","Elena Costa","50050","recife","PE","Retail"
+"C-0009","Lucas Almeida","04570","sao paulo","SP","Retail"
+"C-0010","Marina Duarte","51020","recife","PE","Wholesale"
+"C-0011","Tatiana Rocha","13010","campinas","SP","Retail"
+"C-0012","Rafael Mendes","88010","florianopolis","SC","VIP"
