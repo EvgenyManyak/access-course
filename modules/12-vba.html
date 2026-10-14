@@ -31,7 +31,7 @@
 <ul>
 <li>работать в редакторе VBE (Alt+F11): находить модули в Project Explorer, пользоваться окнами Immediate (Ctrl+G) и Locals, запускать процедуры по F5, проходить по шагам по F8, ставить точки останова по F9 и печатать значения через Debug.Print;</li>
 <li>читать незнакомую процедуру по устойчивому шаблону Sub…End Sub, Dim, Set, With, DoCmd.…, On Error GoTo, Exit Sub, ErrHandler и объяснять каждую строку своими словами;</li>
-<li>применять методы DoCmd — OpenForm, OpenQuery, OpenReport с WhereCondition, OutputTo, TransferText, TransferSpreadsheet, RunSQL — и выбирать между CurrentDb.Execute и DoCmd.RunSQL осознанно, понимая разницу в предупреждениях;</li>
+<li>применять методы DoCmd — OpenForm, OpenQuery, OpenReport с WhereCondition, OutputTo, TransferText, TransferSpreadsheet, RunSQL, RunSavedImportExport — и выбирать между CurrentDb.Execute и DoCmd.RunSQL осознанно, понимая разницу в предупреждениях;</li>
 <li>читать recordset-цикл (OpenRecordset, Do While Not rs.EOF, rs.Fields, rs.MoveNext, rs.Close) и сверять его результат с SQL-запросом на мини-датасете ShopData;</li>
 <li>запустить готовую процедуру btnImportCsv_Click в учебной базе и модифицировать её под другой файл, не сломав обработку ошибок.</li>
 </ul>
@@ -103,6 +103,7 @@ End Sub</code></pre>
 <tr><td>DoCmd.OpenReport</td><td>открывает или печатает отчёт; WhereCondition ограничивает данные</td><td><code>DoCmd.OpenReport "rpt_Накладная", acViewPreview, , "OrderID = 'O-10003'"</code></td></tr>
 <tr><td>DoCmd.OutputTo</td><td>выгружает объект в файл XLSX/PDF/RTF</td><td><code>DoCmd.OutputTo acOutputReport, "rpt_Топ10Товаров", acFormatPDF, strFile, False</code></td></tr>
 <tr><td>DoCmd.TransferText</td><td>импортирует/экспортирует текстовые файлы (CSV) по спецификации</td><td><code>DoCmd.TransferText acImportDelim, "spec_ИмпортКлиентов", "Customers_Staging", strFile, True</code></td></tr>
+<tr><td>DoCmd.RunSavedImportExport</td><td>запускает сохранённую операцию импорта/экспорта (создаётся флажком «Сохранить шаги импорта»)</td><td><code>DoCmd.RunSavedImportExport "spec_ИмпортКлиентов"</code></td></tr>
 <tr><td>DoCmd.TransferSpreadsheet</td><td>импортирует/экспортирует листы Excel</td><td><code>DoCmd.TransferSpreadsheet acImport, acSpreadsheetTypeExcel12Xml, "Products_Staging", strFile, True</code></td></tr>
 <tr><td>DoCmd.RunSQL</td><td>выполняет action-SQL с предупреждениями Access</td><td><code>DoCmd.RunSQL "UPDATE Products SET UnitPrice = UnitPrice * 1.05 WHERE CategoryID = 5"</code></td></tr>
 </tbody>
@@ -174,7 +175,7 @@ End Sub</code></pre>
 <section class="sec" id="s-case" data-sec="case">
 <h2>Пример из работы аналитика</h2>
 <p>В понедельник директор собирает планёрку: «Маркетплейс каждую неделю присылает CSV с новыми клиентами, менеджер десять минут щёлкает по мастеру импорта, иногда забывает спецификацию — и ZipCodePrefix снова превращается из 01310 в 1310. Сделайте кнопку: нажал — файл импортировался, нажал, а файла нет — программа внятно сказала об этом, а не ругалась». Задача на 45 минут, но решать её вы будете не с чистого листа: у коллеги из соседнего отдела уже есть форма с кнопкой btnImportCsv, и она согласилась поделиться кодом.</p>
-<p>Это классическая ситуация «чужой код быстрее своего»: процедура уже написана, проверена и содержит обработку ошибок, в которой легко ошибиться с нуля. Прежде чем что-то менять, мы читаем её по каркасу из теории: где заголовок и чей это модуль формы; что объявлено в Dim; где стоит On Error GoTo и на какую метку; что делает DoCmd.TransferText и с какими аргументами; есть ли Exit Sub перед обработчиком. Только после этого запускаем её в своей учебной базе на безопасном файле-примере и убеждаемся, что в Customers_Staging появились строки, а ZipCodePrefix сохранил ведущие нули.</p>
+<p>Это классическая ситуация «чужой код быстрее своего»: процедура уже написана, проверена и содержит обработку ошибок, в которой легко ошибиться с нуля. Прежде чем что-то менять, мы читаем её по каркасу из теории: где заголовок и чей это модуль формы; что объявлено в Dim; где стоит On Error GoTo и на какую метку; что делает DoCmd.RunSavedImportExport и какая сохранённая операция в нём указана; есть ли Exit Sub перед обработчиком. Только после этого запускаем её в своей учебной базе на безопасном файле-примере и убеждаемся, что в Customers_Staging появились строки, а ZipCodePrefix сохранил ведущие нули.</p>
 <p>Что именно делаем:</p>
 <ul>
 <li>воспроизводим у себя кнопку btnImportCsv на форме frm_Товары (как в модуле 11 — она у нас работает «панелью автоматизации») и вставляем код коллеги;</li>
@@ -187,7 +188,7 @@ End Sub</code></pre>
 
 <section class="sec" id="s-data" data-sec="data">
 <h2>Исходные таблицы и поля</h2>
-<p>Для модуля нужны три источника. Первый — файл <strong>customers_import.csv</strong> (еженедельная выгрузка маркетплейса), лежащий в папке базы; его структура повторяет Customers, а в примере — три новых клиента, которых ещё нет в основной таблице. Файл импортируется в таблицу <strong>Customers_Staging</strong> (шесть полей, как в Customers; создана в модуле 4) по сохранённой спецификации <strong>ИмпортКлиентов</strong> — она задаёт разделитель «запятая», кодировку и текстовый тип для ZipCodePrefix, чтобы ведущий ноль 04578 не превращался в 4578.</p>
+<p>Для модуля нужны три источника. Первый — файл <strong>customers_import.csv</strong> (еженедельная выгрузка маркетплейса), лежащий в папке базы; его структура повторяет Customers, а в примере — три новых клиента, которых ещё нет в основной таблице. Файл импортируется в таблицу <strong>Customers_Staging</strong> (шесть полей, как в Customers; создана в модуле 4) по сохранённой спецификации <strong>spec_ИмпортКлиентов</strong> — она задаёт разделитель «запятая», кодировку и текстовый тип для ZipCodePrefix, чтобы ведущий ноль 04578 не превращался в 4578.</p>
 <div class="table-wrap">
 <table class="data-table">
 <thead><tr><th>CustomerID</th><th>CustomerName</th><th>ZipCodePrefix</th><th>City</th><th>State</th><th>Segment</th></tr></thead>
@@ -356,14 +357,14 @@ ORDER BY o.OrderID;</code></pre>
   </div>
   <h3>V02. Автоимпорт CSV одной кнопкой</h3>
   <p><strong>Цель:</strong> научиться читать готовую VBA-процедуру по каркасу Sub…Dim…On Error…DoCmd…Exit Sub…ErrHandler, запустить её в учебной базе кнопкой на форме и модифицировать под другой файл, сохранив обработку ошибок.</p>
-  <p><strong>Исходные таблицы:</strong> Customers_Staging (приёмник импорта, создана в модуле 4), справочник Customers для сверки структуры; файл customers_import.csv в папке базы; сохранённая спецификация импорта «ИмпортКлиентов» (модуль 4); для усложнения — Products_Staging и файл products_import.csv.</p>
+  <p><strong>Исходные таблицы:</strong> Customers_Staging (приёмник импорта, создана в модуле 4), справочник Customers для сверки структуры; файл customers_import.csv в папке базы; сохранённая спецификация импорта «spec_ИмпортКлиентов» (модуль 4); для усложнения — Products_Staging и файл products_import.csv.</p>
   <p><strong>Используемые поля:</strong> CustomerID, CustomerName, ZipCodePrefix, City, State, Segment (структура файла customers_import.csv); для модификации — ProductID, ProductName, CategoryID, WeightG.</p>
   <p><strong>Пошаговый план:</strong></p>
   <ol>
-    <li>Прочитайте содержимое customers_import.csv (три строки C-0009…C-0011) и убедитесь, что спецификация «ИмпортКлиентов» открывает его мастером без ошибок типов.</li>
+    <li>Прочитайте содержимое customers_import.csv (три строки C-0009…C-0011) и убедитесь, что спецификация «spec_ИмпортКлиентов» открывает его мастером без ошибок типов.</li>
     <li>Откройте frm_Товары в режиме конструктора, добавьте кнопку <strong>btnImportCsv</strong> (мастер кнопок отмените), в свойствах: вкладка «Другие» → Имя = btnImportCsv, Подпись = «Импорт клиентов (CSV)».</li>
     <li>В свойствах кнопки: вкладка «События» → «Нажатие кнопки» → [Процедура обработки событий] → кнопка «…». VBE откроет модуль формы с заготовкой Private Sub btnImportCsv_Click().</li>
-    <li>Вставьте код из решения ниже, читая каждую строку и её комментарий; сверьте аргументы TransferText: acImportDelim, "spec_ИмпортКлиентов", "Customers_Staging", путь, True.</li>
+    <li>Вставьте код из решения ниже, читая каждую строку и её комментарий; сверьте вызов импорта: DoCmd.RunSavedImportExport "spec_ИмпортКлиентов" — тот самый сохранённый импорт из модуля 4.</li>
     <li>Сохраните (Ctrl+S), переключитесь в Access, откройте frm_Товары в режиме формы и нажмите кнопку; проверьте Customers_Staging запросом: строки C-0009…C-0011 на месте, ZipCodePrefix = 04578 с нулём.</li>
     <li>Модифицируйте: скопируйте процедуру, переименуйте в btnImportProducts_Click, замените спецификацию, таблицу и имя файла на products-вариант, добавьте вторую кнопку и запустите.</li>
     <li>Проверьте обработчик: переименуйте customers_import.csv и нажмите первую кнопку — MsgBox должен назвать проблему и папку, где файл ищется.</li>
@@ -374,14 +375,14 @@ ORDER BY o.OrderID;</code></pre>
   <p><strong>Критерии оценки:</strong></p>
   <ul>
     <li>процедура называется btnImportCsv_Click и лежит в модуле формы frm_Товары, а не в стандартном модуле;</li>
-    <li>использован DoCmd.TransferText acImportDelim с именем спецификации, таблицей Customers_Staging и True в аргументе «имеются заголовки»;</li>
+    <li>использован DoCmd.RunSavedImportExport "spec_ИмпортКлиентов" — запуск сохранённой операции импорта из модуля 4, без ручного мастера и без передачи пути в коде;</li>
     <li>первой рабочей строкой стоит On Error GoTo ErrHandler, перед обработчиком — Exit Sub;</li>
     <li>MsgBox об успехе и ошибках понятны пользователю (что случилось и что делать);</li>
     <li>модифицированная процедура меняет только спецификацию, таблицу и файл — каркас ошибок сохранён;</li>
     <li>каждая строка кода может быть объяснена устно (проверка преподавателем по любым трём строкам).</li>
   </ul>
   <div class="callout callout--tip"><div class="callout__title">Подсказка</div>
-  <p>Путь к файлу не запечатывайте строкой «C:\…» — берите CurrentProject.Path: тогда кнопка работает на любом компьютере, где база и CSV лежат рядом. Чтобы увидеть, куда процедура смотрит за файлом, выполните в Immediate <code>?CurrentProject.Path</code>.</p>
+  <p>Путь к файлу в коде не запечатывайте — его уже хранит сохранённая операция «spec_ИмпортКлиентов», созданная в модуле 4. Кнопка работает на любом компьютере, где база и CSV лежат рядом; если файл переедет, обновите путь один раз через «Внешние данные → Сохранённые операции импорта», не трогая код кнопки.</p>
   </div>
   <details class="solution">
     <summary>Показать эталонное решение</summary>
@@ -394,16 +395,13 @@ ORDER BY o.OrderID;</code></pre>
     On Error GoTo ErrHandler              ' 1. страховка: любую ошибку выполнения
                                           '    отправляем на метку ErrHandler внизу
 
-    DoCmd.TransferText acImportDelim, "spec_ИмпортКлиентов", "Customers_Staging", _
-                       CurrentProject.Path &amp; "\customers_import.csv", True
-    ' 2. само действие импорта:
-    '    acImportDelim       — импорт текста с разделителями (CSV);
-    '    "spec_ИмпортКлиентов"    — сохранённая спецификация: разделитель, кодировка,
-    '                          ZipCodePrefix как ТЕКСТ (ведущий ноль 04578);
-    '    "Customers_Staging" — таблица-приёмник (не main-таблица Customers!);
-    '    CurrentProject.Path &amp; "\customers_import.csv"
-    '                        — полный путь: папка базы + имя файла;
-    '    True                — первая строка файла содержит имена полей.
+    DoCmd.RunSavedImportExport "spec_ИмпортКлиентов"
+    ' 2. само действие импорта: запускаем сохранённую операцию "spec_ИмпортКлиентов" —
+    '    ту самую, что сохранена в модуле 4 флажком «Сохранить шаги импорта».
+    '    Все настройки уже внутри неё: разделитель «запятая», кодировка,
+    '    ZipCodePrefix как ТЕКСТ (ведущий ноль 04578), таблица-приёмник
+    '    "Customers_Staging" (не main-таблица Customers!) и путь к CSV,
+    '    поэтому путь файла и признак заголовков в коде не передаются.
 
     MsgBox "Импорт завершён: customers_import.csv загружен в Customers_Staging.", _
            vbInformation, "Импорт клиентов"
@@ -514,7 +512,7 @@ End Sub</code></pre>
 <table class="data-table">
 <thead><tr><th>Критерий</th><th>Отлично</th><th>Допустимо</th><th>Брак</th></tr></thead>
 <tbody>
-<tr><td>Чтение кода</td><td>объясняет устно каждую строку ExportCategoryToXlsx и btnImportCsv_Click, включая роль Exit Sub и ErrHandler</td><td>объясняет основные строки, путает назначение Dim и Set или аргументы TransferText</td><td>«скопировал и работает» — ни одна строка не объяснена</td></tr>
+<tr><td>Чтение кода</td><td>объясняет устно каждую строку ExportCategoryToXlsx и btnImportCsv_Click, включая роль Exit Sub и ErrHandler</td><td>объясняет основные строки, путает назначение Dim и Set или строку запуска сохранённого импорта RunSavedImportExport</td><td>«скопировал и работает» — ни одна строка не объяснена</td></tr>
 <tr><td>Отладка в VBE</td><td>использует F5, F8, F9, Locals и Immediate (Ctrl+G) осознанно; показывает вывод Debug.Print</td><td>запускает по F5, точку останова ставит по подсказке, Immediate не использует</td><td>VBE не открывался, код запускался только макросом</td></tr>
 <tr><td>Задание V02: импорт</td><td>кнопка btnImportCsv импортирует 3 строки, ZipCodePrefix с ведущим нулём, процедура в модуле формы</td><td>импорт работает, но процедура в стандартном модуле или без части MsgBox</td><td>импорт сделан вручную мастером, VBA не запускался</td></tr>
 <tr><td>Модификация под другой файл</td><td>btnImportProducts_Click меняет спецификацию, таблицу и файл, каркас ошибок сохранён, код прокомментирован</td><td>изменено только имя файла, спецификация и таблица старые или без проверки</td><td>второй процедуры нет, файл не менялся</td></tr>
@@ -531,7 +529,7 @@ End Sub</code></pre>
   <div>
     <p><strong>Шаг 1. Чтение и отладка.</strong> Импортируйте vba/export-examples.bas (Alt+F11 → File → Import File…), запустите ExportCategoryToXlsx по F5, пройдите её по F9/F8 с окном Locals, выполните в Immediate <code>?CurrentProject.Path</code>, затем добавьте SumRevenueByOrder из раздела «Пошаговая демонстрация» и сверьте вывод: 11 строк заказов и ИТОГО: 3025,50. Эта часть решения уже приведена в демонстрации и разделе «Ожидаемый результат» — не дублируем код, проверьте свои окна по таблицам.</p>
     <p><strong>Шаг 2. Кнопка импорта.</strong> Полный код btnImportCsv_Click (с построчными комментариями) — в карточке задания V02 выше; вставляйте его именно в модуль формы frm_Товары через построитель свойства «Нажатие кнопки». Файл customers_import.csv должен лежать в папке базы.</p>
-    <p><strong>Шаг 3. Модификация под другой файл.</strong> Копия процедуры для products_import.csv. Изменены ровно четыре места — спецификация, таблица-приёмник, имя файла и тексты сообщений; каркас On Error GoTo / Exit Sub / ErrHandler не тронут:</p>
+    <p><strong>Шаг 3. Модификация под другой файл.</strong> Копия процедуры для products_import.csv. Спецификация у неё классическая — spec_ИмпортТоваров (создаётся ручным импортом), поэтому здесь импорт вызывается через DoCmd.TransferText — сравните с RunSavedImportExport в исходной btnImportCsv_Click; свои — таблица-приёмник, имя файла и тексты сообщений; каркас On Error GoTo / Exit Sub / ErrHandler не тронут:</p>
     <pre class="code"><code class="lang-vba">Private Sub btnImportProducts_Click()
     ' Модификация V02: импорт products_import.csv в Products_Staging.
     ' Требования: CSV в папке базы; сохранённая спецификация "spec_ИмпортТоваров"
@@ -582,8 +580,7 @@ P-6003,Кабель HDMI 2 м,3,180</code></pre>
     ' Альтернатива: DoCmd.SetWarnings False : DoCmd.RunSQL "DELETE ..." :
     ' DoCmd.SetWarnings True — длиннее и опаснее, если забыть True.
 
-    DoCmd.TransferText acImportDelim, "spec_ИмпортКлиентов", "Customers_Staging", _
-                       CurrentProject.Path &amp; "\customers_import.csv", True
+    DoCmd.RunSavedImportExport "spec_ИмпортКлиентов"
 
     lngAfter = DCount("*", "Customers_Staging")    ' счётчик после загрузки
 
@@ -604,7 +601,7 @@ End Sub</code></pre>
 
 <section class="sec" id="s-summary" data-sec="summary">
 <h2>Краткое резюме</h2>
-<p>Вы прошли VBA так, как им пользуются аналитики: не с типов данных, а через чтение готовых процедур. Вы освоили VBE (Alt+F11): Project Explorer, Immediate (Ctrl+G) с Debug.Print и вопросами «?», Locals на паузе, запуск F5, шаг F8, остановка F9; разобрали каркас процедуры ExportCategoryToXlsx (Sub…End Sub, Dim, Set, With, DoCmd, On Error GoTo, Exit Sub, ErrHandler) и recordset-цикл с MoveNext и Close, сверив сумму 3025,50 по мини-датасету; узнали пять событий форм, рабочий набор DoCmd (OpenForm/OpenQuery/OpenReport с WhereCondition, OutputTo, TransferText/TransferSpreadsheet, RunSQL) и разницу между CurrentDb.Execute и RunSQL. В задании V02 вы запустили и модифицировали btnImportCsv_Click под второй файл. Дальше — модуль 13: импорт и экспорт как постоянный обмен данными — сохранённые экспорты, выбор между OutputTo, TransferSpreadsheet и TransferText, экспорт отчёта в PDF и импорт по расписанию; ваш VBA-опыт подскажет, где мастера заканчиваются и начинается код.</p>
+<p>Вы прошли VBA так, как им пользуются аналитики: не с типов данных, а через чтение готовых процедур. Вы освоили VBE (Alt+F11): Project Explorer, Immediate (Ctrl+G) с Debug.Print и вопросами «?», Locals на паузе, запуск F5, шаг F8, остановка F9; разобрали каркас процедуры ExportCategoryToXlsx (Sub…End Sub, Dim, Set, With, DoCmd, On Error GoTo, Exit Sub, ErrHandler) и recordset-цикл с MoveNext и Close, сверив сумму 3025,50 по мини-датасету; узнали пять событий форм, рабочий набор DoCmd (OpenForm/OpenQuery/OpenReport с WhereCondition, OutputTo, TransferText/TransferSpreadsheet, RunSQL, RunSavedImportExport) и разницу между CurrentDb.Execute и RunSQL. В задании V02 вы запустили и модифицировали btnImportCsv_Click под второй файл. Дальше — модуль 13: импорт и экспорт как постоянный обмен данными — сохранённые экспорты, выбор между OutputTo, TransferSpreadsheet и TransferText, экспорт отчёта в PDF и импорт по расписанию; ваш VBA-опыт подскажет, где мастера заканчиваются и начинается код.</p>
 </section>
 
 </article>
