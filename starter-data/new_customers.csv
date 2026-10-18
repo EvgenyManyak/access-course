@@ -1,0 +1,4 @@
+CustomerID;CustomerName;ZipCodePrefix;City;State;Segment
+C-0013;Igor Martins;04567;sao paulo;SP;Retail
+C-0014;Julia Ramos;1310;recife;PE;Wholesale
+C-0015;Pedro Nogueira;01310;sao paulo;SP;Retail
