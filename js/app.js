@@ -346,7 +346,7 @@
     var pageFooter = document.createElement('footer');
     pageFooter.className = 'page__footer';
     pageFooter.innerHTML =
-      '<span>Учебник «Microsoft Access для аналитика» · версия 1.0 · 2026</span>' +
+      '<span>Учебник «Microsoft Access для аналитика» · версия 1.1.10 · 2026</span>' +
       '<span>Сквозной датасет: ShopData (Olist Brazilian E-commerce)</span>';
     page.appendChild(pageFooter);
 
